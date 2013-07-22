@@ -169,7 +169,10 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
 	  pulse.set_start_time( t_start  );
 	  pulse.set_end_time  ( t_end    );
 	  pulse.set_max_time  ( t_max    );
-	  pulse.set_channel_number((uint16_t)i);
+	  pulse.set_channel_number((PMT::ch_number_t)i);
+	  pulse.set_timeslice((*pmt_data).timeslice());
+	  pulse.set_channel_frame_id((*pmt_data).channel_frame_id());
+	  pulse.set_disc_id((*pmt_data).disc_id());
 	  ((storage_manager*)storage)->get_pulse_collection_writeable()->push_back(pulse);
 	  
 	  event_charge     += pulse.charge(); 

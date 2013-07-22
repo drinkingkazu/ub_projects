@@ -63,8 +63,17 @@ public:
   /// Setter for pulse max time (peak point)
   void set_max_time(double v) {_max_time=v;};
 
+  /// Setter for discriminator id
+  void set_disc_id(PMT::DISCRIMINATOR id) { _disc_id=id; };
+
+  /// Setter for original waveform's frame number
+  void set_channel_frame_id(PMT::word_t id) { _channel_frame_id=id; };
+
+  /// Setter for original waveform's sample time-slice
+  void set_timeslice(PMT::word_t t) { _timeslice=t; };
+
   /// Getter for the channel number
-  PMT::ch_number_t channel_number() const {return _channel_number;};
+  PMT::ch_number_t channel_number() {return _channel_number;};
 
   /// Getter for pedestal mean
   double ped_mean () const { return _ped_mean;};
@@ -87,6 +96,15 @@ public:
   /// Getter for pulse max time (peak point)
   double max_timeconst () const { return _max_time;};
 
+  /// Getter for discriminator id
+  PMT::DISCRIMINATOR disc_id() const { return _disc_id;};
+
+  /// Getter for original waveform's frame number
+  PMT::word_t frame_id() const { return _channel_frame_id;};
+
+  /// Getter for original waveform's sample time-slice
+  PMT::word_t timeslice() const { return _timeslice;};
+
   /// Method to clear currently held data contents in the buffer
   virtual void clear_data();
 
@@ -107,9 +125,13 @@ private:
   double _start_time;               ///< pulse start time
   double _end_time;                 ///< pulse end time
   double _max_time;                 ///< pulse max time (where highestpeak is)
+
+  PMT::word_t _channel_frame_id;    ///< original waveofrm's readout frame id
+  PMT::word_t _timeslice;           ///< original waveform's sample number
+  PMT::DISCRIMINATOR _disc_id;      ///< original waveform's discriminator id
   
   ////////////////////////
-  ClassDef(pulse_info,1)
+  ClassDef(pulse_info,2)
   ////////////////////////
 };
 
