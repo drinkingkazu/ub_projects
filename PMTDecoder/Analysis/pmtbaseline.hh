@@ -91,6 +91,8 @@ private:
   double fpedrms;      //Beamgate ped rms
  
   double nsigma;
+
+  double min_peak;
   
   int max;
 

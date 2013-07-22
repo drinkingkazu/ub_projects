@@ -98,10 +98,11 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
   clear_event();
   
   //Set points to hold number of kept points
-  bgpoints=5;  //Beamgate
-  rdpoints=5;  //Random
-  max=15;
-  nsigma=5.0;
+  bgpoints = 5;  //Beamgate
+  rdpoints = 5;  //Random
+  max      = 15;
+  nsigma   = 5.0;
+  min_peak = 5.0;
   
   double event_charge=0;
   double event_amplitude=0;
@@ -149,13 +150,13 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
     
     for(PMT::ch_waveform_t::const_iterator adc_itr((*pmt_data).begin());
 	adc_itr!=(*pmt_data).end(); ++adc_itr) {
-      if(!fire && (*adc_itr)>(nsigma*fpedrms+fpedmean)) {
+      if(!fire && (*adc_itr)>(nsigma*fpedrms+fpedmean) && (*adc_itr)>(min_peak+fpedmean)) {
 	fire    = true;
 	t_start = time_counter;
       }
       
       if(fire) {
-	if((*adc_itr)<(nsigma*fpedrms+fpedmean)) {
+	if((*adc_itr)<(nsigma*fpedrms+fpedmean) && (*adc_itr)<(min_peak+fpedmean)) {
 	  npulse++;
 	  fire  = false;
 	  t_end = time_counter;  	  
