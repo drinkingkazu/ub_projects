@@ -1,0 +1,7 @@
+#
+# Original author: Kazuhiro Terao ... kazuhiro@nevis.columbia.edu
+#
+
+Anyone feel free to take this empty template generator.
+
+Kazu 
