@@ -14,5 +14,6 @@
 #pragma link C++ class std::set<uint32_t>+;
 #pragma link C++ class reco_wf+;
 #pragma link C++ class beamgate_debugger+;
+#pragma link C++ class pmtbaseline+;
 //ADD_NEW_CLASS ... do not change this line
 #endif
