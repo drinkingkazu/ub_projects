@@ -1,0 +1,76 @@
+###################################################
+
+# default target list
+all: .depend $(DICT).cc lib/$(SHLIB)  $(MAKE_TOP_DIR)/lib/$(SHLIB) 
+
+# define ROOTMAP and add it to the default target list, unless NO_ROOTMAP set
+ifndef NO_ROOTMAP
+ROOTMAP= $(MAKE_TOP_DIR)/lib/$(SHLIB:.so=.rootmap)
+all: $(ROOTMAP)
+
+endif
+
+# DCcmpat lib support
+#CFLAGS   += -D_$(OSNAME)_
+#CXXFLAGS += -D_$(OSNAME)_
+
+
+# root class dictionary
+$(DICT).cc: $(HEADERS) LinkDef.h
+	@echo '<< generating CINT >>'
+	@rootcint -f $(DICT).cc -c $(INCFLAGS) $(HEADERS) LinkDef.h
+
+# default rule for making .o files from .cc files
+.cc.o: 
+	@echo '<< compiling' $< '>>'
+	@$(CXX) $(CXXFLAGS) $(INCFLAGS) -c $<
+
+# rule for making shareable library
+lib/$(SHLIB): $(OBJECTS) $(DICT).o
+	@echo '<< generating $(SHLIB) >>'
+	@mkdir -p lib
+	@$(SOMAKER) $(SOFLAGS) -o lib/$(SHLIB) $(filter-out $(DICT).o, $(OBJECTS)) $(DICT).o
+
+# rule for making symlink in $(MAKE_TOP_DIR)/lib
+$(MAKE_TOP_DIR)/lib/$(SHLIB): lib/$(SHLIB)
+	@echo '<< installing $(SHLIB) in $(MAKE_TOP_DIR)/lib >>'
+	@mkdir -p $(MAKE_TOP_DIR)/lib
+	@ln -sf $(PWD)/lib/$(SHLIB) $(MAKE_TOP_DIR)/lib
+
+
+# if ROOTMAP defined, define rule for making it
+ifdef ROOTMAP
+$(ROOTMAP): $(MAKE_TOP_DIR)/lib/$(SHLIB)
+	@echo "<< Making rootmaps >>"
+	@cd $(MAKE_TOP_DIR)/lib && ./make_rootmap.sh
+	@rm $(MAKE_TOP_DIR)/lib/*.temp
+endif
+
+###################################################
+# "make clean" target
+clean:
+	@echo '<< cleaning all >>'
+	@rm -f $(DICT).* *.o lib*.so *~ .depend ./lib/*.o lib/lib*.so
+
+###################################################
+libclean:
+	@echo '<< clearning lib directory >>'
+	@rm -f $(MAKE_TOP_DIR)/lib/$(SHLIB) 
+	@rm -f lib/$(SHLIB) 
+
+###################################################
+clearCINT:
+	@echo '<< removing CINT >>'
+	@rm -f $(DICT).*
+
+
+###################################################
+# auto-generate dependencies using g++ -M
+.depend: $(SOURCES) $(HEADERS)
+	@#rm .depend
+	@echo '<< checking dependencies >>'
+	@g++ -M $(CXXFLAGS) $(INCFLAGS) $(SOURCES) > .depend
+
+-include .depend
+
+#ALWAYS:

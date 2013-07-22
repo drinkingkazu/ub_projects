@@ -1,0 +1,197 @@
+#################################
+#                               #
+# README for C++Project package #
+#                               #
+#################################
+
+This is an empty template package for anyone to build 
+their C++ projects bandled with ROOT. Following knowledge
+is recommended to make a good use of this package:
+
+(*) Basics of object oriented programming (like C++)
+(*) Basics of ROOT 
+
+Throughout this README, the directory where this README
+exists (C++Project by default) is referred as $THIS_DIR.
+
+#################
+#               #
+# Why Use This? #
+#               #
+#################
+
+You don't have to!
+
+There are two points I would like to advertise.
+
+(1) Learning tool for C++
+
+    Many students jump into ROOT CINT and learn very little
+    about actual programming. This maybe good enough for a
+    short term like one-summer-experience. As one proceeds, 
+    a strength in coding skill becomes apparent in how efficient
+    one can run analysis or do service tasks. 
+
+    Many experiments provide a software package full of rules
+    and contents already filled, which is sometimes very difficult
+    to compile your own code under their framework.
+
+    Do not misunderstand: THIS IS NOT C++'s FAULT!
+
+    An empty package like this allows you to design your own program
+    and even make your own framework. Only an external software
+    package (other than compilers) this depends on is ROOT, which
+    reason comes in the second part.
+
+(2) Building a compiled project in ROOT with dictionaries
+
+    Yes, you can compile things using ACLiC. Maybe I am an old 
+    sturborn person who wants to be aware of every single step
+    of compilation. But here's another good thing about compiling
+    using an old way.
+
+    The compilation method provided in this package allows you to
+    generate CINT library that can load your class definition on
+    the fly during CINT session (or even much better, PyROOT session).
+
+    This allows you to carry a CINT or PyROOT script to execute your
+    code while the code performance is kept very high as the source is
+    compiled into a binary. 
+
+
+
+##################
+#                #
+#  Introduction  #
+#                #
+##################
+
+To use this package, ROOTSYS has to be set.
+If you are on Nevis (*nevis.columbia.edu) or MIT (*cmsaf*)
+server machines, simply try the following.
+
+    > cd $THIS_DIR
+    > export MAKE_TOP_DIR=$THIS_DIR
+    > source config/setup.sh
+
+This sets ROOTSYS properly for registered DNS servers.
+Otherwise, set $ROOTSYS explicitly before calling setup.sh.
+You have to do these steps every time you log into the server.
+
+The package comes with an example called "simple" that
+can be found under $THIS_DIR/simple. To compile this,
+you can invoke "make" in either the package directory
+or under $THIS_DIR.
+
+    > cd $THIS_DIR
+    > make
+
+Then you should get a message telling things are compiled.
+This compiles a very simple C++ class called "foo". You can
+test your compiled program with an example CINT or PyROOT
+script:
+
+    > root -b -q $THIS_DIR/mac/example.C
+
+OR
+
+    > python $THIS_DIR/mac/example.py
+
+#######################
+#####   WARNING   #####
+#######################
+
+LArSoft annoyingly forces a change in gmake default preamble.
+In particular I confirmed it disables a use of ".cc.o" rule and "$<"
+expression both used in the makefile of this package.
+
+That being said, since LArSoft modules are not portable anyway,
+I suppose this package is not very useful to be compiled and used
+with LArSoft. You can still use a source and header defined in this
+package when compiling with your LArSoft module, though.
+
+###########################
+#                         #
+# Making Your Own Package #
+#                         #
+###########################
+
+Simply invoke:
+
+    > $THIS_DIR/gen_newpackage NAME
+
+where you should provide your package name as NAME above.
+This creates your package under $THIS_DIR. Look at its stdout
+to understand your options. But you can also just try this to
+get started:
+
+    > cd $THIS_DIR/NAME
+    > make
+
+This compiles your empty class called NAME defined in 
+$THIS_DIR/NAME.hh and implemented in $THIS_DIR/NAME.cc
+
+########################
+#                      #
+# Commenting & Doxygen #
+#                      #
+########################
+
+Doxygen is, whether you love or hate, one ofpopular tools 
+for comment documentation.  This package comes with a doxygen 
+script as well. A simple "foo" class provided under "simple" 
+package is commente in doxygen style. 
+
+First, install doxygen if not yet installed. It should be
+fairly straightforward even for mac osx. Google "doxygen".
+
+Once you have doxygen installed, try this:
+
+> cd $MAKE_TOP_DIR
+> make doxygen
+
+This generates a class index in a locally hosted html file.
+You can find the index.html here:
+
+> $MAKE_TOP_DIR/doc/doxygenMyProject/html/index.html 
+
+Open it with firefox or any web broweser you wish to use.
+You should see a class index of "foo". This way, you can share
+your comment with users of your package w/o providing a detailed
+documentation in pdf/tex format.
+
+
+Questions? Contact kazuhiro@nevis.columbia.edu
+
+Kazu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
