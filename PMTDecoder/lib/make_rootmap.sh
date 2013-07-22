@@ -35,7 +35,7 @@ rootlibmap libFileIO.rootmap libFileIO.so $MAKE_TOP_DIR/FileIO/LinkDef.h \
 ######################################################
 # Analysis
 rootlibmap libAnalysis.rootmap libAnalysis.so $MAKE_TOP_DIR/Analysis/LinkDef.h \
-    libBase.so libDataFormat.so 
+    libHist.so  libBase.so libDataFormat.so 
 
 ######################################################
 # Algorithm
