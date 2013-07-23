@@ -36,7 +36,10 @@ public:
 					   _charge(original._charge),
 					   _start_time(original._start_time),
 					   _end_time(original._end_time),
-					   _max_time(original._max_time)					   
+					   _max_time(original._max_time),
+					   _channel_frame_id(original._channel_frame_id),
+					   _timeslice(original._timeslice),
+					   _disc_id(original._disc_id)
   {};
 
   /// Setter for the channel number
@@ -73,7 +76,7 @@ public:
   void set_timeslice(PMT::word_t t) { _timeslice=t; };
 
   /// Getter for the channel number
-  PMT::ch_number_t channel_number() {return _channel_number;};
+  PMT::ch_number_t channel_number() const {return _channel_number;};
 
   /// Getter for pedestal mean
   double ped_mean () const { return _ped_mean;};
@@ -91,10 +94,10 @@ public:
   double start_time () const { return _start_time;};
 
   /// Getter for pulse end time
-  double end_timeconst () const { return _end_time;};
+  double end_time () const { return _end_time;};
 
   /// Getter for pulse max time (peak point)
-  double max_timeconst () const { return _max_time;};
+  double max_time () const { return _max_time;};
 
   /// Getter for discriminator id
   PMT::DISCRIMINATOR disc_id() const { return _disc_id;};
@@ -131,7 +134,7 @@ private:
   PMT::DISCRIMINATOR _disc_id;      ///< original waveform's discriminator id
   
   ////////////////////////
-  ClassDef(pulse_info,2)
+  ClassDef(pulse_info,3)
   ////////////////////////
 };
 
