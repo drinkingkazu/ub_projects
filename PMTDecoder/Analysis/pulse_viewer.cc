@@ -13,7 +13,26 @@ pulse_viewer::pulse_viewer() {
   _lRMSTop=0;
   _lRMSBottom=0;
   _lTop=0;
+
   clear_viewer();
+  reset_cuts();
+
+}
+
+void pulse_viewer::reset_cuts() {
+
+  _cut_tstart   = std::make_pair(-1,2000);
+  _cut_tend     = std::make_pair(-1,2000);
+  _cut_amp      = std::make_pair(-1,4096);
+  _cut_charge   = std::make_pair(-1,4096*2000);
+  _cut_pedbase  = std::make_pair(-1,4096);
+  _cut_pedrms   = std::make_pair(0,4096);
+  _cut_channels = std::make_pair(0,PMT::INVALID_CH);
+  _cut_event_id = std::make_pair(0,0xffffffff);
+  _cut_npulse   = std::make_pair(0,0xffffffff);
+  _cut_sum_charge = std::make_pair(0,4096*2000*PMT::NUM_PMT_CHANNEL);
+  _cut_sum_peak = std::make_pair(0,4096*PMT::NUM_PMT_CHANNEL);
+  
 }
 
 void pulse_viewer::clear_viewer() {
@@ -48,6 +67,7 @@ void pulse_viewer::clear_map(){
   _waveforms.clear();
   _pulse_count.clear();
   _channels.clear();
+
 }
 
 void pulse_viewer::add_channel_entry(PMT::ch_number_t ch){
@@ -80,7 +100,20 @@ bool pulse_viewer::analyze(const storage_manager* storage) {
     return false;
   }
 
-  _event_id = wfs.event_id();
+  _event_id    = wfs.event_id();
+  _sum_charge  = pulses.sum_charge();
+  _sum_peak    = pulses.sum_peak();
+  _npulse      = pulses.npulse();
+
+  // Check if this event is in the range of users' interest
+  if(_event_id < _cut_event_id.first || _cut_event_id.second < _event_id)
+    return true;
+  else if(_sum_charge < _cut_sum_charge.first || _cut_sum_charge.second < _sum_charge)
+    return true;
+  else if(_sum_peak < _cut_sum_peak.first || _cut_sum_peak.second < _sum_peak)
+    return true;
+  else if(_npulse < _cut_npulse.first || _cut_npulse.second < _npulse)
+    return true;
 
   // Clear map
   clear_map();
@@ -91,20 +124,40 @@ bool pulse_viewer::analyze(const storage_manager* storage) {
       ++iter){
 
     PMT::ch_number_t ch((*iter).channel_number());
-    PMT::word_t      sample((*iter).timeslice());
-    PMT::word_t      frame((*iter).frame_id());
+    PMT::word_t sample   = (*iter).timeslice();
+    PMT::word_t frame    = (*iter).frame_id();
+    double      t_start  = (*iter).start_time();
+    double      t_end    = (*iter).end_time();
+    double      charge   = (*iter).charge();
+    double      amp      = (*iter).pulse_peak();
+    double      ped_base = (*iter).ped_mean();
+    double      ped_rms  = (*iter).ped_rms();
+
+    // Check if this pulse passes the criteria
+    if(t_start < _cut_tstart.first || _cut_tstart.second < t_start)
+      continue;
+    if(t_end < _cut_tend.first || _cut_tend.second < t_end)
+      continue;
+    if(charge < _cut_charge.first || _cut_charge.second < charge)
+      continue;
+    if(amp < _cut_amp.first || _cut_amp.second < amp)
+      continue;
+    if(ped_base < _cut_pedbase.first || _cut_pedbase.second < ped_base)
+      continue;
+    if(ped_rms < _cut_pedrms.first || _cut_pedrms.second < ped_rms)
+      continue;    
 
     if(_channels.find(ch)==_channels.end())
       add_channel_entry(ch);
 
     _pulse_frame_id[ch].push_back(frame);
     _pulse_sample_number[ch].push_back(sample);
-    _pulse_tstart[ch].push_back((*iter).start_time());
-    _pulse_tend[ch].push_back((*iter).end_time());
-    _pulse_amp[ch].push_back((*iter).pulse_peak());
-    _pulse_charge[ch].push_back((*iter).charge());
-    _pulse_pedbase[ch].push_back((*iter).ped_mean());
-    _pulse_pedrms[ch].push_back((*iter).ped_rms());       
+    _pulse_tstart[ch].push_back(t_start);
+    _pulse_tend[ch].push_back(t_end);
+    _pulse_amp[ch].push_back(amp);
+    _pulse_charge[ch].push_back(charge);
+    _pulse_pedbase[ch].push_back(ped_base);
+    _pulse_pedrms[ch].push_back(ped_rms);
     
     //_waveforms[ch].push_back(std::vector<PMT::ch_adc_t>());
     if(_waveforms[ch].find(frame)==_waveforms[ch].end())
@@ -353,6 +406,29 @@ bool pulse_viewer::finalize() {
   delete _cWF;
   clear_viewer();
   return true;
+}
+
+void pulse_viewer::display_cut_ranges(){
+
+  std::string msg("Displaying the currently set values for cuts...\n");
+
+  msg = "\n";
+  msg += Form(" Event-wise parameters...\n");
+  msg += Form("    Event ID      : %d -> %d\n",_cut_event_id.first,_cut_event_id.second);
+  msg += Form("    Summed Charge : %g -> %g\n",_cut_sum_charge.first,_cut_sum_charge.second);
+  msg += Form("    Summed Peak   : %g -> %g\n",_cut_sum_peak.first,_cut_sum_peak.second);
+  msg += Form("    Num. Pulses   : %d -> %d\n",_cut_npulse.first,_cut_npulse.second);
+  msg += "\n";
+  msg += Form(" Pulse-wise parameters...\n");
+  msg += Form("    Pulse Charge  : %g -> %g\n",_cut_charge.first,_cut_charge.second);
+  msg += Form("    Pulse Peak    : %g -> %g\n",_cut_amp.first,_cut_amp.second);
+  msg += Form("    Pulse Start T : %g -> %g\n",_cut_tstart.first,_cut_tstart.second);
+  msg += Form("    Pulse End T   : %g -> %g\n",_cut_tend.first,_cut_tend.second);
+  msg += Form("    Pedestal Mean : %g -> %g\n",_cut_pedbase.first,_cut_pedbase.second);
+  msg += Form("    Pedestal RMS  : %g -> %g\n",_cut_pedrms.first,_cut_pedrms.second);
+
+  Message::send(MSG::NORMAL,__FUNCTION__,msg.c_str());
+
 }
 
 #endif

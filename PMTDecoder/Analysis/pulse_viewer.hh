@@ -25,7 +25,12 @@
 
 /**
    \class pulse_viewer
-   User custom analysis class made by kazuhiro
+   This is a class to visualize reconstructed pulse information together with the raw waveform on a histogram.
+   This helps to debug/understand pulse reconstruction algorithm output.
+   It is meant to be used interactively and not in a batch mode as it does not store any objects in an output.
+   It allows a user to specify a range for various pulse-wise and event-wise parameters so that one can
+   filter out irrelevant pulses from visualization routine (which can take time).
+   See Analysis/mac/pulse_viewer.py for an example usage.
  */
 class pulse_viewer : public ana_base{
 
@@ -37,55 +42,188 @@ public:
   /// Default destructor
   virtual ~pulse_viewer(){};
 
-  /** IMPLEMENT in pulse_viewer.cc!
-      Initialization method to be called before the analysis event loop.
-  */ 
+  /// Initialization method to be called before the analysis event loop.
   virtual bool initialize();
 
-  /** IMPLEMENT in pulse_viewer.cc! 
-      Analyze a data event-by-event  
-  */
+  /// Analyze a data event-by-event  
   virtual bool analyze(const storage_manager* storage);
 
-  /** IMPLEMENT in pulse_viewer.cc! 
-      Finalize method to be called after all events processed.
-  */
+  /// Finalize method to be called after all events processed.
   virtual bool finalize();
 
-  const TCanvas* get_canvas() const {return _cWF;};
-  const std::set<PMT::ch_number_t> get_hit_channels() const {return _channels;};
-  PMT::ch_number_t next_channel();
-  short get_npulse(PMT::ch_number_t ch);
+  /** CORE METHOD 1
+      Given the channel number, this method iterates over the locally stored
+      values for a reconstructed pulse. It visualize these information on
+      a canvas with the original waveform which is returned as TH1D object pointer.
+      The canvas can be retrieved through pulse_viewer::get_canvas() method after
+      you call this function.
+   */
   TH1D* next_pulse(PMT::ch_number_t ch);
+
+  /** CORE METHOD 2
+      Reverse iteration over reconstructed pulse as opposed to the iteration in an
+      ordinary order. See pulse_viewer::next_pulse() for details.
+  */
   TH1D* previous_pulse(PMT::ch_number_t ch);
+
+
+  /// Getter for TCanvas object pointer on which waveform & pulse info are visualized
+  const TCanvas* get_canvas() const {return _cWF;};
+
+  /// Getter for a set of channel numbers on which hist pulses are found.
+  const std::set<PMT::ch_number_t> get_hit_channels() const {return _channels;};
+
+  /** Iterator for a set of channels for which reconstructed pulses are found.
+      It is same as a user's own iterator over a set of channel numbers that
+      can be obtained from pulse_viewer::get_hit_channels(). This method is 
+      provided for reducing a coding need for writing users' own iterator loop.
+   */
+  PMT::ch_number_t next_channel();
+
+  /// Method to display cut values. 
+  void display_cut_ranges();
+
+  //
+  // Setters
+  //
+
+  /// Returns # of reconstructed pulse for a specified channel number
+  short get_npulse(PMT::ch_number_t ch);
+
+  /// Setter for the range of pusle start time to select pulses of interest
+  void set_range_pulse_start_time(double v1, double v2)   {_cut_tstart.first=v1;   _cut_tstart.second=v2;   };
+
+  /// Setter for the range of pusle end time to select pulses of interest..
+  void set_range_pulse_end_time(double v1, double v2)     {_cut_tend.first=v1;     _cut_tend.second=v2;     };
+
+  /// Setter for the range of pusle amplitude to select pulses of interest..
+  void set_range_pulse_amp(double v1, double v2)          {_cut_amp.first=v1;      _cut_amp.second=v2;      };
+
+  /// Setter for the range of integrated charge to select pulses of interest..
+  void set_range_pulse_charge(double v1,double v2)        {_cut_charge.first=v1;   _cut_charge.second=v2;   };
+
+  /// Setter for the range of pedestal mean value to select pulses of interest..
+  void set_range_ped_mean(double v1, double v2)           {_cut_pedbase.first=v1;  _cut_pedbase.second=v2;  };
+
+  /// Setter for the range of pedestal rms to select pulses of interest..
+  void set_range_ped_rms(double v1, double v2)            {_cut_pedrms.first=v1;   _cut_pedrms.second=v2;   };
+
+  /// Setter for the range of event id to select pulses of interest.
+  void set_range_event_id(PMT::word_t v1, PMT::word_t v2) {_cut_event_id.first=v1; _cut_event_id.second=v2; };
+
+  /// Setter for the range of channel numbers to select pulses of interest.
+  void set_range_channel(PMT::ch_number_t v1, PMT::ch_number_t v2) {_cut_channels.first=v1; _cut_channels.second=v2;};
+
+  /// Setter for the range of event charge sum to select pulses of interest.
+  void set_range_sum_charge(double v1, double v2)         {_cut_sum_charge.first=v1; _cut_sum_charge.second=v2;};
+
+  /// Setter for the range of event peak sum to select pulses of interest.
+  void set_range_sum_peak(double v1, double v2)           {_cut_sum_peak.first=v1; _cut_sum_peak.second=v2;};
+
+  /// Setter for the range of event-wise number of pulses to select pulses of interest.
+  void set_range_npulse(double v1, double v2)             {_cut_npulse.first=v1; _cut_npulse.second=v2;};
+
+
+  //
+  // Getters
+  //
+
+  /// Getter for the range of pusle start time to select pulses of interest
+  const std::pair<double,double> range_pulse_start_time() const   {return _cut_tstart;};
+
+  /// Getter for the range of pusle end time to select pulses of interest..
+  const std::pair<double,double> range_pulse_end_time() const     {return _cut_tend;};
+
+  /// Getter for the range of pusle amplitude to select pulses of interest..
+  const std::pair<double,double> range_pulse_amp() const          {return _cut_amp;};
+
+  /// Getter for the range of integrated charge to select pulses of interest..
+  const std::pair<double,double> range_pulse_charge() const       {return _cut_charge;};
+
+  /// Getter for the range of pedestal mean value to select pulses of interest..
+  const std::pair<double,double> range_ped_mean() const           {return _cut_pedbase;};
+
+  /// Getter for the range of pedestal rms to select pulses of interest..
+  const std::pair<double,double> range_ped_rms() const            {return _cut_pedrms;};
+
+  /// Getter for the range of event id to select pulses of interest.
+  const std::pair<PMT::word_t,PMT::word_t> range_event_id() const {return _cut_event_id;};
+
+  /// Getter for the range of channel numbers to select pulses of interest.
+  const std::pair<PMT::word_t,PMT::word_t> range_channel() const  {return _cut_channels;};
+
+  /// Getter for the range of event charge sum to select pulses of interest.
+  const std::pair<double,double> range_sum_charge() const         {return _cut_sum_charge;};
+
+  /// Getter for the range of event peak sum to select pulses of interest.
+  const std::pair<double,double> range_sum_peak() const           {return _cut_sum_peak;};
+
+  /// Getter for the range of event-wise number of pulses to select pulses of interest.
+  const std::pair<uint32_t,uint32_t> range_npulse() const         {return _cut_npulse;};
 
 protected:
 
+  /// reset cut values
+  void reset_cuts();
+
+  /// clear data holder map objects
   void clear_map();
+  
+  /// clear viewer related TObjects on the heap
   void clear_viewer();
+  
+  /** returns a waveform TH1D object ... to be called internally from pulse_viewer::next_pulse() and
+      pulse_viewer::previous_pulse(). Note that it does not perform a check of array index validity
+      as it assumes the parent function does such validity check.
+  */
   TH1D* get_waveform(PMT::ch_number_t ch, size_t index);
+
+  /// a method to add entries to lots of map objects to hold pulse info
   void add_channel_entry(PMT::ch_number_t ch);
 
-  std::set<PMT::ch_number_t>                           _channels;
-  std::set<PMT::ch_number_t>::iterator                 _ch_iter;
-  std::map<PMT::ch_number_t,std::pair<short,short> >   _pulse_count;
-  std::map<PMT::ch_number_t,std::vector<PMT::word_t> > _pulse_frame_id;
-  std::map<PMT::ch_number_t,std::vector<PMT::word_t> > _pulse_sample_number;
-  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_tstart;
-  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_tend;
-  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_amp;  
-  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_charge;
-  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_pedbase;
-  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_pedrms;
-  
-  //std::map<PMT::ch_number_t,std::vector< std::vector<PMT::ch_adc_t> > > _waveforms;
-  std::map<PMT::ch_number_t,std::map<PMT::word_t,std::map<PMT::word_t,std::vector<PMT::ch_adc_t> > > > _waveforms;
+  PMT::word_t _event_id;   ///< event id holder
+  double      _sum_charge; ///< event-wise summed charge holder
+  double      _sum_peak;   ///< event-wise summed peak height holder
+  uint32_t    _npulse;     ///< event-wise number of reco-ed pulse holder
+  std::set<PMT::ch_number_t>                           _channels;             ///< set of channel numbers for reco-ed pulses
+  std::set<PMT::ch_number_t>::iterator                 _ch_iter;              ///< internal iterator for _channels member
+  /** Map of pulse count: the first element in the pair holds the total reco-ed pulse count while the second
+      element holds the internal index to be updated by pulse_viewer::next_pulse() and pulse_viewer::previous_pulse() methods.
+  */
+  std::map<PMT::ch_number_t,std::pair<short,short> >   _pulse_count;          
+  std::map<PMT::ch_number_t,std::vector<PMT::word_t> > _pulse_frame_id;       ///< a set of frame id
+  std::map<PMT::ch_number_t,std::vector<PMT::word_t> > _pulse_sample_number;  ///< a set of sample numbers
+  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_tstart;         ///< a set of reco-ed pulse start time
+  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_tend;           ///< a set of reco-ed pulse end time
+  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_amp;            ///< a set of reco-ed pulse amplitude
+  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_charge;         ///< a set of reco-ed pulse charge
+  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_pedbase;        ///< a set of reco-ed pulse pedestal baseline mean
+  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_pedrms;         ///< a set of reco-ed pulse pedestal baseline standard deviation
+  std::map<PMT::ch_number_t,std::map<PMT::word_t,std::map<PMT::word_t,std::vector<PMT::ch_adc_t> > > > _waveforms; ///< waveform containers
 
-  PMT::word_t _event_id;
+  /// Local canvas poitner
   TCanvas* _cWF;
-  TH1D* _hWF;
-  TLine *_lStart, *_lEnd, *_lBase, *_lRMSTop, *_lRMSBottom, *_lTop;
   
+  /// Waveform container histogram pointer
+  TH1D* _hWF;
+
+  /// TLine pointers to display pule start time, end time, pedestal baseline mean and deviations
+  TLine *_lStart, *_lEnd, *_lBase, *_lRMSTop, *_lRMSBottom, *_lTop;
+
+  /// pairs to define a range of pulse parameters for displaying pulses.
+  std::pair<double,double> _cut_tstart, _cut_tend, _cut_amp, _cut_charge, _cut_pedbase, _cut_pedrms;
+
+  /// pairs to define a range of event parameters for displaying pulses.
+  std::pair<double,double> _cut_sum_charge, _cut_sum_peak;
+
+  /// pairs to define a range of event parameters for displaying pulses.
+  std::pair<uint32_t,uint32_t> _cut_npulse;  
+
+  /// a pair to define a range of event id for displaying pulses.
+  std::pair<PMT::word_t,PMT::word_t> _cut_event_id;
+
+  /// a pair to define a range of channel numbers for displaying pulses.
+  std::pair<PMT::ch_number_t,PMT::ch_number_t> _cut_channels;
 };
 
 #endif
