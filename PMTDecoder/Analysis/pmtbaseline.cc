@@ -102,7 +102,7 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
   rdpoints = 5;  //Random
   max      = 15;
   nsigma   = 5.0;
-  min_peak = 5.0;
+  min_peak = 3.0;
   
   double event_charge=0;
   double event_amplitude=0;
@@ -156,11 +156,10 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
       }
       
       if(fire) {
-	if((*adc_itr)<(nsigma*fpedrms+fpedmean) && (*adc_itr)<(min_peak+fpedmean)) {
+	if((*adc_itr)<(nsigma*fpedrms+fpedmean) || (*adc_itr)<(min_peak+fpedmean)) {
 	  npulse++;
 	  fire  = false;
 	  t_end = time_counter;  	  
-	
 	
 	  pulse_info pulse;
 	  pulse.set_ped_mean  ( fpedmean );
