@@ -153,6 +153,8 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
       if(!fire && (*adc_itr)>(nsigma*fpedrms+fpedmean) && (*adc_itr)>(min_peak+fpedmean)) {
 	fire    = true;
 	t_start = time_counter;
+	q_pulse = 0;
+	a_pulse = 0;
       }
       
       if(fire) {
@@ -177,7 +179,8 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
 	  
 	  event_charge     += pulse.charge(); 
 	  event_amplitude  += pulse.pulse_peak();
-  
+	  
+	  
 	
 	} else {
 	  q_pulse += (*adc_itr) - fpedmean;
