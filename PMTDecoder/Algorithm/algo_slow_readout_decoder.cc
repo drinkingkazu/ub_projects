@@ -294,7 +294,8 @@ bool algo_slow_readout_decoder::decode_event_header(const PMT::word_t *event_hea
 
 
 #ifdef INCLUDE_EXTRA_HEADER
-  _event_data->set_trigger_frame_id( ((event_header[5]>>16) & 0xfff)>>4 & 0xf ); 
+  _event_data->set_trigger_frame_id( (((event_header[5]>>16) & 0xfff)>>4 & 0xf) + 
+				     (((_event_data->event_frame_id())>>4)<<4) ); 
   _event_data->set_trigger_timeslice( (((event_header[5]>>16) & 0xf)<<8) + (event_header[5] & 0xff) );
 #endif
 
