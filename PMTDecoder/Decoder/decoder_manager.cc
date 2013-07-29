@@ -97,12 +97,20 @@ bool decoder_manager::decode() {
 
     status=_decoder->process_word(word);
 
+    /*
     if(status) {
       for(std::vector<ana_base*>::iterator iter(_analyzers.begin());
 	  iter!=_analyzers.end();
 	    ++iter)
 	(*iter)->analyze(_storage);
     }
+    */
+
+    if(!status && _debug_mode){       
+      Message::send(MSG::ERROR,__FUNCTION__,"Process status failure ... but continue since DEBUG mode!");
+      status=true;
+    }
+
     word=_fin.read_word();
     if(_storage->get_index()==(ctr*2000)){
       time(&watch);
@@ -112,7 +120,7 @@ bool decoder_manager::decode() {
     }
   }
   
-  if(!status){
+  if(!status && !_debug_mode){
     sprintf(_buf,"Event loop terminated. Last event: %d  ... stored: %d events",
 	    _storage->get_event_waveform().event_id(),
 	    _storage->get_entries());
