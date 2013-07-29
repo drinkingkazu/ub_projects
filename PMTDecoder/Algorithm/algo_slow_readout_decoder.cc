@@ -77,6 +77,22 @@ bool algo_slow_readout_decoder::process_word(PMT::word_t word) {
   // Let other members to deal with expected/unexpected case
   //
 
+  // If in back_trace mode, add this word in record
+  if(_bt_mode){
+    
+    // Check if buffer is filled
+    if(!_bt_nwords_filled)
+      _bt_nwords_filled = (_bt_nwords == _bt_words.size());
+
+    // If filled, remove the oldest element
+    if(_bt_nwords_filled)
+      _bt_words.pop_front();
+
+    // Add new word
+    _bt_words.push_back(word);
+
+  }
+
   // IF data pointer is not set, set
   if(!_event_data) {
     _event_data=_storage->get_event_waveform_writeable();

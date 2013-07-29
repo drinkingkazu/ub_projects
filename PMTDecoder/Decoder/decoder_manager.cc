@@ -106,9 +106,13 @@ bool decoder_manager::decode() {
     }
     */
 
-    if(!status && _debug_mode){       
-      Message::send(MSG::ERROR,__FUNCTION__,"Process status failure ... but continue since DEBUG mode!");
-      status=true;
+    if(!status){
+      if(_decoder->backtrace_mode())
+	_decoder->backtrace();
+      if(_debug_mode){
+	Message::send(MSG::ERROR,__FUNCTION__,"Process status failure ... but continue since DEBUG mode!");
+	status=true;
+      }
     }
 
     word=_fin.read_word();

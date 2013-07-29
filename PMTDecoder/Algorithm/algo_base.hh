@@ -16,6 +16,7 @@
 #define ALGO_BASE
 
 #include "storage_manager.hh"
+#include <deque>
 
 /**
    \class algo_base
@@ -27,7 +28,14 @@ class algo_base : public decoder_base {
 public:
 
   /// Default constructor 
-  algo_base() { _name="algo_base"; _storage=0; _debug_mode=false;};
+  algo_base() { 
+    _name="algo_base"; 
+    _storage=0; 
+    _debug_mode=false; 
+    _bt_mode=false;
+    _bt_nwords=0;
+    _bt_nwords_filled=false;
+  };
 
   /// Default destructor 
   virtual ~algo_base(){}; 
@@ -54,6 +62,15 @@ public:
   /// Expects a storage pointer to be provided from a parent class. 
   void set_storage_ptr(storage_manager* storage){_storage=storage;};
 
+  /// Run utility: set back-trace mode. One should provide number of words to be stored.
+  void set_backtrace_mode(size_t nwords=0){
+    _bt_nwords=nwords;
+    _bt_mode=(bool)(nwords);
+  };
+
+  /// Getter for backtrace mode (returns # words specified to store. 0=no backtrace)
+  size_t backtrace_mode() const {return _bt_nwords;};
+
   /** A method to check event quality upon saving in the output file.
       Children should implement.
    */
@@ -61,6 +78,19 @@ public:
 
   /// Function to reset variables for new usage
   virtual void reset(){ init_checker_info(); _storage=0;};
+
+  /// Function to print out stored words in buffer for back-trace purpose.
+  inline void backtrace() const
+  {
+    int ctr=0;
+    for(std::deque<PMT::word_t>::const_iterator iter(_bt_words.begin());
+	iter!=_bt_words.end();
+	++iter) {
+      printf("%x ",(*iter));
+      if(ctr%8==0) std::cout<<std::endl;
+      ctr++;
+    }
+  };
   
 protected:
 
@@ -71,7 +101,8 @@ protected:
   //
   // Run control 
   //
-  bool    _debug_mode;    ///< Debug mode boolean holder
+  bool    _debug_mode;  ///< Debug mode boolean holder
+  bool    _bt_mode;     ///< Back-trace mode boolean holder
 
   //
   // Constants
@@ -88,9 +119,16 @@ protected:
   //
   // Checker variables
   //
-  PMT::word_t _checksum; ///< data checksum
-  PMT::word_t _nwords;   ///< number of data word counts processed
-  
+  PMT::word_t _checksum;  ///< data checksum
+  PMT::word_t _nwords;    ///< number of data word counts processed
+
+  //
+  // Back-trace tools
+  //
+  std::deque<PMT::word_t> _bt_words; ///< processed words to be stored event-wise for back-trace purpose  
+  size_t _bt_nwords;                 ///< user defined # of words to be temporarily stored in the buffer
+  bool   _bt_nwords_filled;          ///< run utility boolean to keep a recored of filled buffer
+
 };
 #endif
 
