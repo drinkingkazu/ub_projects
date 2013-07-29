@@ -51,7 +51,7 @@ public:
   bool write_word(const PMT::word_t word);
 
   /// Send an array of words to this method to write out in WRITE mode.
-  bool write_multi_word(const PMT::word_t *words, const PMT::word_t entries);
+  bool write_multi_word(const PMT::word_t *words, const size_t entries);
 
   /// Receive 32-bit word from this method in READ mode.
   PMT::word_t read_word();

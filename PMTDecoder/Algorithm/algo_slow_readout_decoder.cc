@@ -37,6 +37,8 @@ void algo_slow_readout_decoder::init_ch_info(){
 void algo_slow_readout_decoder::init_event_info(){
 
   _event_header_count=0;
+  _last_channel_number=PMT::INVALID_CH;
+  _last_disc_id=PMT::DISC_MAX;
   _beam_event=false;
   _beam_ref_sample=PMT::INVALID_WORD;
   _beam_ref_nwords=PMT::INVALID_WORD;
@@ -510,13 +512,29 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
     // This is channel ADC count or possibly remaining channel header info
     // The first two sample are treated as channel header info
     if(last_word_class!=FORMAT::CHANNEL_HEADER && 
-       last_word_class!=FORMAT::CHANNEL_WORD      ) {
+       last_word_class!=FORMAT::CHANNEL_WORD &&
+       last_word_class!=FORMAT::CHANNEL_LAST_WORD ) {
       // Sanity check: the last word should be either channel header or data word.
       sprintf(_buf,"Missing a channel header word! Current word: %x ... Last word class %d",word,last_word_class);
       Message::send(MSG::ERROR,__FUNCTION__,_buf);
 		    
       status=false;
     }else{
+      // Treat a case of missing very first channel header word: happens when there is no time in between two readout data.
+      if(last_word_class==FORMAT::CHANNEL_LAST_WORD){
+	// In this case, we should be missing the CHANNEL_HEADER because this pulse is from the same channel & discriminator id.
+	// Do an operation that is done for the case of CHANNEL_HEADER, but use a stored value of channel number & disc. id.
+	init_ch_info();
+	_ch_data.set_channel_number(_last_channel_number);
+	_ch_data.set_disc_id(_last_disc_id);
+	if(_verbosity[MSG::NORMAL])
+	  Message::send(MSG::NORMAL,__FUNCTION__,
+			"Found consecutively readout data arrays (missing channel very first header)!");
+      }
+
+      //
+      // Ordinary operation for channel header / adc words
+      //
       if(_channel_header_count==CHANNEL_HEADER_COUNT ) {
 	// Finished reading in header words. This should be a mere ADC count.
 	if(word_class!=FORMAT::CHANNEL_LAST_WORD)
@@ -536,27 +554,28 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
 	  Message::send(MSG::INFO,_buf);
 	}
       }
-    }
-    if(word_class==FORMAT::CHANNEL_LAST_WORD){
-      if(_verbosity[MSG::INFO]){
-	sprintf(_buf,"Encountered the last word (%x) for channel %d",word,_ch_data.channel_number());
-	Message::send(MSG::INFO,_buf);
-	sprintf(_buf,"Event frame  : %d",_event_data->event_frame_id());
-	Message::send(MSG::INFO,_buf);
-	sprintf(_buf,"PMT frame    : %d",_ch_data.channel_frame_id());
-	Message::send(MSG::INFO,_buf);
-	sprintf(_buf,"Start Time   : %d",_ch_data.timeslice());
-	Message::send(MSG::INFO,_buf);
-	sprintf(_buf,"# ADC sample : %zd",_ch_data.size());
-	Message::send(MSG::INFO,_buf);
+
+      // If this is channel's last word, store & clear channel info
+      if(word_class==FORMAT::CHANNEL_LAST_WORD){
+	if(_verbosity[MSG::INFO]){
+	  sprintf(_buf,"Encountered the last word (%x) for channel %d",word,_ch_data.channel_number());
+	  Message::send(MSG::INFO,_buf);
+	  sprintf(_buf,"Event frame  : %d",_event_data->event_frame_id());
+	  Message::send(MSG::INFO,_buf);
+	  sprintf(_buf,"PMT frame    : %d",_ch_data.channel_frame_id());
+	  Message::send(MSG::INFO,_buf);
+	  sprintf(_buf,"Start Time   : %d",_ch_data.timeslice());
+	  Message::send(MSG::INFO,_buf);
+	  sprintf(_buf,"# ADC sample : %zd",_ch_data.size());
+	  Message::send(MSG::INFO,_buf);
+	}
+	if( _print_adcval )
+	  print_adc_values();
+	store_ch_data();
+	init_ch_info();
       }
-      if( _print_adcval )
-	print_adc_values();
-      store_ch_data();
-      init_ch_info();
     }
     break;
-
   case FORMAT::FEM_LAST_WORD:
   case FORMAT::EVENT_LAST_WORD:
     break;
@@ -577,6 +596,13 @@ void algo_slow_readout_decoder::store_ch_data(){
   }
   _event_data->push_back(_ch_data);
   
+  // Store this waveform's channel number and discriminator id.
+  // This may be used in the next pulse in case the next pulse is coming with no time space in between.
+  // In such case, the next pulse is missing the channel very first header word because it is supposed
+  // to be combined.
+  _last_channel_number=_ch_data.channel_number();
+  _last_disc_id=_ch_data.disc_id();
+
 }
 
 #endif

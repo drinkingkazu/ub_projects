@@ -125,6 +125,8 @@ protected:
   PMT::word_t _event_header_words[EVENT_HEADER_COUNT]; ///< Event header word holder
   pmt_waveform _ch_data;                               ///< Channel data holder.
   event_waveform *_event_data;                         ///< Event waveform
+  PMT::DISCRIMINATOR _last_disc_id;                   ///< Holder of last channel data's disc. id
+  PMT::ch_number_t _last_channel_number;               ///< Holder of last channel data's channel number
 
   //
   // Run control variable

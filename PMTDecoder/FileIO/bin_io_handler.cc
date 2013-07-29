@@ -125,7 +125,7 @@ bool bin_io_handler::write_word(const PMT::word_t word) {
   return write_multi_word(_single_word,1);
 }
 
-bool bin_io_handler::write_multi_word(const PMT::word_t* words, const PMT::word_t entries){
+bool bin_io_handler::write_multi_word(const PMT::word_t* words, const size_t entries){
 
   //
   // Only function that can assign OPERATING status in WRITE mode.
@@ -159,15 +159,7 @@ bool bin_io_handler::write_multi_word(const PMT::word_t* words, const PMT::word_
   }
   else {
     
-    for(uint32_t index=0; index<entries; ++index) {
-      
-      fwrite(&words[index],sizeof(entries),1,_handler);
-
-      _nwords_in_file++;
-      
-      _checksum+=words[index];
-
-    }
+    fwrite(&words[0],sizeof(PMT::word_t),entries,_handler);
 
   }
 
