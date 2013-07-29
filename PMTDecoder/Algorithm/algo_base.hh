@@ -82,14 +82,16 @@ public:
   /// Function to print out stored words in buffer for back-trace purpose.
   inline void backtrace() const
   {
-    int ctr=0;
+    Message::send(MSG::WARNING,__FUNCTION__,"Dumping a backtrace...");
+    int ctr=1;
     for(std::deque<PMT::word_t>::const_iterator iter(_bt_words.begin());
 	iter!=_bt_words.end();
 	++iter) {
       printf("%x ",(*iter));
-      if(ctr%8==0) std::cout<<std::endl;
+      if(ctr%8==0 && ctr) std::cout<<std::endl;
       ctr++;
     }
+    std::cout<<std::endl<<std::endl;
   };
   
 protected:

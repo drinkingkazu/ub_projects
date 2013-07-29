@@ -19,10 +19,18 @@ int main(int argc, char** argv){
   // Create the decoder instance
   decoder_manager decoder;
 
+  // Choose your decoder algorithm
+  algo_base* myalgo = new algo_xmit_decoder();
+  //algo_base* myalgo = new algo_slow_readout_decoder();
+  //algo_base* myalgo = new algo_trig_decoder();
+
+  // If needed, set # words for backtrace.
+  // In case of an error, decoder will print out this number of words being processed
+  // prior to encountering the error word.
+  myalgo->set_backtrace_mode(200);
+
   // Attach a decoder algorithm ... currently xmit, slow, or trigger
-  decoder.set_decoder(new algo_xmit_decoder());
-  //decoder.set_decoder(new algo_slow_readout_decoder());
-  //decoder.set_decoder(new algo_trig_decoder());
+  decoder.set_decoder(myalgo);
 
   // Set data type to be written in the output
   decoder.set_data_to_write(PMT::EVENT_WF);
@@ -53,7 +61,8 @@ int main(int argc, char** argv){
   // missing event words or conflicting encoding algorithm, and continue
   // in the decoding event loop. When turned off, the program exits as
   // soon as it encounters any issue.
-  decoder.debug_mode(false);
+  //decoder.debug_mode(false);
+  decoder.debug_mode(true);
 
   // Finish configuration. Now run it.
   decoder.run();
