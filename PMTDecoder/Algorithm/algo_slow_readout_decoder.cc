@@ -107,9 +107,6 @@ bool algo_slow_readout_decoder::process_word(PMT::word_t word) {
       Message::send(MSG::ERROR,__FUNCTION__,_buf);
 
       if(_debug_mode) {
-	Message::send(MSG::WARNING,__FUNCTION__,
-		      "DEBUG mode => continuing....");
-	
 	// Check data quality: return is not relevant as this is debug mode.
 	if(_beam_event) apply_beamgate_correction();
 	status = check_event_quality();
@@ -117,10 +114,10 @@ bool algo_slow_readout_decoder::process_word(PMT::word_t word) {
 	init_event_info();
 	// Process this as a header 
 	if(!status){
-	  sprintf(_buf,"Skipping to save event %d due to status flag!",_event_data->event_id());
-	  Message::send(MSG::ERROR,__FUNCTION__,_buf);
+	  sprintf(_buf,"DEBUG mode-> continue ... but Skip saving event: %d ",_event_data->event_id());
+	  Message::send(MSG::WARNING,__FUNCTION__,_buf);
 	}else{
-	  sprintf(_buf,"Though missing end-of-event word, checksum agreed. Stored previous event: %d",_event_data->event_id());
+	  sprintf(_buf,"DEBUG mode-> continue ... Good checksum -> stored previous event: %d",_event_data->event_id());
 	  Message::send(MSG::WARNING,__FUNCTION__,_buf);
 	  _storage->next_event();
 	}
