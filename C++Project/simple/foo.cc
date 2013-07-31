@@ -2,6 +2,9 @@
 // Example super simple class implemenataion
 //
 
+#ifndef FOO_CC
+#define FOO_CC
+
 #include "foo.hh"
 
 void foo::speak(){
@@ -9,3 +12,4 @@ void foo::speak(){
   return;
 }
 
+#endif
