@@ -2,7 +2,7 @@ import ROOT,sys
 
 ROOT.gSystem.Load("libAnalysis")
 
-from ROOT import ana_processor, PMT, pulse_viewer, storage_manager,std
+from ROOT import *
 
 def main(pv_ptr) :
 
@@ -12,7 +12,7 @@ def main(pv_ptr) :
     
     proc.set_io_mode(storage_manager.READ)
     
-    proc.set_data_to_read(PMT.PULSE_COLLECTION)
+    proc.set_data_to_read(DATA_STRUCT.PULSE_COLLECTION)
     
     proc.add_input_file(sys.argv[1])
     
@@ -89,16 +89,17 @@ def change_cut_values(pv_ptr):
         msg += " ... type \"d\"\n"
         msg += "\n"
         msg += "Options:\n"
-        msg += "    1 ... Event ID\n"
-        msg += "    2 ... Summed Charge\n"
-        msg += "    3 ... Summed Peak\n"
-        msg += "    4 ... Num. Pulses\n"
-        msg += "    5 ... Pulse Charge\n"
-        msg += "    6 ... Pulse Peak\n"
-        msg += "    7 ... Pulse Start T\n"
-        msg += "    8 ... Pulse End T\n"
-        msg += "    9 ... Pedestal Mean\n"
-        msg += "   10 ... Pedestal RMS\n"
+        msg += "    1  ... Event ID\n"
+        msg += "    2  ... Summed Charge\n"
+        msg += "    3  ... Summed Peak\n"
+        msg += "    4  ... Num. Pulses\n"
+        msg += "    5  ... Pulse Charge\n"
+        msg += "    6  ... Pulse Peak\n"
+        msg += "    7  ... Pulse Start T\n"
+        msg += "    8  ... Pulse Start T (RECO-ed)\n"
+        msg += "    9  ... Pulse End T\n"
+        msg += "    10 ... Pedestal Mean\n"
+        msg += "    11 ... Pedestal RMS\n"
         msg += "\n"
         
         print msg
@@ -149,9 +150,10 @@ def change_cut_values(pv_ptr):
                 elif option=="5" : pv_ptr.set_range_pulse_charge(float(min_val),float(max_val))
                 elif option=="6" : pv_ptr.set_range_pulse_amp(float(min_val),float(max_val))
                 elif option=="7" : pv_ptr.set_range_pulse_start_time(float(min_val),float(max_val))
-                elif option=="8" : pv_ptr.set_range_pulse_end_time(float(min_val),float(max_val))
-                elif option=="9" : pv_ptr.set_ped_mean(float(min_val),float(max_val))
-                elif option=="10": pv_ptr.set_ped_rms(float(min_val),float(max_val))
+                elif option=="8" : pv_ptr.set_range_pulse_start_time_reco(float(min_val),float(max_val))
+                elif option=="9" : pv_ptr.set_range_pulse_end_time(float(min_val),float(max_val))
+                elif option=="10": pv_ptr.set_ped_mean(float(min_val),float(max_val))
+                elif option=="11": pv_ptr.set_ped_rms(float(min_val),float(max_val))
                 else :
                     msg  = "\033[91m"
                     msg += 'Option case \"%s\" not handled ... this is an issue of %s script!!!' % (option,__main__.__file__)

@@ -13,7 +13,7 @@ pulse_viewer::pulse_viewer() {
   _lRMSTop=0;
   _lRMSBottom=0;
   _lTop=0;
-
+  
   clear_viewer();
   reset_cuts();
 
@@ -21,6 +21,7 @@ pulse_viewer::pulse_viewer() {
 
 void pulse_viewer::reset_cuts() {
 
+  _cut_tstart_reco = std::make_pair(-1,2000);
   _cut_tstart   = std::make_pair(-1,2000);
   _cut_tend     = std::make_pair(-1,2000);
   _cut_amp      = std::make_pair(-1,4096);
@@ -59,6 +60,7 @@ void pulse_viewer::clear_map(){
   _pulse_frame_id.clear();
   _pulse_sample_number.clear();
   _pulse_tstart.clear();
+  _pulse_tstart_reco.clear();
   _pulse_tend.clear();
   _pulse_amp.clear();
   _pulse_charge.clear();
@@ -76,6 +78,7 @@ void pulse_viewer::add_channel_entry(PMT::ch_number_t ch){
   _pulse_frame_id[ch]=std::vector<PMT::word_t>();
   _pulse_sample_number[ch]=std::vector<PMT::word_t>();
   _pulse_tstart[ch]=std::vector<double>();
+  _pulse_tstart_reco[ch]=std::vector<double>();
   _pulse_tend[ch]=std::vector<double>();
   _pulse_amp[ch]=std::vector<double>();
   _pulse_charge[ch]=std::vector<double>();
@@ -132,8 +135,11 @@ bool pulse_viewer::analyze(storage_manager* storage) {
     double      amp      = (*iter).pulse_peak();
     double      ped_base = (*iter).ped_mean();
     double      ped_rms  = (*iter).ped_rms();
+    double      t_start_reco = (*iter).start_time_reco();
 
     // Check if this pulse passes the criteria
+    if(t_start_reco < _cut_tstart_reco.first || _cut_tstart_reco.second < t_start_reco)
+      continue;
     if(t_start < _cut_tstart.first || _cut_tstart.second < t_start)
       continue;
     if(t_end < _cut_tend.first || _cut_tend.second < t_end)
@@ -153,6 +159,7 @@ bool pulse_viewer::analyze(storage_manager* storage) {
     _pulse_frame_id[ch].push_back(frame);
     _pulse_sample_number[ch].push_back(sample);
     _pulse_tstart[ch].push_back(t_start);
+    _pulse_tstart_reco[ch].push_back(t_start_reco);
     _pulse_tend[ch].push_back(t_end);
     _pulse_amp[ch].push_back(amp);
     _pulse_charge[ch].push_back(charge);
@@ -334,14 +341,15 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
   //_hWF->GetXaxis()->SetRangeUser(x_min,x_max);
     
   sprintf(_buf,"\n\n");
-  sprintf(_buf,"%s Event ID : %d\n",_buf,_event_id);
-  sprintf(_buf,"%s Channel  : %d\n",_buf,ch);
-  sprintf(_buf,"%s Start T  : %g\n",_buf,_pulse_tstart[ch][index]);
-  sprintf(_buf,"%s End T    : %g\n",_buf,_pulse_tend[ch][index]);
-  sprintf(_buf,"%s Ped. Mean: %g\n",_buf,_pulse_pedbase[ch][index]);
-  sprintf(_buf,"%s Ped. RMS : %g\n",_buf,_pulse_pedrms[ch][index]);
-  sprintf(_buf,"%s Peak Amp.: %g\n",_buf,_pulse_amp[ch][index]);
-  sprintf(_buf,"%s Charge   : %g\n",_buf,_pulse_charge[ch][index]);
+  sprintf(_buf,"%s Event ID       : %d\n",_buf,_event_id);
+  sprintf(_buf,"%s Channel        : %d\n",_buf,ch);
+  sprintf(_buf,"%s Start T        : %g\n",_buf,_pulse_tstart[ch][index]);
+  sprintf(_buf,"%s Start T (RECO) : %g\n",_buf,_pulse_tstart_reco[ch][index]);
+  sprintf(_buf,"%s End T          : %g\n",_buf,_pulse_tend[ch][index]);
+  sprintf(_buf,"%s Ped. Mean      : %g\n",_buf,_pulse_pedbase[ch][index]);
+  sprintf(_buf,"%s Ped. RMS       : %g\n",_buf,_pulse_pedrms[ch][index]);
+  sprintf(_buf,"%s Peak Amp.      : %g\n",_buf,_pulse_amp[ch][index]);
+  sprintf(_buf,"%s Charge         : %g\n",_buf,_pulse_charge[ch][index]);
   Message::send(MSG::NORMAL,__FUNCTION__,_buf);
 
   _lBase = new TLine(_hWF->GetXaxis()->GetXmin(), _pulse_pedbase[ch][index], 
@@ -414,18 +422,19 @@ void pulse_viewer::display_cut_ranges(){
 
   msg = "\n";
   msg += Form(" Event-wise parameters...\n");
-  msg += Form("    Event ID      : %d -> %d\n",_cut_event_id.first,_cut_event_id.second);
-  msg += Form("    Summed Charge : %g -> %g\n",_cut_sum_charge.first,_cut_sum_charge.second);
-  msg += Form("    Summed Peak   : %g -> %g\n",_cut_sum_peak.first,_cut_sum_peak.second);
-  msg += Form("    Num. Pulses   : %d -> %d\n",_cut_npulse.first,_cut_npulse.second);
+  msg += Form("    Event ID            : %d -> %d\n",_cut_event_id.first,_cut_event_id.second);
+  msg += Form("    Summed Charge       : %g -> %g\n",_cut_sum_charge.first,_cut_sum_charge.second);
+  msg += Form("    Summed Peak         : %g -> %g\n",_cut_sum_peak.first,_cut_sum_peak.second);
+  msg += Form("    Num. Pulses         : %d -> %d\n",_cut_npulse.first,_cut_npulse.second);
   msg += "\n";
   msg += Form(" Pulse-wise parameters...\n");
-  msg += Form("    Pulse Charge  : %g -> %g\n",_cut_charge.first,_cut_charge.second);
-  msg += Form("    Pulse Peak    : %g -> %g\n",_cut_amp.first,_cut_amp.second);
-  msg += Form("    Pulse Start T : %g -> %g\n",_cut_tstart.first,_cut_tstart.second);
-  msg += Form("    Pulse End T   : %g -> %g\n",_cut_tend.first,_cut_tend.second);
-  msg += Form("    Pedestal Mean : %g -> %g\n",_cut_pedbase.first,_cut_pedbase.second);
-  msg += Form("    Pedestal RMS  : %g -> %g\n",_cut_pedrms.first,_cut_pedrms.second);
+  msg += Form("    Pulse Charge        : %g -> %g\n",_cut_charge.first,_cut_charge.second);
+  msg += Form("    Pulse Peak          : %g -> %g\n",_cut_amp.first,_cut_amp.second);
+  msg += Form("    Pulse Start T       : %g -> %g\n",_cut_tstart.first,_cut_tstart.second);
+  msg += Form("    Pulse Start T (RECO): %g -> %g\n",_cut_tstart_reco.first,_cut_tstart_reco.second);
+  msg += Form("    Pulse End T         : %g -> %g\n",_cut_tend.first,_cut_tend.second);
+  msg += Form("    Pedestal Mean       : %g -> %g\n",_cut_pedbase.first,_cut_pedbase.second);
+  msg += Form("    Pedestal RMS        : %g -> %g\n",_cut_pedrms.first,_cut_pedrms.second);
 
   Message::send(MSG::NORMAL,__FUNCTION__,msg.c_str());
 

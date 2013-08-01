@@ -9,10 +9,18 @@ from ROOT import gSystem
 gSystem.Load("libAnalysis")
 
 # Now import ana_processor & your class. For this example, ana_base.
-from ROOT import ana_processor, ana_base
+from ROOT import *
 
 # Create ana_processor instance
 my_proc=ana_processor()
+
+# Specify IO mode
+my_proc.set_io_mode(storage_manager.READ)
+#my_proc.set_io_mode(storage_manager.WRITE)
+#my_proc.set_io_mode(storage_manager.BOTH)
+
+# Specify what data to read
+my_proc.set_data_to_read(DATA_STRUCT.WF_COLLECTION)
 
 # Set input root file: this is decoder output root file.
 # This time, we use a sample file prepared.

@@ -93,6 +93,9 @@ public:
   /// Setter for the range of pusle start time to select pulses of interest
   void set_range_pulse_start_time(double v1, double v2)   {_cut_tstart.first=v1;   _cut_tstart.second=v2;   };
 
+  /// Setter for the range of reconstructed pusle start time to select pulses of interest
+  void set_range_pulse_start_time_reco(double v1, double v2)   {_cut_tstart_reco.first=v1;   _cut_tstart_reco.second=v2;   };
+
   /// Setter for the range of pusle end time to select pulses of interest..
   void set_range_pulse_end_time(double v1, double v2)     {_cut_tend.first=v1;     _cut_tend.second=v2;     };
 
@@ -130,6 +133,9 @@ public:
 
   /// Getter for the range of pusle start time to select pulses of interest
   const std::pair<double,double> range_pulse_start_time() const   {return _cut_tstart;};
+
+  /// Getter for the range of pusle reconstructed start time to select pulses of interest
+  const std::pair<double,double> range_pulse_start_time_reco() const   {return _cut_tstart_reco;};
 
   /// Getter for the range of pusle end time to select pulses of interest..
   const std::pair<double,double> range_pulse_end_time() const     {return _cut_tend;};
@@ -194,6 +200,7 @@ protected:
   std::map<PMT::ch_number_t,std::vector<PMT::word_t> > _pulse_frame_id;       ///< a set of frame id
   std::map<PMT::ch_number_t,std::vector<PMT::word_t> > _pulse_sample_number;  ///< a set of sample numbers
   std::map<PMT::ch_number_t,std::vector<double> >      _pulse_tstart;         ///< a set of reco-ed pulse start time
+  std::map<PMT::ch_number_t,std::vector<double> >      _pulse_tstart_reco;    ///< a set of reco-ed pulse reco-ed start time
   std::map<PMT::ch_number_t,std::vector<double> >      _pulse_tend;           ///< a set of reco-ed pulse end time
   std::map<PMT::ch_number_t,std::vector<double> >      _pulse_amp;            ///< a set of reco-ed pulse amplitude
   std::map<PMT::ch_number_t,std::vector<double> >      _pulse_charge;         ///< a set of reco-ed pulse charge
@@ -211,7 +218,7 @@ protected:
   TLine *_lStart, *_lEnd, *_lBase, *_lRMSTop, *_lRMSBottom, *_lTop;
 
   /// pairs to define a range of pulse parameters for displaying pulses.
-  std::pair<double,double> _cut_tstart, _cut_tend, _cut_amp, _cut_charge, _cut_pedbase, _cut_pedrms;
+  std::pair<double,double> _cut_tstart, _cut_tstart_reco, _cut_tend, _cut_amp, _cut_charge, _cut_pedbase, _cut_pedrms;
 
   /// pairs to define a range of event parameters for displaying pulses.
   std::pair<double,double> _cut_sum_charge, _cut_sum_peak;
