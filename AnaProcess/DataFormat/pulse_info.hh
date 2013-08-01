@@ -35,6 +35,7 @@ public:
 					   _pulse_peak(original._pulse_peak),
 					   _charge(original._charge),
 					   _start_time(original._start_time),
+					   _start_time_reco(original._start_time_reco),
 					   _end_time(original._end_time),
 					   _max_time(original._max_time),
 					   _channel_frame_id(original._channel_frame_id),
@@ -59,6 +60,9 @@ public:
 
   /// Setter for pulse start time
   void set_start_time(double v) {_start_time=v;};
+
+  /// Setter for reconstructed pulse start time
+  void set_start_time_reco(double v) {_start_time_reco=v;};
 
   /// Setter for pulse end time
   void set_end_time(double v) {_end_time=v;};
@@ -93,6 +97,9 @@ public:
   /// Getter for pulse start time
   double start_time () const { return _start_time;};
 
+  /// Getter for reconstructed pulse start time
+  double start_time_reco () const { return _start_time_reco;};
+
   /// Getter for pulse end time
   double end_time () const { return _end_time;};
 
@@ -126,6 +133,7 @@ private:
   double _pulse_peak;               ///< peak height  
   double _charge;                   ///< charge sum (integral)
   double _start_time;               ///< pulse start time
+  double _start_time_reco;          ///< pulse reconstructed start time
   double _end_time;                 ///< pulse end time
   double _max_time;                 ///< pulse max time (where highestpeak is)
 
