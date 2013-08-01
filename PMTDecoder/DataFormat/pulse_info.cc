@@ -10,6 +10,7 @@ void pulse_info::clear_data() {
   _ped_rms=-1;
   _charge=-1;
   _start_time=-1;
+  _start_time_reco=-1;
   _end_time=-1;
   _max_time=-1;
 

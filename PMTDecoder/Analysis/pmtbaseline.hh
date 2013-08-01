@@ -49,6 +49,7 @@ private:
   double rms (std::vector<uint16_t>,uint32_t,double);
   double tailmean(std::vector<uint16_t>,uint32_t);
   double tailrms (std::vector<uint16_t>,uint32_t,double);
+  double time_reconstructor(double, PMT::ch_waveform_t::const_iterator);
 
   //Histogram preparation
   void histosetup();
@@ -74,6 +75,8 @@ private:
   TH1D *peakheights;
   TH1D *peakareas;
   TH1D *nptstaken;
+  TH1D *reco_time;
+  TH1D *reco_time_diff;
   
   TGraphErrors *rdbadwaveforms;
   TGraphErrors *bgbadwaveforms;

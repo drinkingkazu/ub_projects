@@ -35,6 +35,19 @@ double pmtbaseline::rms(std::vector<uint16_t> adcs,uint32_t bgpoints, double mea
   return rms;
 }
 
+//calculate begin time
+double pmtbaseline::time_reconstructor(double fpedmean, PMT::ch_waveform_t::const_iterator adc_itr){
+  double y1 = (*adc_itr)-fpedmean;
+  adc_itr += 1;
+  double y2 = (*adc_itr)-fpedmean;
+  //x-axis measured in time_counter unit increments.
+  //fine fraction of time_counter increments that designates start time
+  double slope = (y2-y1)/1.0; //because Dx = 1 time_step
+  //y = slope*x + x_0
+  double time_reconstructed = y1/slope;
+  return time_reconstructed;
+}
+
 
 double pmtbaseline::tailmean(std::vector<uint16_t> adcs,uint32_t rdpoints){
   double mean = 0;
@@ -42,7 +55,6 @@ double pmtbaseline::tailmean(std::vector<uint16_t> adcs,uint32_t rdpoints){
   
   for(uint16_t u=adcs.size()-1;u>=(adcs.size()-rdpoints);u--)
     holder += adcs.at(u);
-  
   mean=(double)holder/(double)rdpoints; 
   return mean;
     
@@ -77,6 +89,8 @@ void pmtbaseline::histosetup(){
   
   tailMeanCutrms    = new TH1D("rd_tailMeanCut","Ped Tail Mean (rms>0.5)",400,2000,2200);
   tailRMSCutrms     = new TH1D("rd_tailRMSCut","Ped Tail RMS (rms>0.5)",100,0,10);
+  reco_time = new TH1D("reco_time", "Reconstructed Start Time", 100, 0 , 50);
+  reco_time_diff = new TH1D("reco_time_diff", "Reconstructed Start Time Diff", 100, -5, 5);
   /*
   peakheights = new TH1D("peakheights","Subtracted Pulse Heights",500,0,1000);
   peakareas = new TH1D("peakareas","Areas",1125,0,5000);
@@ -112,6 +126,7 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
   //Get event waveform from storage
   const event_waveform ewform = storage->get_event_waveform();
   
+  //looping through all channels
   for(size_t i=0; i<ewform.size(); ++i){
     const pmt_waveform* pmt_data = &(ewform.at(i));
     fpedmean = mean((*pmt_data),bgpoints         );
@@ -143,16 +158,23 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
     bool fire = false;
     int time_counter = 0;
     double t_start   = 0;
+    double t_start_reco = 0;
+    double t_start_diff = 0;
     double t_max     = 0;
     double t_end     = 0;
     double a_pulse   = 0;
     double q_pulse   = 0;
     
+    //Going through all bins in waveform
     for(PMT::ch_waveform_t::const_iterator adc_itr((*pmt_data).begin());
 	adc_itr!=(*pmt_data).end(); ++adc_itr) {
       if(!fire && (*adc_itr)>(nsigma*fpedrms+fpedmean) && (*adc_itr)>(min_peak+fpedmean)) {
 	fire    = true;
 	t_start = time_counter;
+	t_start_reco = t_start + time_reconstructor(fpedmean, adc_itr);
+	t_start_diff = t_start - t_start_reco;
+	reco_time->Fill(t_start_reco);
+	reco_time_diff->Fill(t_start_diff);
 	q_pulse = 0;
 	a_pulse = 0;
       }
@@ -169,6 +191,7 @@ bool pmtbaseline::analyze(const storage_manager* storage) {
 	  pulse.set_charge    ( q_pulse  );
 	  pulse.set_pulse_peak( a_pulse  );
 	  pulse.set_start_time( t_start  );
+	  pulse.set_start_time_reco( t_start_reco );
 	  pulse.set_end_time  ( t_end    );
 	  pulse.set_max_time  ( t_max    );
 	  pulse.set_channel_number((PMT::ch_number_t)i);
@@ -258,6 +281,8 @@ bool pmtbaseline::finalize() {
   bgbadwaveforms -> Write();
   tailMeanCutrms -> Write();
   tailRMSCutrms  -> Write();
+  reco_time      -> Write();
+  reco_time_diff -> Write();
   /*  peakheights -> Write();
   peakareas   -> Write();
   nptstaken   -> Write();*/
