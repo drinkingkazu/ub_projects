@@ -13,7 +13,7 @@ bool Ana_Class_Name::initialize() {
   return true;
 }
 
-bool Ana_Class_Name::analyze(const storage_manager* storage) {
+bool Ana_Class_Name::analyze(storage_manager* storage) {
 
   //
   // Do your event-by-event analysis here. This function is called for 
@@ -21,9 +21,10 @@ bool Ana_Class_Name::analyze(const storage_manager* storage) {
   // event-wise data. For a reference of event_waveform class instance, 
   // see the class index in the documentation.
   // 
-  // One line example to print out event id on screen...
+  // Example to print out event id on screen...
   //
-  std::cout << Form("Event ID: %d",storage->get_event_waveform().event_id()) << std::endl;
+  const event_waveform* event_wf = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  std::cout << Form("Event ID: %d",event_wf->event_id()) << std::endl;
   //
 
   return true;

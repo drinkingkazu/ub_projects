@@ -39,7 +39,7 @@ public:
   /** IMPLEMENT in Ana_Class_Name.cc! 
       Analyze a data event-by-event  
   */
-  virtual bool analyze(const storage_manager* storage);
+  virtual bool analyze(storage_manager* storage);
 
   /** IMPLEMENT in Ana_Class_Name.cc! 
       Finalize method to be called after all events processed.
