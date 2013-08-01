@@ -1,0 +1,13 @@
+#ifndef PACKAGE_NAME_HH
+#define PACKAGE_NAME_HH
+
+#include <iostream>
+
+class Package_Name{
+
+public:
+  Package_Name(){};
+  virtual ~Package_Name(){};
+};
+
+#endif
