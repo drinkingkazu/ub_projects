@@ -9,7 +9,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-//#pragma link C++ class algo_base+;
+#pragma link C++ class algo_base+;
 #pragma link C++ class algo_slow_readout_decoder+;
 #pragma link C++ class algo_xmit_decoder+;
 #pragma link C++ class algo_trig_decoder+;

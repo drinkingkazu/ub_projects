@@ -46,8 +46,8 @@ public:
       Children should implement to perform (1) decoding and (2) storing event data upon
       this function call.
   */
-  virtual bool process_word(PMT::word_t word)=0;
-  //{return true;};
+  virtual bool process_word(PMT::word_t word)
+  {return true;};
 
   /// Function called just after processing word.
   virtual void finalize(){};
@@ -63,7 +63,7 @@ public:
   void set_storage_ptr(storage_manager* storage){_storage=storage;};
 
   /// Run utility: set back-trace mode. One should provide number of words to be stored.
-  void set_backtrace_mode(size_t nwords=0){
+  virtual void set_backtrace_mode(size_t nwords=0){
     _bt_nwords=nwords;
     _bt_mode=(bool)(nwords);
   };
