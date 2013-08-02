@@ -24,7 +24,7 @@ my_proc.set_data_to_read(DATA_STRUCT.WF_COLLECTION)
 
 # Set input root file: this is decoder output root file.
 # This time, we use a sample file prepared.
-my_proc.add_input_file("%s/dat/sample.root" % os.environ['MAKE_TOP_DIR'])
+my_proc.add_input_file("%s/dat/sample.root" % os.environ['ANA_PROC_DIR'])
 
 # Set output root file: this is a separate root file in which your
 # analysis module can store anything such as histograms, your own TTree, etc.

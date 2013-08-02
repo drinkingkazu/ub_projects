@@ -21,7 +21,7 @@ int main(){
   kazu.set_io_mode(storage_manager::READ);
 
   // Step 1: Set input file 
-  kazu.add_in_filename(Form("%s/dat/sample.root",gSystem->Getenv("MAKE_TOP_DIR")));
+  kazu.add_in_filename(Form("%s/dat/sample.root",gSystem->Getenv("ANA_PROC_DIR")));
 
   // Step 2: Open a file.
   kazu.open();

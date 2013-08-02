@@ -1,7 +1,7 @@
 #####################################################################################
 #
 # A top Makefile for building my project.
-# One needs to define $MAKE_TOP_DIR environment variable and set it to where this
+# One needs to define $PMT_DECODER_DIR environment variable and set it to where this
 # makefile exists. 
 # One can type "make" and this builds packages that are added in $SUBDIR defined below.
 # 
@@ -9,29 +9,30 @@
 #
 #####################################################################################
 #
-# IMPOSE CONDITION BETWEEN MAKE_TOP_DIR & PWD =>
-#   do not compile if PWD !=$MAKE_TOP_DIR is set elsewhere
+# IMPOSE CONDITION BETWEEN PMT_DECODER_DIR & PWD =>
+#   do not compile if PWD !=$PMT_DECODER_DIR is set elsewhere
 #
-ifndef MAKE_TOP_DIR
- MAKE_TOP_DIR := $(shell cd . && pwd -P)
+ifndef PMT_DECODER_DIR
+ PMT_DECODER_DIR := $(shell cd . && pwd -P)
 endif
-NORMALIZED_MAKE_TOP_DIR := $(shell cd ${MAKE_TOP_DIR} && pwd -P)
-ifneq ($(NORMALIZED_MAKE_TOP_DIR), $(shell cd . && pwd -P))
- ifneq ($(wildcard ./DCDB/*),)
-ERROR_MESSAGE := $(error Your source code detected in current dir, but MAKE_TOP_DIR is not current dir.  \
+NORMALIZED_PMT_DECODER_DIR := $(shell cd ${PMT_DECODER_DIR} && pwd -P)
+ifneq ($(NORMALIZED_PMT_DECODER_DIR), $(shell cd . && pwd -P))
+ ifneq ($(wildcard ./Decoder/*),)
+ERROR_MESSAGE := $(error Your source code detected in current dir, but PMT_DECODER_DIR is not current dir.  \
    To avoid recompiling the wrong installation,\
-   MAKE_TOP_DIR must be set to the current directory when making.  \
-   Currently it is set to ${MAKE_TOP_DIR} [$(NORMALIZED_MAKE_TOP_DIR)].  \
+   PMT_DECODER_DIR must be set to the current directory when making.  \
+   Currently it is set to ${PMT_DECODER_DIR} [$(NORMALIZED_PMT_DECODER_DIR)].  \
    Current directory is $(shell pwd).)
  endif
 endif
-export MAKE_TOP_DIR
+export PMT_DECODER_DIR
 #
 #####################################################################################
 #
 # Define directories to be compile upon a global "make"...
 #
-SUBDIRS := Base DataFormat FileIO Algorithm Analysis Decoder Encoder
+#SUBDIRS := Base DataFormat FileIO Algorithm Analysis Decoder Encoder
+SUBDIRS := FileIO Algorithm Decoder Encoder
 
 #####################################################################################
 #
@@ -48,8 +49,8 @@ all:
 #
 clean:
 	@for i in $(SUBDIRS); do ( echo "" && echo "Cleaning $$i..." && cd $$i && $(MAKE) clean ) || exit $$?; done
-	@rm -f $(MAKE_TOP_DIR)/lib/lib*.so
-	@rm -f $(MAKE_TOP_DIR)/lib/lib*.rootmap
+	@rm -f $(PMT_DECODER_DIR)/lib/lib*.so
+	@rm -f $(PMT_DECODER_DIR)/lib/lib*.rootmap
 
 #####################################################################################
 #
@@ -57,13 +58,13 @@ clean:
 #
 doxygen:
 	@echo 'dOxygenising your code...'
-	@mkdir -p $(MAKE_TOP_DIR)/doc/dOxygenMyProject
-	@doxygen $(MAKE_TOP_DIR)/doc/doxygenMyProject.script
+	@mkdir -p $(PMT_DECODER_DIR)/doc/dOxygenMyProject
+	@doxygen $(PMT_DECODER_DIR)/doc/doxygenMyProject.script
 
 doxygen+:
 	@echo 'dOxygenising MyProject + local-ROOT...'
-	@mkdir -p $(MAKE_TOP_DIR)/doc/dOxygenMyProject+
-	@doxygen $(MAKE_TOP_DIR)/doc/doxygenMyProject+.script
+	@mkdir -p $(PMT_DECODER_DIR)/doc/dOxygenMyProject+
+	@doxygen $(PMT_DECODER_DIR)/doc/doxygenMyProject+.script
 #
 #####################################################################################
 #EOF

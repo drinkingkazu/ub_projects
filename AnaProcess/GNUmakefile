@@ -1,7 +1,7 @@
 #####################################################################################
 #
 # A top Makefile for building my project.
-# One needs to define $MAKE_TOP_DIR environment variable and set it to where this
+# One needs to define $ANA_PROC_DIR environment variable and set it to where this
 # makefile exists. 
 # One can type "make" and this builds packages that are added in $SUBDIR defined below.
 # 
@@ -9,23 +9,23 @@
 #
 #####################################################################################
 #
-# IMPOSE CONDITION BETWEEN MAKE_TOP_DIR & PWD =>
-#   do not compile if PWD !=$MAKE_TOP_DIR is set elsewhere
+# IMPOSE CONDITION BETWEEN ANA_PROC_DIR & PWD =>
+#   do not compile if PWD !=$ANA_PROC_DIR is set elsewhere
 #
-ifndef MAKE_TOP_DIR
- MAKE_TOP_DIR := $(shell cd . && pwd -P)
+ifndef ANA_PROC_DIR
+ ANA_PROC_DIR := $(shell cd . && pwd -P)
 endif
-NORMALIZED_MAKE_TOP_DIR := $(shell cd ${MAKE_TOP_DIR} && pwd -P)
-ifneq ($(NORMALIZED_MAKE_TOP_DIR), $(shell cd . && pwd -P))
- ifneq ($(wildcard ./DCDB/*),)
-ERROR_MESSAGE := $(error Your source code detected in current dir, but MAKE_TOP_DIR is not current dir.  \
+NORMALIZED_ANA_PROC_DIR := $(shell cd ${ANA_PROC_DIR} && pwd -P)
+ifneq ($(NORMALIZED_ANA_PROC_DIR), $(shell cd . && pwd -P))
+ ifneq ($(wildcard ./Base/*),)
+ERROR_MESSAGE := $(error Your source code detected in current dir, but ANA_PROC_DIR is not current dir.  \
    To avoid recompiling the wrong installation,\
-   MAKE_TOP_DIR must be set to the current directory when making.  \
-   Currently it is set to ${MAKE_TOP_DIR} [$(NORMALIZED_MAKE_TOP_DIR)].  \
+   ANA_PROC_DIR must be set to the current directory when making.  \
+   Currently it is set to ${ANA_PROC_DIR} [$(NORMALIZED_ANA_PROC_DIR)].  \
    Current directory is $(shell pwd).)
  endif
 endif
-export MAKE_TOP_DIR
+export ANA_PROC_DIR
 #
 #####################################################################################
 #
@@ -48,8 +48,8 @@ all:
 #
 clean:
 	@for i in $(SUBDIRS); do ( echo "" && echo "Cleaning $$i..." && cd $$i && $(MAKE) clean ) || exit $$?; done
-	@rm -f $(MAKE_TOP_DIR)/lib/lib*.so
-	@rm -f $(MAKE_TOP_DIR)/lib/lib*.rootmap
+	@rm -f $(ANA_PROC_DIR)/lib/lib*.so
+	@rm -f $(ANA_PROC_DIR)/lib/lib*.rootmap
 
 #####################################################################################
 #
@@ -57,13 +57,13 @@ clean:
 #
 doxygen:
 	@echo 'dOxygenising your code...'
-	@mkdir -p $(MAKE_TOP_DIR)/doc/dOxygenMyProject
-	@doxygen $(MAKE_TOP_DIR)/doc/doxygenMyProject.script
+	@mkdir -p $(ANA_PROC_DIR)/doc/dOxygenMyProject
+	@doxygen $(ANA_PROC_DIR)/doc/doxygenMyProject.script
 
 doxygen+:
 	@echo 'dOxygenising MyProject + local-ROOT...'
-	@mkdir -p $(MAKE_TOP_DIR)/doc/dOxygenMyProject+
-	@doxygen $(MAKE_TOP_DIR)/doc/doxygenMyProject+.script
+	@mkdir -p $(ANA_PROC_DIR)/doc/dOxygenMyProject+
+	@doxygen $(ANA_PROC_DIR)/doc/doxygenMyProject+.script
 #
 #####################################################################################
 #EOF

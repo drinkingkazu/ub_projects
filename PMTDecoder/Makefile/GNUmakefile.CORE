@@ -1,11 +1,11 @@
 ###################################################
 
 # default target list
-all: .depend $(DICT).cc lib/$(SHLIB)  $(MAKE_TOP_DIR)/lib/$(SHLIB) 
+all: .depend $(DICT).cc lib/$(SHLIB)  $(PMT_DECODER_DIR)/lib/$(SHLIB) 
 
 # define ROOTMAP and add it to the default target list, unless NO_ROOTMAP set
 ifndef NO_ROOTMAP
-ROOTMAP= $(MAKE_TOP_DIR)/lib/$(SHLIB:.so=.rootmap)
+ROOTMAP= $(PMT_DECODER_DIR)/lib/$(SHLIB:.so=.rootmap)
 all: $(ROOTMAP)
 
 endif
@@ -34,19 +34,19 @@ lib/$(SHLIB): $(OBJECTS) $(DICT).o
 	@mkdir -p lib
 	@$(SOMAKER) $(SOFLAGS) -o lib/$(SHLIB) $(filter-out $(DICT).o, $(OBJECTS)) $(DICT).o
 
-# rule for making symlink in $(MAKE_TOP_DIR)/lib
-$(MAKE_TOP_DIR)/lib/$(SHLIB): lib/$(SHLIB)
-	@echo '<< installing $(SHLIB) in $(MAKE_TOP_DIR)/lib >>'
-	@mkdir -p $(MAKE_TOP_DIR)/lib
-	@ln -sf $(PWD)/lib/$(SHLIB) $(MAKE_TOP_DIR)/lib
+# rule for making symlink in $(PMT_DECODER_DIR)/lib
+$(PMT_DECODER_DIR)/lib/$(SHLIB): lib/$(SHLIB)
+	@echo '<< installing $(SHLIB) in $(PMT_DECODER_DIR)/lib >>'
+	@mkdir -p $(PMT_DECODER_DIR)/lib
+	@ln -sf $(PWD)/lib/$(SHLIB) $(PMT_DECODER_DIR)/lib
 
 
 # if ROOTMAP defined, define rule for making it
 ifdef ROOTMAP
-$(ROOTMAP): $(MAKE_TOP_DIR)/lib/$(SHLIB)
+$(ROOTMAP): $(PMT_DECODER_DIR)/lib/$(SHLIB)
 	@echo "<< Making rootmaps >>"
-	@cd $(MAKE_TOP_DIR)/lib && ./make_rootmap.sh
-	@rm $(MAKE_TOP_DIR)/lib/*.temp
+	@cd $(PMT_DECODER_DIR)/lib && ./make_rootmap.sh
+	@rm -f $(PMT_DECODER_DIR)/lib/*.temp
 endif
 
 ###################################################
@@ -58,7 +58,7 @@ clean:
 ###################################################
 libclean:
 	@echo '<< clearning lib directory >>'
-	@rm -f $(MAKE_TOP_DIR)/lib/$(SHLIB) 
+	@rm -f $(PMT_DECODER_DIR)/lib/$(SHLIB) 
 	@rm -f lib/$(SHLIB) 
 
 ###################################################

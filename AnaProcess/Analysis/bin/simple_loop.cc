@@ -12,7 +12,7 @@ int main(){
 
   // Set input root file: this is decoder output root file.
   // This time, we use a sample file prepared.
-  my_proc.add_input_file(Form("%s/dat/sample.root",gSystem->Getenv("MAKE_TOP_DIR")));
+  my_proc.add_input_file(Form("%s/dat/sample.root",gSystem->Getenv("ANA_PROC_DIR")));
 
   // Specify IO mode
   my_proc.set_io_mode(storage_manager::READ);

@@ -1,14 +1,14 @@
 /**
  * \file pmt_slow_encoder.hh
  *
- * \ingroup Analysis
+ * \ingroup Encoder
  * 
  * \brief Class def header for a class pmt_slow_encoder
  *
  * @author kazuhiro
  */
 
-/** \addtogroup Analysis
+/** \addtogroup Encoder
 
     @{*/
 
@@ -21,7 +21,7 @@
 
 /**
    \class pmt_slow_encoder
-   User custom analysis class made by kazuhiro
+   Encoder class implemented as analysis module
  */
 class pmt_slow_encoder : public ana_base{
 

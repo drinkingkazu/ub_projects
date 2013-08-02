@@ -1,12 +1,12 @@
 
 LD := $(subst build/,$(ROOTSYS)/build/,$(LD))
-LIBDIR  = $(MAKE_TOP_DIR)/lib
+LIBDIR  = $(ANA_PROC_DIR)/lib
 LDFLAGS  += -L$(ROOTSYS)/lib  $(shell root-config --libs) -g
 
 # Include your header file location
-CXXFLAGS += -I$(MAKE_TOP_DIR)/Base 
-CXXFLAGS += -I$(MAKE_TOP_DIR)/DataFormat
-CXXFLAGS += -I$(MAKE_TOP_DIR)/Analysis
+CXXFLAGS += -I$(ANA_PROC_DIR)/Base 
+CXXFLAGS += -I$(ANA_PROC_DIR)/DataFormat
+CXXFLAGS += -I$(ANA_PROC_DIR)/Analysis
 CXXFLAGS += -I. $(shell root-config --cflags) -g
 
 # Include your shared object lib location
