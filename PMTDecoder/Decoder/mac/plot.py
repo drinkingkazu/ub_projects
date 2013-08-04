@@ -59,6 +59,9 @@ while 1:
     # object. A recommended access is to copy a pointer of stl
     # vector waveform container. See reco_wf() class reference.
     h=ana.get_histo();
+    if not h:
+        continue
+
     h.SetMaximum(4096)
     h.SetMinimum(0)
 
