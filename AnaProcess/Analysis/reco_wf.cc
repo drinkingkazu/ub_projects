@@ -56,9 +56,17 @@ bool reco_wf::analyze(storage_manager* storage){
   // Loop over event (collection of channel waveforms) to first
   // identify the maximum length of waveform vector to be stored.
   //
+  std::set<size_t> skip_index; // a set of index in event_waveform array to be skipped
   for(size_t i=0; i<data->size(); ++i){
 
     const pmt_waveform* pmt_data = &(data->at(i));
+
+    if(pmt_data->size()<1) {
+      skip_index.insert(i);
+      Message::send(MSG::ERROR,__FUNCTION__,
+		    Form("Detected 0-length waveform (Event=%d ... Ch.=%d)! Skipping.",data->event_id(),pmt_data->channel_number()));
+      continue;
+    }
 
     if(!(_ref_frame) || _ref_frame>pmt_data->channel_frame_id())
       _ref_frame = pmt_data->channel_frame_id();
@@ -85,6 +93,8 @@ bool reco_wf::analyze(storage_manager* storage){
   // adc count among all channels.
   //
   for(size_t i=0; i<data->size(); ++i){
+
+    if(skip_index.find(i)!=skip_index.end()) continue;
 
     const pmt_waveform* pmt_data = &(data->at(i));
     uint32_t ch=pmt_data->channel_number();    
