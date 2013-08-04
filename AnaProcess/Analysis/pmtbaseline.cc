@@ -226,7 +226,7 @@ bool pmtbaseline::analyze(storage_manager* storage) {
 	  pulse.set_start_time_reco( t_start_reco );
 	  pulse.set_end_time  ( t_end    );
 	  pulse.set_max_time  ( t_max    );
-	  pulse.set_channel_number((PMT::ch_number_t)i);
+	  pulse.set_channel_number(pmt_data->channel_number());
 	  pulse.set_timeslice((*pmt_data).timeslice());
 	  pulse.set_channel_frame_id((*pmt_data).channel_frame_id());
 	  pulse.set_disc_id((*pmt_data).disc_id());

@@ -84,10 +84,10 @@ void pulse_viewer::add_channel_entry(PMT::ch_number_t ch){
   _pulse_charge[ch]=std::vector<double>();
   _pulse_pedbase[ch]=std::vector<double>();
   _pulse_pedrms[ch]=std::vector<double>();
-  //_waveforms[ch]=std::vector<std::vector<PMT::ch_adc_t> >();
   _pulse_count[ch]=std::make_pair(0,0);
 
   _waveforms[ch]=std::map<PMT::word_t,std::map<PMT::word_t,std::vector<PMT::ch_adc_t> > >();
+
 }
 
 bool pulse_viewer::analyze(storage_manager* storage) {
@@ -166,7 +166,6 @@ bool pulse_viewer::analyze(storage_manager* storage) {
     _pulse_pedbase[ch].push_back(ped_base);
     _pulse_pedrms[ch].push_back(ped_rms);
     
-    //_waveforms[ch].push_back(std::vector<PMT::ch_adc_t>());
     if(_waveforms[ch].find(frame)==_waveforms[ch].end())
       _waveforms[ch][frame]=std::map<PMT::word_t,std::vector<PMT::ch_adc_t> >();
 
@@ -175,6 +174,8 @@ bool pulse_viewer::analyze(storage_manager* storage) {
 
     _pulse_count[ch].first+=1;
   }
+
+
 
   for(event_waveform::const_iterator ch_iter(wfs->begin());
       ch_iter!=wfs->end();
@@ -196,7 +197,7 @@ bool pulse_viewer::analyze(storage_manager* storage) {
       Message::send(MSG::ERROR,__FUNCTION__,_buf);
       continue;
     }
-
+    
     // Fill the waveform vector
     for(pmt_waveform::const_iterator adc_iter((*ch_iter).begin());
 	adc_iter!=(*ch_iter).end();
