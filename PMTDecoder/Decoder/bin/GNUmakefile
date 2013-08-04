@@ -18,7 +18,7 @@ LDFLAGS += -L$(PMT_DECODER_DIR)/lib -lAlgorithm -lFileIO -lDecoder
 
 # Add your program below with a space after the previous one.
 # This makefile compiles all binaries specified below.
-PROGRAMS = decoder
+PROGRAMS = decoder xmit_search_event
 
 all:		$(PROGRAMS)
 	@rm -rf *.dSYM
