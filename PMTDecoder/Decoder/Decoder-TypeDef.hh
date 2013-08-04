@@ -7,8 +7,8 @@
 
 // Header files included here
 #include "decoder_manager.hh"
-
+#include "xmit_event_search.hh"
 // Class forward declaration here
 class decoder_manager;
-
+class xmit_event_search;
 #endif

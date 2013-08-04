@@ -10,5 +10,5 @@
 #pragma link off all functions;
 
 #pragma link C++ class decoder_manager+;
-
+#pragma link C++ class xmit_event_search+;
 #endif
