@@ -15,21 +15,32 @@ void pmtbaseline::clear_event(){
 double pmtbaseline::mean(std::vector<uint16_t> adcs,uint32_t bgpoints){
   double mean = 0;
   uint16_t holder = 0;
-  
-  for(uint16_t u=0;u<bgpoints;u++)
-    holder += adcs.at(u);
-  
-  mean=(double)holder/(double)bgpoints; 
+  size_t index=0;
+
+  for(index=0;index<bgpoints && index<adcs.size() ;index++)
+    holder += adcs.at(index);
+
+  if( index!=bgpoints )
+    Message::send(MSG::WARNING,__FUNCTION__,
+		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),bgpoints));
+
+  mean=((double)holder)/((double)index);
   return mean;
 }
 double pmtbaseline::rms(std::vector<uint16_t> adcs,uint32_t bgpoints, double mean){
   
   double rms    = 0;
   double holder = 0;
-
-  for(uint16_t u=0;u<bgpoints;u++){
-    holder += pow((double)adcs.at(u)-mean,2)/bgpoints;
+  size_t index  = 0;
+  for(index=0;index<bgpoints && index<adcs.size();index++){
+    holder += pow((double)adcs.at(index)-mean,2);
   }
+
+  if( index!=bgpoints )
+    Message::send(MSG::WARNING,__FUNCTION__,
+		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),bgpoints));
+
+  holder=holder/((double)index);
   
   rms = sqrt(holder);
   return rms;
@@ -52,9 +63,14 @@ double pmtbaseline::time_reconstructor(double fpedmean, PMT::ch_waveform_t::cons
 double pmtbaseline::tailmean(std::vector<uint16_t> adcs,uint32_t rdpoints){
   double mean = 0;
   uint16_t holder = 0;
-  
-  for(uint16_t u=adcs.size()-1;u>=(adcs.size()-rdpoints);u--)
-    holder += adcs.at(u);
+  size_t index=0;
+  for(index=adcs.size()-1;index>=(adcs.size()-rdpoints) && index>=0; index--)
+    holder += adcs.at(index);
+
+  if( (adcs.size()-index-1)!=bgpoints )
+    Message::send(MSG::WARNING,__FUNCTION__,
+		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),bgpoints));
+
   mean=(double)holder/(double)rdpoints; 
   return mean;
     
@@ -64,8 +80,13 @@ double pmtbaseline::tailrms(std::vector<uint16_t> adcs,uint32_t rdpoints, double
   
   double rms    = 0;
   double holder = 0;
-  for(uint16_t u=adcs.size()-1;u>=(adcs.size()-rdpoints);u--)
-    holder += pow((double)adcs.at(u)-mean,2)/rdpoints;
+  size_t index  = 0;
+  for(index=adcs.size()-1;index>=(adcs.size()-rdpoints)&&index>=0;index--)
+    holder += pow((double)adcs.at(index)-mean,2)/rdpoints;
+
+  if( (adcs.size()-index-1)!=bgpoints )
+    Message::send(MSG::WARNING,__FUNCTION__,
+		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),bgpoints));
   
   rms = sqrt(holder);
   return rms;
@@ -130,15 +151,25 @@ bool pmtbaseline::analyze(storage_manager* storage) {
   //looping through all channels
   for(size_t i=0; i<ewform->size(); ++i){
     const pmt_waveform* pmt_data = &(ewform->at(i));
+
+    if(pmt_data->size()<1){
+      Message::send(MSG::ERROR,__FUNCTION__,
+		    Form("Found 0-length waveform: Event %d ... Ch. %d",ewform->event_id(),pmt_data->channel_number()));
+      continue;
+    }
+
     fpedmean = mean((*pmt_data),bgpoints         );
     fpedrms  = rms ((*pmt_data),bgpoints,fpedmean);      
-    
+
+
     if(fpedrms>0.5 && use_tail){
       fpedmean = tailmean((*pmt_data),bgpoints         );
       fpedrms  = tailrms ((*pmt_data),bgpoints,fpedmean);      
     } 
     // Mean rms can be still bad! But we continue...(warning)
-    
+
+    fpedmean=2048;
+    fpedrms=0.5;
     pedMean     -> Fill( (double)i, fpedmean );
     pedRMS      -> Fill( (double)i, fpedrms  );
     pedMeanAll  -> Fill(  fpedmean            );
