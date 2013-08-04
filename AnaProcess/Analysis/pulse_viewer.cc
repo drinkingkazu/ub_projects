@@ -319,6 +319,13 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
     return 0;
   }
 
+  if(_waveforms[ch][frame][sample].size()<1){
+    sprintf(_buf,"Waveform has 0-length! ch=%d, frame=%d, sample=%d!",
+	    ch,frame,sample);
+    Message::send(MSG::ERROR,__FUNCTION__,_buf);
+    return 0;
+  }
+
   _hWF = new TH1D("hWF",
 		  Form("Channel %d Reconstructed Pulse; Time-Slice; Amplitude",ch),
 		  _waveforms[ch][frame][sample].size(),
