@@ -169,8 +169,6 @@ bool pmtbaseline::analyze(storage_manager* storage) {
     } 
     // Mean rms can be still bad! But we continue...(warning)
 
-    fpedmean=2048;
-    fpedrms=0.5;
     pedMean     -> Fill( (double)i, fpedmean );
     pedRMS      -> Fill( (double)i, fpedrms  );
     pedMeanAll  -> Fill(  fpedmean            );
