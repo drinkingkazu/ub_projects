@@ -152,8 +152,8 @@ def change_cut_values(pv_ptr):
                 elif option=="7" : pv_ptr.set_range_pulse_start_time(float(min_val),float(max_val))
                 elif option=="8" : pv_ptr.set_range_pulse_start_time_reco(float(min_val),float(max_val))
                 elif option=="9" : pv_ptr.set_range_pulse_end_time(float(min_val),float(max_val))
-                elif option=="10": pv_ptr.set_ped_mean(float(min_val),float(max_val))
-                elif option=="11": pv_ptr.set_ped_rms(float(min_val),float(max_val))
+                elif option=="10": pv_ptr.set_range_ped_mean(float(min_val),float(max_val))
+                elif option=="11": pv_ptr.set_range_ped_rms(float(min_val),float(max_val))
                 else :
                     msg  = "\033[91m"
                     msg += 'Option case \"%s\" not handled ... this is an issue of %s script!!!' % (option,__main__.__file__)
