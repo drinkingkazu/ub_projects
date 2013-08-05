@@ -4,18 +4,27 @@
 #include "pmtbaseline.hh"
 #include "event_waveform.hh"
 
-void pmtbaseline::clear_event(){
+pmtbaseline::pmtbaseline(){
+
+  _name="pmtbaseline"; 
+  _fout=0;
+
   _study_tail=false;
   _use_tail=false;
   _bgpoints  = 3;
   _rdpoints  = 3;
+  _nsigma   = 5.0;  // 5 times standard deviaiton ~ 2.5 ADC count
+  _min_peak = 2.5;  // 2.5 ADC count above baseline
+
+  clear_event();
+
+}
+
+void pmtbaseline::clear_event(){
   _fpedmean  = 0.0;
   _fpedrms   = 0.0;
   _ftailmean = 0.0;
   _ftailrms  = 0.0;
-
-  _nsigma   = 5.0;  // 5 times standard deviaiton ~ 2.5 ADC count
-  _min_peak = 2.5;  // 2.5 ADC count above baseline
 
 }
 
@@ -127,8 +136,6 @@ void pmtbaseline::histosetup(){
 }
 
 bool pmtbaseline::initialize() {
-  std::cout << "Initializing pmtbaseline analysis" << std::endl;
-  std::cout << "Setting up histograms" << std::endl;
   histosetup();  
   return true;
 }
@@ -280,10 +287,7 @@ bool pmtbaseline::analyze(storage_manager* storage) {
 }
 
 bool pmtbaseline::finalize() {
-  
-  std::cout << "Finalizing pmtbaseline analysis" << std::endl;
-  std::cout << "Writing histos to _fout         " << std::endl;
-  
+
   int n = rdticks.size();
   rdbadwaveforms = new TGraphErrors(n,&rdticks[0],&rd_waveforms[0]);
   rdbadwaveforms->SetName("rd_badwforms");

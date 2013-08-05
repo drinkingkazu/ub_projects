@@ -31,7 +31,7 @@ class pmtbaseline : public ana_base{
 public:
   
   /// Default constructor
-  pmtbaseline(){ _name="pmtbaseline"; _fout=0;};
+  pmtbaseline();
   
   /// Default destructor
   virtual ~pmtbaseline(){};  
