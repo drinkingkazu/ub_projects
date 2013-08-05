@@ -35,11 +35,35 @@ public:
   
   /// Default destructor
   virtual ~pmtbaseline(){};  
+
+  /// Initialize method to be called before the event loop
   virtual bool initialize();
+
+  /// Analyze method to be called per event in a loop
   virtual bool analyze(storage_manager* storage);
+
+  /// Finalize method to be called after the event loop
   virtual bool finalize();
-  
-  
+
+  /**
+     Setter for # of samples to be used for pedestal calculation.
+     By default this sample is taken from the beginning of the waveform
+  */
+  void set_nsample_ped(uint32_t n){bgpoints=n;};
+
+  /** 
+      Setter for # of samples to be used for pedestal calculation
+      This sets # of samples to be used from the tail of the waveform
+      in case pedestal sample from the beginning of the waveform is not good.
+  */
+  void set_nsample_ped_tail(uint32_t n){rdpoints=n;};
+
+  /// Sets number of standard deviations from baseline mean to claim a pulse
+  void set_nsigma_threshold(double thres){nsigma=thres;};
+
+  /// Sets absolute adc count (baseline subtracted, hence double type) to claim a pulse
+  void set_adc_threshold(double thres){min_peak=thres;};
+
 private:
   //Clear for each new run
   void clear_event();
@@ -93,11 +117,9 @@ private:
   double fpedmean;     //Beamgate ped mean
   double fpedrms;      //Beamgate ped rms
  
-  double nsigma;
-
-  double min_peak;
-  
-  int max;
+  double nsigma;       // number of sigma offset from baseline to claim a pulse
+  double min_peak;     // absolute adc count threshold (baseline subtracted) to claim a pulse
+  int max;             // maximum amplitude of a pulse
 
   
   //Vectors for TGraphs

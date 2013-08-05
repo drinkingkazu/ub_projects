@@ -5,11 +5,18 @@
 #include "event_waveform.hh"
 
 void pmtbaseline::clear_event(){
-  bgpoints  = 0;
+  study_tail=false;
+  use_tail=false;
+  bgpoints  = 3;
+  rdpoints  = 3;
   fpedmean  = 0.0;
   fpedrms   = 0.0;
   ftailmean = 0.0;
   ftailrms  = 0.0;
+
+  nsigma   = 5.0;  // 5 times standard deviaiton ~ 2.5 ADC count
+  min_peak = 2.5;  // 2.5 ADC count above baseline
+
 }
 
 double pmtbaseline::mean(std::vector<uint16_t> adcs,uint32_t bgpoints){
@@ -117,8 +124,6 @@ void pmtbaseline::histosetup(){
   peakareas = new TH1D("peakareas","Areas",1125,0,5000);
   nptstaken = new TH1D("npointstake","Num. Points Taken for A.",40,0,80);
   */
-
-
 }
 
 bool pmtbaseline::initialize() {
@@ -133,11 +138,7 @@ bool pmtbaseline::analyze(storage_manager* storage) {
   clear_event();
   
   //Set points to hold number of kept points
-  bgpoints = 5;  //Beamgate
-  rdpoints = 5;  //Random
   max      = 15;
-  nsigma   = 5.0;
-  min_peak = 3.0;
   
   double event_charge=0;
   double event_amplitude=0;
@@ -235,8 +236,6 @@ bool pmtbaseline::analyze(storage_manager* storage) {
 	  event_charge     += pulse.charge(); 
 	  event_amplitude  += pulse.pulse_peak();
 	  
-	  
-	
 	} else {
 	  q_pulse += (*adc_itr) - fpedmean;
 	  if((*adc_itr) > (a_pulse + fpedmean)) {
