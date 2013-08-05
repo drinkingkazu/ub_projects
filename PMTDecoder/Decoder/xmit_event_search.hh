@@ -19,7 +19,7 @@ public:
 
   void set_format(FORMAT::INPUT_FILE fmt){_fin.set_format(fmt);};
 
-  void run();
+  bool run();
 
   void print_word(std::vector<PMT::word_t> *in_array);
 

@@ -13,11 +13,11 @@ xmit_event_search::xmit_event_search() :
 
 }
 
-void xmit_event_search::run() {
+bool xmit_event_search::run() {
 
   if(_target_id==PMT::INVALID_WORD){
     Message::send(MSG::ERROR,__FUNCTION__,"Event ID not specified!");
-    exit(1);
+    return false;
   }
   
   _target_id = (0xf0000000 + ((_target_id & 0xfff) << 16) + 0x0000f000 + ((_target_id >> 12) & 0xfff));
@@ -29,7 +29,7 @@ void xmit_event_search::run() {
   bool fire=false;
   _fin.open();
   
-  if(!_fin.is_open()) exit(1);
+  if(!_fin.is_open()) return false;
   
   while(1){
 
@@ -71,6 +71,7 @@ void xmit_event_search::run() {
   }
   
   _fin.close();
+  return true;
 }
 
 void xmit_event_search::print_word(std::vector<PMT::word_t> *in_array){
