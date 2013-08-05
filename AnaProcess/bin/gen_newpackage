@@ -4,13 +4,13 @@ import sys, os
 if len(sys.argv)<2:
    sys.stderr.write('Usage: %s PACKAGE_NAME\n\n' % sys.argv[0])
    sys.exit(1)
-if not 'PMT_DECODER_DIR' in os.environ.keys():
-   sys.stderr.write('$PMT_DECODER_DIR not defined!\n\n')
+if not 'ANA_PROC_DIR' in os.environ.keys():
+   sys.stderr.write('$ANA_PROC_DIR not defined!\n\n')
    sys.exit(1)
 
 name=sys.argv[1]
-target_dir='%s/%s' % (os.environ['PMT_DECODER_DIR'],name)
-source_dir='%s/bin/tmp' % os.environ['PMT_DECODER_DIR']
+target_dir='%s/%s' % (os.environ['ANA_PROC_DIR'],name)
+source_dir='%s/bin/tmp' % os.environ['ANA_PROC_DIR']
 
 if not os.path.exists(target_dir):
    try:
@@ -56,9 +56,9 @@ print ' OR'
 print '    > cd %s; make;' % target_dir
 print
 print 'If you would like this package to be compiled always,'
-print 'append it in SUBDIR variable in %s/GNUmakefile.' % os.environ['PMT_DECODER_DIR']
+print 'append it in SUBDIR variable in %s/GNUmakefile.' % os.environ['ANA_PROC_DIR']
 print
 print 'If needed, make sure you define linked libraries in rootmap generation script.'
-print 'The script is: %s/lib/make_rootmap.sh' % os.environ['PMT_DECODER_DIR']
+print 'The script is: %s/lib/make_rootmap.sh' % os.environ['ANA_PROC_DIR']
 print
 sys.exit(0)
