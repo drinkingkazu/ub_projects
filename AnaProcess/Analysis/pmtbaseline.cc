@@ -11,10 +11,10 @@ pmtbaseline::pmtbaseline(){
 
   _study_tail=false;
   _use_tail=false;
-  _bgpoints  = 3;
-  _rdpoints  = 3;
+  _bgpoints  = 1;
+  _rdpoints  = 1;
   _nsigma   = 5.0;  // 5 times standard deviaiton ~ 2.5 ADC count
-  _min_peak = 2.5;  // 2.5 ADC count above baseline
+  _min_peak = 5.0;  // 2.5 ADC count above baseline
 
   clear_event();
 
