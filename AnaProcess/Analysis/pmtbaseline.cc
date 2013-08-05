@@ -5,17 +5,17 @@
 #include "event_waveform.hh"
 
 void pmtbaseline::clear_event(){
-  study_tail=false;
-  use_tail=false;
-  bgpoints  = 3;
-  rdpoints  = 3;
-  fpedmean  = 0.0;
-  fpedrms   = 0.0;
-  ftailmean = 0.0;
-  ftailrms  = 0.0;
+  _study_tail=false;
+  _use_tail=false;
+  _bgpoints  = 3;
+  _rdpoints  = 3;
+  _fpedmean  = 0.0;
+  _fpedrms   = 0.0;
+  _ftailmean = 0.0;
+  _ftailrms  = 0.0;
 
-  nsigma   = 5.0;  // 5 times standard deviaiton ~ 2.5 ADC count
-  min_peak = 2.5;  // 2.5 ADC count above baseline
+  _nsigma   = 5.0;  // 5 times standard deviaiton ~ 2.5 ADC count
+  _min_peak = 2.5;  // 2.5 ADC count above baseline
 
 }
 
@@ -74,9 +74,9 @@ double pmtbaseline::tailmean(std::vector<uint16_t> adcs,uint32_t rdpoints){
   for(index=adcs.size()-1;index>=(adcs.size()-rdpoints) && index>=0; index--)
     holder += adcs.at(index);
 
-  if( (adcs.size()-index-1)!=bgpoints )
+  if( (adcs.size()-index-1)!=rdpoints )
     Message::send(MSG::WARNING,__FUNCTION__,
-		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),bgpoints));
+		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),rdpoints));
 
   mean=(double)holder/(double)rdpoints; 
   return mean;
@@ -91,9 +91,9 @@ double pmtbaseline::tailrms(std::vector<uint16_t> adcs,uint32_t rdpoints, double
   for(index=adcs.size()-1;index>=(adcs.size()-rdpoints)&&index>=0;index--)
     holder += pow((double)adcs.at(index)-mean,2)/rdpoints;
 
-  if( (adcs.size()-index-1)!=bgpoints )
+  if( (adcs.size()-index-1)!=rdpoints )
     Message::send(MSG::WARNING,__FUNCTION__,
-		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),bgpoints));
+		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),rdpoints));
   
   rms = sqrt(holder);
   return rms;
@@ -101,7 +101,7 @@ double pmtbaseline::tailrms(std::vector<uint16_t> adcs,uint32_t rdpoints, double
 
 void pmtbaseline::histosetup(){
   
-  pedMean     = new TH2D("bg_pedMean","Ped Mean (bgpoints)",40,0,40,400,2000,2200);
+  pedMean     = new TH2D("bg_pedMean","Ped Mean (_bgpoints)",40,0,40,400,2000,2200);
   pedRMS      = new TH2D("bg_pedRMS","Ped RMS (bdpoints)",40,0,40,300,0,30);
   tailstudy   = new TH2D("rd_tailstudy","Tail Study",16,0,16,600,1900,2200);
 
@@ -112,8 +112,8 @@ void pmtbaseline::histosetup(){
   pedRMSCutrms   = new TH1D("bg_pedRMSCut" ,"Ped RMS  (rms>0.5 all chan)" ,300 ,0   ,30   );
  
   channels    = new TH1D("bg_channels","Beam Gate Channels",40,0,40); 
-  tailMean    = new TH1D("rd_tailMean","Ped Tail Mean (rdpoints)",400,2000,2200);
-  tailRMS     = new TH1D("rd_tailRMS","Ped Tail RMS (rdpoints)",100,0,10);
+  tailMean    = new TH1D("rd_tailMean","Ped Tail Mean (_rdpoints)",400,2000,2200);
+  tailRMS     = new TH1D("rd_tailRMS","Ped Tail RMS (_rdpoints)",100,0,10);
   
   tailMeanCutrms    = new TH1D("rd_tailMeanCut","Ped Tail Mean (rms>0.5)",400,2000,2200);
   tailRMSCutrms     = new TH1D("rd_tailRMSCut","Ped Tail RMS (rms>0.5)",100,0,10);
@@ -138,12 +138,11 @@ bool pmtbaseline::analyze(storage_manager* storage) {
   clear_event();
   
   //Set points to hold number of kept points
-  max      = 15;
+  _max      = 15;
   
   double event_charge=0;
   double event_amplitude=0;
   int npulse=0;
-  use_tail=false;
 
   //Get event waveform from storage
   event_waveform   *ewform = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
@@ -159,26 +158,26 @@ bool pmtbaseline::analyze(storage_manager* storage) {
       continue;
     }
 
-    fpedmean = mean((*pmt_data),bgpoints         );
-    fpedrms  = rms ((*pmt_data),bgpoints,fpedmean);      
+    _fpedmean = mean((*pmt_data),_bgpoints         );
+    _fpedrms  = rms ((*pmt_data),_bgpoints,_fpedmean);      
 
 
-    if(fpedrms>0.5 && use_tail){
-      fpedmean = tailmean((*pmt_data),bgpoints         );
-      fpedrms  = tailrms ((*pmt_data),bgpoints,fpedmean);      
+    if(_fpedrms>0.5 && _use_tail){
+      _fpedmean = tailmean((*pmt_data),_bgpoints         );
+      _fpedrms  = tailrms ((*pmt_data),_bgpoints,_fpedmean);      
     } 
     // Mean rms can be still bad! But we continue...(warning)
 
-    pedMean     -> Fill( (double)i, fpedmean );
-    pedRMS      -> Fill( (double)i, fpedrms  );
-    pedMeanAll  -> Fill(  fpedmean            );
-    pedRMSAll   -> Fill(  fpedrms             );
+    pedMean     -> Fill( (double)i, _fpedmean );
+    pedRMS      -> Fill( (double)i, _fpedrms  );
+    pedMeanAll  -> Fill(  _fpedmean            );
+    pedRMSAll   -> Fill(  _fpedrms             );
     channels    -> Fill( (double)i );
     
     //Cut on high RMS
-    if(fpedrms>0.5){
-      pedMeanCutrms->Fill(fpedmean);
-      pedRMSCutrms ->Fill(fpedrms);
+    if(_fpedrms>0.5){
+      pedMeanCutrms->Fill(_fpedmean);
+      pedRMSCutrms ->Fill(_fpedrms);
       
       for(uint16_t k=0;k<(*pmt_data).size();k++){
 	bg_waveforms.push_back((double)(*pmt_data).at(k));
@@ -199,10 +198,10 @@ bool pmtbaseline::analyze(storage_manager* storage) {
     //Going through all bins in waveform
     for(PMT::ch_waveform_t::const_iterator adc_itr((*pmt_data).begin());
 	adc_itr!=(*pmt_data).end(); ++adc_itr) {
-      if(!fire && (*adc_itr)>(nsigma*fpedrms+fpedmean) && (*adc_itr)>(min_peak+fpedmean)) {
+      if(!fire && (*adc_itr)>(_nsigma*_fpedrms+_fpedmean) && (*adc_itr)>(_min_peak+_fpedmean)) {
 	fire    = true;
 	t_start = time_counter;
-	t_start_reco = t_start + time_reconstructor(fpedmean, adc_itr);
+	t_start_reco = t_start + time_reconstructor(_fpedmean, adc_itr);
 	t_start_diff = t_start - t_start_reco;
 	reco_time->Fill(t_start_reco);
 	reco_time_diff->Fill(t_start_diff);
@@ -211,14 +210,14 @@ bool pmtbaseline::analyze(storage_manager* storage) {
       }
       
       if(fire) {
-	if((*adc_itr)<(nsigma*fpedrms+fpedmean) || (*adc_itr)<(min_peak+fpedmean)) {
+	if((*adc_itr)<(_nsigma*_fpedrms+_fpedmean) || (*adc_itr)<(_min_peak+_fpedmean)) {
 	  npulse++;
 	  fire  = false;
 	  t_end = time_counter;  	  
 	
 	  pulse_info pulse;
-	  pulse.set_ped_mean  ( fpedmean );
-	  pulse.set_ped_rms   ( fpedrms  );
+	  pulse.set_ped_mean  ( _fpedmean );
+	  pulse.set_ped_rms   ( _fpedrms  );
 	  pulse.set_charge    ( q_pulse  );
 	  pulse.set_pulse_peak( a_pulse  );
 	  pulse.set_start_time( t_start  );
@@ -235,9 +234,9 @@ bool pmtbaseline::analyze(storage_manager* storage) {
 	  event_amplitude  += pulse.pulse_peak();
 	  
 	} else {
-	  q_pulse += (*adc_itr) - fpedmean;
-	  if((*adc_itr) > (a_pulse + fpedmean)) {
-	    a_pulse= (*adc_itr) - fpedmean;
+	  q_pulse += (*adc_itr) - _fpedmean;
+	  if((*adc_itr) > (a_pulse + _fpedmean)) {
+	    a_pulse= (*adc_itr) - _fpedmean;
 	    t_max=time_counter;
 	  }	
 	}
@@ -250,12 +249,12 @@ bool pmtbaseline::analyze(storage_manager* storage) {
     
     
     //Study tail
-    if(study_tail && i == 6){
-      for(int k=3;k<=max;++k)
+    if(_study_tail && i == 6){
+      for(int k=3;k<=_max;++k)
 	{
-	  ftailmean  = tailmean((*pmt_data),k);
-	  ftailrms   = tailrms ((*pmt_data),k,ftailmean);
-	  tailstudy -> Fill((double)k,ftailmean);
+	  _ftailmean  = tailmean((*pmt_data),k);
+	  _ftailrms   = tailrms ((*pmt_data),k,_ftailmean);
+	  tailstudy -> Fill((double)k,_ftailmean);
 	}
     }
     

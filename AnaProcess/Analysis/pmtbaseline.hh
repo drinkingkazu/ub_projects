@@ -49,20 +49,24 @@ public:
      Setter for # of samples to be used for pedestal calculation.
      By default this sample is taken from the beginning of the waveform
   */
-  void set_nsample_ped(uint32_t n){bgpoints=n;};
+  void set_nsample_ped(uint32_t n){_bgpoints=n;};
 
   /** 
       Setter for # of samples to be used for pedestal calculation
       This sets # of samples to be used from the tail of the waveform
-      in case pedestal sample from the beginning of the waveform is not good.
+      in case pedestal sample from the beginning of the waveform is not good AND
+      the user call use_tail function to allow this to happen.
   */
-  void set_nsample_ped_tail(uint32_t n){rdpoints=n;};
+  void set_nsample_ped_tail(uint32_t n){_rdpoints=n;};
 
   /// Sets number of standard deviations from baseline mean to claim a pulse
-  void set_nsigma_threshold(double thres){nsigma=thres;};
+  void set_nsigma_threshold(double thres){_nsigma=thres;};
 
   /// Sets absolute adc count (baseline subtracted, hence double type) to claim a pulse
-  void set_adc_threshold(double thres){min_peak=thres;};
+  void set_adc_threshold(double thres){_min_peak=thres;};
+
+  /// Sets boolean to use the tial pedestal sample
+  void set_use_tail(bool use){_use_tail=use;};
 
 private:
   //Clear for each new run
@@ -106,20 +110,20 @@ private:
   TGraphErrors *bgbadwaveforms;
 
   //Private vars
-  bool use_tail;
-  bool study_tail;
+  bool _use_tail;
+  bool _study_tail;
   
-  uint32_t bgpoints;   //Beam gate points
-  uint32_t rdpoints;   //Random tail points
+  uint32_t _bgpoints;   //Beam gate points
+  uint32_t _rdpoints;   //Random tail points
   
-  double ftailmean;    //Random ped mean
-  double ftailrms;     //Random ped rms
-  double fpedmean;     //Beamgate ped mean
-  double fpedrms;      //Beamgate ped rms
+  double _ftailmean;    //Random ped mean
+  double _ftailrms;     //Random ped rms
+  double _fpedmean;     //Beamgate ped mean
+  double _fpedrms;      //Beamgate ped rms
  
-  double nsigma;       // number of sigma offset from baseline to claim a pulse
-  double min_peak;     // absolute adc count threshold (baseline subtracted) to claim a pulse
-  int max;             // maximum amplitude of a pulse
+  double _nsigma;       // number of sigma offset from baseline to claim a pulse
+  double _min_peak;     // absolute adc count threshold (baseline subtracted) to claim a pulse
+  int _max;             // maximum amplitude of a pulse
 
   
   //Vectors for TGraphs
