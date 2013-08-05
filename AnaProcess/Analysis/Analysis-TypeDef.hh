@@ -12,6 +12,7 @@
 #include "beamgate_debugger.hh"
 #include "pmtbaseline.hh"
 #include "pulse_viewer.hh"
+#include "pmtbaseline_ana.hh"
 //ADD_NEW_HEADER ... do not change this line
 
 // Class forward declaration here
@@ -21,6 +22,8 @@ class reco_wf;
 class beamgate_debugger;
 class pmtbaseline;
 class pulse_viewer;
+class pmtbaseline_ana;
 //ADD_NEW_CLASS ... do not change this line
 
 #endif
+

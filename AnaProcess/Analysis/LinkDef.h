@@ -16,5 +16,7 @@
 #pragma link C++ class beamgate_debugger+;
 #pragma link C++ class pmtbaseline+;
 #pragma link C++ class pulse_viewer+;
+#pragma link C++ class pmtbaseline_ana+;
 //ADD_NEW_CLASS ... do not change this line
 #endif
+
