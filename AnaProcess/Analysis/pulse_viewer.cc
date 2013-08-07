@@ -138,6 +138,8 @@ bool pulse_viewer::analyze(storage_manager* storage) {
     double      t_start_reco = (*iter).start_time_reco();
 
     // Check if this pulse passes the criteria
+    if(ch < _cut_channels.first || _cut_channels.second < ch)
+      continue;
     if(t_start_reco < _cut_tstart_reco.first || _cut_tstart_reco.second < t_start_reco)
       continue;
     if(t_start < _cut_tstart.first || _cut_tstart.second < t_start)
@@ -265,6 +267,8 @@ TH1D* pulse_viewer::next_pulse(PMT::ch_number_t ch){
 
     if(index<0) index=0;
 
+    if(ch < _cut_channels.first || _cut_channels.second < ch)
+      continue;
     if(_pulse_tstart_reco[ch][index] < _cut_tstart_reco.first || _cut_tstart_reco.second < _pulse_tstart_reco[ch][index])
       continue;
     if(_pulse_tstart[ch][index] < _cut_tstart.first || _cut_tstart.second < _pulse_tstart[ch][index])
@@ -463,6 +467,7 @@ void pulse_viewer::display_cut_ranges(){
   msg += Form("    Num. Pulses         : %d -> %d\n",_cut_npulse.first,_cut_npulse.second);
   msg += "\n";
   msg += Form(" Pulse-wise parameters...\n");
+  msg += Form("    Channel Number      : %d -> %d\n",_cut_channels.first,_cut_channels.second);
   msg += Form("    Pulse Charge        : %g -> %g\n",_cut_charge.first,_cut_charge.second);
   msg += Form("    Pulse Peak          : %g -> %g\n",_cut_amp.first,_cut_amp.second);
   msg += Form("    Pulse Start T       : %g -> %g\n",_cut_tstart.first,_cut_tstart.second);

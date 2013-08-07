@@ -96,13 +96,14 @@ def change_cut_values(pv_ptr):
         msg += "    2  ... Summed Charge\n"
         msg += "    3  ... Summed Peak\n"
         msg += "    4  ... Num. Pulses\n"
-        msg += "    5  ... Pulse Charge\n"
-        msg += "    6  ... Pulse Peak\n"
-        msg += "    7  ... Pulse Start T\n"
-        msg += "    8  ... Pulse Start T (RECO-ed)\n"
-        msg += "    9  ... Pulse End T\n"
-        msg += "    10 ... Pedestal Mean\n"
-        msg += "    11 ... Pedestal RMS\n"
+        msg += "    5  ... Channel Number\n"
+        msg += "    6  ... Pulse Charge\n"
+        msg += "    7  ... Pulse Peak\n"
+        msg += "    8  ... Pulse Start T\n"
+        msg += "    9  ... Pulse Start T (RECO-ed)\n"
+        msg += "    10 ... Pulse End T\n"
+        msg += "    11 ... Pedestal Mean\n"
+        msg += "    12 ... Pedestal RMS\n"
         msg += "\n"
         
         print msg
@@ -150,13 +151,14 @@ def change_cut_values(pv_ptr):
                 elif option=="2" : pv_ptr.set_range_sum_charge(float(min_val),float(max_val))
                 elif option=="3" : pv_ptr.set_range_sum_peak(float(min_val),float(max_val))
                 elif option=="4" : pv_ptr.set_range_npulse(int(min_val),int(max_val))
-                elif option=="5" : pv_ptr.set_range_pulse_charge(float(min_val),float(max_val))
-                elif option=="6" : pv_ptr.set_range_pulse_amp(float(min_val),float(max_val))
-                elif option=="7" : pv_ptr.set_range_pulse_start_time(float(min_val),float(max_val))
-                elif option=="8" : pv_ptr.set_range_pulse_start_time_reco(float(min_val),float(max_val))
-                elif option=="9" : pv_ptr.set_range_pulse_end_time(float(min_val),float(max_val))
-                elif option=="10": pv_ptr.set_range_ped_mean(float(min_val),float(max_val))
-                elif option=="11": pv_ptr.set_range_ped_rms(float(min_val),float(max_val))
+                elif option=='5' : pv_ptr.set_range_channel(int(min_val),int(max_val))
+                elif option=="6" : pv_ptr.set_range_pulse_charge(float(min_val),float(max_val))
+                elif option=="7" : pv_ptr.set_range_pulse_amp(float(min_val),float(max_val))
+                elif option=="8" : pv_ptr.set_range_pulse_start_time(float(min_val),float(max_val))
+                elif option=="9" : pv_ptr.set_range_pulse_start_time_reco(float(min_val),float(max_val))
+                elif option=="10": pv_ptr.set_range_pulse_end_time(float(min_val),float(max_val))
+                elif option=="11": pv_ptr.set_range_ped_mean(float(min_val),float(max_val))
+                elif option=="12": pv_ptr.set_range_ped_rms(float(min_val),float(max_val))
                 else :
                     msg  = "\033[91m"
                     msg += 'Option case \"%s\" not handled ... this is an issue of %s script!!!' % (option,__main__.__file__)
