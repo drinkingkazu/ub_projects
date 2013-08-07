@@ -175,11 +175,11 @@ bool pmtbaseline::analyze(storage_manager* storage) {
     } 
     // Mean rms can be still bad! But we continue...(warning)
 
-    pedMean     -> Fill( (double)i, _fpedmean );
-    pedRMS      -> Fill( (double)i, _fpedrms  );
+    pedMean     -> Fill( pmt_data->channel_number(), _fpedmean );
+    pedRMS      -> Fill( pmt_data->channel_number(), _fpedrms  );
     pedMeanAll  -> Fill(  _fpedmean            );
     pedRMSAll   -> Fill(  _fpedrms             );
-    channels    -> Fill( (double)i );
+    channels    -> Fill( pmt_data->channel_number() );
     
     //Cut on high RMS
     if(_fpedrms>0.5){
