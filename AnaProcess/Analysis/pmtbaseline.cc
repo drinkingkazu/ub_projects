@@ -11,10 +11,10 @@ pmtbaseline::pmtbaseline(){
 
   _study_tail=false;
   _use_tail=false;
-  _bgpoints  = 3;
-  _rdpoints  = 3;
+  _bgpoints  = 1;
+  _rdpoints  = 1;
   _nsigma   = 5.0;  // 5 times standard deviaiton ~ 2.5 ADC count
-  _min_peak = 2.5;  // 2.5 ADC count above baseline
+  _min_peak = 5.0;  // 2.5 ADC count above baseline
 
   clear_event();
 
@@ -80,9 +80,9 @@ double pmtbaseline::tailmean(std::vector<uint16_t> adcs,uint32_t rdpoints){
   double mean = 0;
   uint16_t holder = 0;
   size_t index=0;
-  for(index=adcs.size()-1;index>=(adcs.size()-rdpoints) && index>=0; index--)
+  for(index=adcs.size()-1;index>=(adcs.size()-rdpoints); index--)
     holder += adcs.at(index);
-
+  
   if( (adcs.size()-index-1)!=rdpoints )
     Message::send(MSG::WARNING,__FUNCTION__,
 		  Form("Waveform too short! Length: %d (need %d for baseline estimate).",(int)(adcs.size()),rdpoints));
@@ -97,7 +97,7 @@ double pmtbaseline::tailrms(std::vector<uint16_t> adcs,uint32_t rdpoints, double
   double rms    = 0;
   double holder = 0;
   size_t index  = 0;
-  for(index=adcs.size()-1;index>=(adcs.size()-rdpoints)&&index>=0;index--)
+  for(index=adcs.size()-1;index>=(adcs.size()-rdpoints);index--)
     holder += pow((double)adcs.at(index)-mean,2)/rdpoints;
 
   if( (adcs.size()-index-1)!=rdpoints )
@@ -127,7 +127,7 @@ void pmtbaseline::histosetup(){
   tailMeanCutrms    = new TH1D("rd_tailMeanCut","Ped Tail Mean (rms>0.5)",400,2000,2200);
   tailRMSCutrms     = new TH1D("rd_tailRMSCut","Ped Tail RMS (rms>0.5)",100,0,10);
   reco_time = new TH1D("reco_time", "Reconstructed Start Time", 100, 0 , 50);
-  reco_time_diff = new TH1D("reco_time_diff", "Reconstructed Start Time Diff", 100, -5, 5);
+  reco_time_diff = new TH1D("reco_time_diff", "Reconstructed Start Time Diff: start - reco", 100, -5, 5);
   /*
   peakheights = new TH1D("peakheights","Subtracted Pulse Heights",500,0,1000);
   peakareas = new TH1D("peakareas","Areas",1125,0,5000);
@@ -208,8 +208,10 @@ bool pmtbaseline::analyze(storage_manager* storage) {
       if(!fire && (*adc_itr)>(_nsigma*_fpedrms+_fpedmean) && (*adc_itr)>(_min_peak+_fpedmean)) {
 	fire    = true;
 	t_start = time_counter;
+
+	t_start_diff = time_reconstructor(_fpedmean, adc_itr);
 	t_start_reco = t_start + time_reconstructor(_fpedmean, adc_itr);
-	t_start_diff = t_start - t_start_reco;
+
 	reco_time->Fill(t_start_reco);
 	reco_time_diff->Fill(t_start_diff);
 	q_pulse = 0;
