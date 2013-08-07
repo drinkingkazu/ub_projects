@@ -73,36 +73,41 @@ private:
   void clear_event();
   
   //Functions
+  /// Calculate mean using input number of samples
   double mean(std::vector<uint16_t>,uint32_t);
+  /// Calculate standard deviation using input number of samples & mean
   double rms (std::vector<uint16_t>,uint32_t,double);
+  /// Same as mean(), but uses samples from the tail
   double tailmean(std::vector<uint16_t>,uint32_t);
+  /// Same as rms(), but uses samples from the tail.
   double tailrms (std::vector<uint16_t>,uint32_t,double);
+  /// Sophisiticated time reconstruction algorithm by applying linear extrapolation of rising slope.
   double time_reconstructor(double, PMT::ch_waveform_t::const_iterator);
 
   //Histogram preparation
   void histosetup();
 
   //Histograms and graphs 
-  TH2D *pedMean;
-  TH2D *pedRMS;
-  TH2D *tailstudy;
+  TH2D *pedMean;   ///< pedestal mean vs. channels
+  TH2D *pedRMS;    ///< pedestal RMS vs. channels
+  TH2D *tailstudy; ///< pedestal mean vs. channels where mean is taken from tail samples
 
-  TH1D *tailMean;
-  TH1D *tailRMS;  
-  TH1D *channels;
-  TH1D *pedMeanAll;
-  TH1D *pedRMSAll;
+  TH1D *tailMean;  ///< 1D histogram of pedestal mean taken from tail samples
+  TH1D *tailRMS;   ///< 1D histogram of pedestal rms taken from tail samples
+  TH1D *channels;  ///< 1D histogram of participating channels
+  TH1D *pedMeanAll;///< 1D histogram of pedetal mean (both from head & tail)
+  TH1D *pedRMSAll; ///< 1D histogram of pedetal RMS (both from head & tail)
 
-  TH1D *tailMeanCutrms;
-  TH1D *tailRMSCutrms;
+  TH1D *tailMeanCutrms; ///< 1D histogram of tail pedestal mean for RMS>0.5
+  TH1D *tailRMSCutrms;  ///< 1D histogram of tail pedestal rms for RMS>0.5
 
-  TH1D *pedMeanCutrms;
-  TH1D *pedRMSCutrms;
+  TH1D *pedMeanCutrms;  ///< 1D histogram of head pedestal mean for RMS>0.5
+  TH1D *pedRMSCutrms;   ///< 1D histogram of head pedestal rms for RMS>0.5
 
   
-  TH1D *peakheights;
-  TH1D *peakareas;
-  TH1D *nptstaken;
+  TH1D *peakheights; ///< 1D histogram of pulse amplitude
+  TH1D *peakareas;   ///< 1D histogram of pulse charge
+  TH1D *nptstaken;   
   TH1D *reco_time;
   TH1D *reco_time_diff;
   
