@@ -32,7 +32,10 @@ def main(pv_ptr) :
             for x in xrange(pv_ptr.get_npulse(ch)):
                 print "pulse %d/%d" % (x+1,pv_ptr.get_npulse(ch))
                 h=pv_ptr.next_pulse(ch)
-                
+
+                if not h:
+                    break;
+
                 options=['n','s','q','c']
                 user_input=''
             

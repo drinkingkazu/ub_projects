@@ -244,25 +244,53 @@ TH1D* pulse_viewer::next_pulse(PMT::ch_number_t ch){
     return 0;
   }
 
-  short this_index = _pulse_count[ch].second;
+  //  short this_index = _pulse_count[ch].second;
 
-  if(this_index >= _pulse_count[ch].first){
-    sprintf(_buf,"No more pulse found on ch %d... (%d/%d)",ch,this_index,_pulse_count[ch].first);
-    Message::send(MSG::NORMAL,__FUNCTION__,_buf);
+  // Check event cut criteria
+  if( (_event_id < _cut_event_id.first || _cut_event_id.second < _event_id) ||
+      (_sum_charge < _cut_sum_charge.first || _cut_sum_charge.second < _sum_charge) ||
+      (_sum_peak < _cut_sum_peak.first || _cut_sum_peak.second < _sum_peak) ||
+      (_npulse < _cut_npulse.first || _cut_npulse.second < _npulse) )
+    {
+      // event cut criteria changed and this event is not qualified anymore!
+      _pulse_count[ch].second=_pulse_count[ch].first;
+      return 0;
+    }
+
+  // Check pulse cut criteria
+  short index=0;
+  for(index = _pulse_count[ch].second;
+      index < _pulse_count[ch].first;
+      index++){
+
+    if(index<0) index=0;
+
+    if(_pulse_tstart_reco[ch][index] < _cut_tstart_reco.first || _cut_tstart_reco.second < _pulse_tstart_reco[ch][index])
+      continue;
+    if(_pulse_tstart[ch][index] < _cut_tstart.first || _cut_tstart.second < _pulse_tstart[ch][index])
+      continue;
+    if(_pulse_tend[ch][index] < _cut_tend.first || _cut_tend.second < _pulse_tend[ch][index])
+      continue;
+    if(_pulse_charge[ch][index] < _cut_charge.first || _cut_charge.second < _pulse_charge[ch][index])
+      continue;
+    if(_pulse_amp[ch][index] < _cut_amp.first || _cut_amp.second < _pulse_amp[ch][index])
+      continue;
+    if(_pulse_pedbase[ch][index] < _cut_pedbase.first || _cut_pedbase.second < _pulse_pedbase[ch][index])
+      continue;
+    if(_pulse_pedrms[ch][index] < _cut_pedrms.first || _cut_pedrms.second < _pulse_pedrms[ch][index])
+      continue;
+    break;
+  }
+  
+  if(index==_pulse_count[ch].first){
+    _pulse_count[ch].second=_pulse_count[ch].first;
     return 0;
-  }
-  else if(this_index < 0) {
-    sprintf(_buf,"First pulse on Ch: %d",ch);
-    Message::send(MSG::INFO,__FUNCTION__,_buf);
-    this_index=0;
-    _pulse_count[ch].second=this_index+1;
   }else{
-    sprintf(_buf,"Pulse index %d for ch. %d",this_index,ch);
+    _pulse_count[ch].second=index+1;
+    sprintf(_buf,"Pulse index %d for ch. %d",index,ch);
     Message::send(MSG::NORMAL,__FUNCTION__,_buf);
-    _pulse_count[ch].second+=1;
+    return get_waveform(ch,(size_t)index);
   }
-
-  return get_waveform(ch,(size_t)this_index);
 
 }
 
@@ -407,7 +435,6 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
 
   _cWF->Modified();
   _cWF->Update();
-
   _cWF->Draw();
 
   return _hWF;
