@@ -1,0 +1,52 @@
+
+This is a README for python scripts in this repository.
+
+(*) lec000_hello_world.py
+
+    Super simple example to print out "hello world" on the screen!
+
+(*) lec001_hello_world_advanced.py
+
+    Same hello world example but shows a method of string operation 
+    that is an equivalent method of sprintf in C. Also shows alternative
+    method of using "sys.stdout" and "sys.stderr" than using "print".
+
+(*) lec002_data_types.py
+
+    Introduces basic data types in python including integer, floating point,
+    string, list, tuple, and dictionary.
+
+(*) lec003_scope.py 
+
+    Demonstration of python 'scope' principle, which is like C++ 'namespace'.
+
+(*) lec004_loop.py
+    
+    Shows how one can write 'for' and 'while' loop in python
+
+(*) lec005_string_operation.py
+
+    Shows some useful string member functions
+
+(*) lec006_define_function.py
+
+    Shows how one can define a function in python
+
+(*) lec007_os_module.py
+
+    Example to demonstrate some useful os related functions.
+
+(*) lec008_import.py
+
+    Example to show how "import" works to include your own module.
+
+(*) lec009_import_pyroot.py
+    
+    A very simple script that only peforms PyROOT import
+
+(*) lec010_play_pyroot.py
+
+    Example to show how one can make ROOT histogram and play with it.
+    Also include a simple TTree event loop and filling TGraph, calling a fit.
+
+
