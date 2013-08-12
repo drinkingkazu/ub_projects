@@ -64,8 +64,11 @@ public:
       return PMT::UNDEFINED_WORD;
   }
 
-  /// A method to calculate PMT frame number
+  /// A method to calculate PMT frame number ... this takes care of +/- 0x7 roll over
   PMT::word_t get_pmt_frame(PMT::word_t event_frame_id, PMT::word_t channel_frame_id) const;
+
+  /// A method to calculate Trigger frame number ... this takes care of +/- 0xf roll over
+  PMT::word_t get_trigger_frame(PMT::word_t event_frame_id, PMT::word_t trigger_frame_id) const;
 
   /// Implementation of algo_base::check_event_quality
   virtual bool check_event_quality();

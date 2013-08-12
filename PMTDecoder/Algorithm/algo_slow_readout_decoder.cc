@@ -294,8 +294,10 @@ bool algo_slow_readout_decoder::decode_event_header(const PMT::word_t *event_hea
 
 
 #ifdef INCLUDE_EXTRA_HEADER
-  _event_data->set_trigger_frame_id( (((event_header[5]>>16) & 0xfff)>>4 & 0xf) + 
+  _event_data->set_trigger_frame_id( (((event_header[5]>>16) & 0xfff)>>4 & 0xf) +
 				     (((_event_data->event_frame_id())>>4)<<4) ); 
+  // Correct for a roll over
+  _event_data->set_trigger_frame_id( get_trigger_frame(_event_data->event_frame_id(), _event_data->trigger_frame_id()));
   _event_data->set_trigger_timeslice( (((event_header[5]>>16) & 0xf)<<8) + (event_header[5] & 0xff) );
 #endif
 
@@ -388,12 +390,22 @@ bool algo_slow_readout_decoder::process_ch_word(const PMT::word_t word,
 
 PMT::word_t algo_slow_readout_decoder::get_pmt_frame(PMT::word_t event_frame_id, PMT::word_t channel_frame_id) const
 {
-  // recover pmt frame
+  // recover pmt frame w.r.t. event_frame_id
   PMT::word_t correct_frame= ( ( event_frame_id & (~0x7) ) | (channel_frame_id) );
   if( (event_frame_id & 0x7)>=channel_frame_id )
     return correct_frame;
   else
     return correct_frame-7;
+}
+
+PMT::word_t algo_slow_readout_decoder::get_trigger_frame(PMT::word_t event_frame_id, PMT::word_t trigger_frame_id) const
+{
+  // recover trigger frame w.r.t. event_frame_id 
+  PMT::word_t correct_frame= ( ( event_frame_id & (~0xf) ) | (trigger_frame_id) );
+  if( (event_frame_id & 0xf)>=trigger_frame_id)
+    return correct_frame;
+  else
+    return correct_frame-(0xf);
 }
 
 void algo_slow_readout_decoder::apply_beamgate_correction() {
@@ -562,6 +574,8 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
 	// Second of 2 channel header words. Record the values & inspect them.
 	_ch_data.set_timeslice(_ch_data.timeslice() + (word & 0xfff)); // This gives lower 12 bits of 20-bit timeslice number
 	_channel_header_count++;
+
+	// Correct channel frame id roll-over w.r.t. event frame id
 	_ch_data.set_channel_frame_id(get_pmt_frame(_event_data->event_frame_id(),_ch_data.channel_frame_id()));
 	if(_verbosity[MSG::INFO]){
 	  sprintf(_buf,"Read-in headers for Ch. %-3d!",_ch_data.channel_number());
