@@ -64,11 +64,12 @@ public:
       return PMT::UNDEFINED_WORD;
   }
 
-  /// A method to calculate PMT frame number ... this takes care of +/- 0x7 roll over
-  PMT::word_t get_pmt_frame(PMT::word_t event_frame_id, PMT::word_t channel_frame_id) const;
-
-  /// A method to calculate Trigger frame number ... this takes care of +/- 0xf roll over
-  PMT::word_t get_trigger_frame(PMT::word_t event_frame_id, PMT::word_t trigger_frame_id) const;
+  /** A method to correct roll-over effect in the pmt/trigger frame number.
+      Provide a reference frame number in ref_id, subject frame number in subject_id,
+      and roll-over number in diff. Return is the corrected number.
+      For discriminator roll-over effect, it's 0x7 as of Aug. 12th 2013, for instance.
+   */
+  PMT::word_t round_diff(PMT::word_t ref_id, PMT::word_t subject_id, PMT::word_t diff) const;
 
   /// Implementation of algo_base::check_event_quality
   virtual bool check_event_quality();

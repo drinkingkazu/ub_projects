@@ -297,7 +297,9 @@ bool algo_slow_readout_decoder::decode_event_header(const PMT::word_t *event_hea
   _event_data->set_trigger_frame_id( (((event_header[5]>>16) & 0xfff)>>4 & 0xf) +
 				     (((_event_data->event_frame_id())>>4)<<4) ); 
   // Correct for a roll over
-  _event_data->set_trigger_frame_id( get_trigger_frame(_event_data->event_frame_id(), _event_data->trigger_frame_id()));
+  _event_data->set_trigger_frame_id( round_diff(_event_data->event_frame_id(), 
+						_event_data->trigger_frame_id(),
+						0xf));
   _event_data->set_trigger_timeslice( (((event_header[5]>>16) & 0xf)<<8) + (event_header[5] & 0xff) );
 #endif
 
@@ -388,24 +390,43 @@ bool algo_slow_readout_decoder::process_ch_word(const PMT::word_t word,
 }
 
 
-PMT::word_t algo_slow_readout_decoder::get_pmt_frame(PMT::word_t event_frame_id, PMT::word_t channel_frame_id) const
+PMT::word_t algo_slow_readout_decoder::round_diff(PMT::word_t ref_id, 
+						  PMT::word_t subject_id, 
+						  PMT::word_t diff) const
 {
-  // recover pmt frame w.r.t. event_frame_id
-  PMT::word_t correct_frame= ( ( event_frame_id & (~0x7) ) | (channel_frame_id) );
-  if( (event_frame_id & 0x7)>=channel_frame_id )
-    return correct_frame;
+  // Used to recover pmt/trigger frame id from roll over effect.
+  // One can test this by simply calling this function.
+  // For instance, to test the behavior for a roll-over of 0x7 ...
+  //
+  // > root
+  // root[0] gSystem->Load("libDecoder")
+  // root[1] algo_slow_readout_decoder k
+  // root [6] k.get_pmt_frame(583,584,0x7)
+  // (const unsigned int)584
+  // root [7] k.get_pmt_frame(584,583,0x7)
+  // (const unsigned int)583
+  //
+  // I think this implementation works. ... Aug. 12 2013
+  if( (subject_id > ref_id) && ((subject_id-ref_id) >= diff) )
+    return subject_id - (diff+1);
+  else if( (ref_id > subject_id) && ((ref_id-subject_id) >= diff) )	   
+    return subject_id + (diff+1);
   else
-    return correct_frame-7;
-}
+    return subject_id;
 
-PMT::word_t algo_slow_readout_decoder::get_trigger_frame(PMT::word_t event_frame_id, PMT::word_t trigger_frame_id) const
-{
-  // recover trigger frame w.r.t. event_frame_id 
-  PMT::word_t correct_frame= ( ( event_frame_id & (~0xf) ) | (trigger_frame_id) );
-  if( (event_frame_id & 0xf)>=trigger_frame_id)
+  // Following part is provided by David & Georgia for a specific implementation for PMT... Aug. 12 2013
+  // But I don't think this works right. 
+  // -Kazu Aug. 12 2013
+  /*
+  PMT::word_t correct_frame= ( ( event_frame_id & (~0x7) ) | ( channel_frame_id & 0x7 ) );
+  if( (correct_frame-event_frame_id)<-1 )
+    return correct_frame+8;
+  else if( (correct_frame-event_frame_id)>2 )
+    return correct_frame-8;
+  else 
     return correct_frame;
-  else
-    return correct_frame-(0xf);
+  */
+
 }
 
 void algo_slow_readout_decoder::apply_beamgate_correction() {
@@ -576,7 +597,9 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
 	_channel_header_count++;
 
 	// Correct channel frame id roll-over w.r.t. event frame id
-	_ch_data.set_channel_frame_id(get_pmt_frame(_event_data->event_frame_id(),_ch_data.channel_frame_id()));
+	_ch_data.set_channel_frame_id(round_diff(_event_data->event_frame_id(),
+						 _ch_data.channel_frame_id(),
+						 0x7));
 	if(_verbosity[MSG::INFO]){
 	  sprintf(_buf,"Read-in headers for Ch. %-3d!",_ch_data.channel_number());
 	  Message::send(MSG::INFO,_buf);
