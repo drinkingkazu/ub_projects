@@ -18,17 +18,29 @@ public:
   void set_continue_mode(bool mode){_continue_mode=mode;};
 
   void set_format(FORMAT::INPUT_FILE fmt){_fin.set_format(fmt);};
+  
+  void set_slow_readout(bool slow=true){_slow_readout=slow;};
 
   bool run();
 
   void print_word(std::vector<PMT::word_t> *in_array);
+
+  inline bool new_event(PMT::word_t word) const{
+    if(_slow_readout) return ( 0xffff == (word & 0xffff) );
+    else return (0xffffffff == word); 
+  };
 
 private:
   
   bin_io_handler _fin;
   PMT::word_t _target_id;
   bool _continue_mode;
+  bool _slow_readout;
+  static const size_t XMIT_INDEX_EVENT_ID = 3;
+  static const size_t SLOW_INDEX_EVENT_ID = 2;
 
+  size_t _index_event_id;
+  algo_base* _algo;
 
 };
 #endif

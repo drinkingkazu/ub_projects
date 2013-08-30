@@ -124,7 +124,7 @@ bool algo_slow_readout_decoder::process_word(PMT::word_t word) {
 
       if(_debug_mode) {
 	// Check data quality: return is not relevant as this is debug mode.
-	if(_beam_event) apply_beamgate_correction();
+	//if(_beam_event) apply_beamgate_correction();
 	status = check_event_quality();
 	
 	init_event_info();
@@ -368,7 +368,7 @@ bool algo_slow_readout_decoder::process_ch_word(const PMT::word_t word,
 	sprintf(_buf,"Found the last event word: %x",word);
 	Message::send(MSG::INFO,__FUNCTION__,_buf);
       }
-      if(_beam_event) apply_beamgate_correction();
+      //if(_beam_event) apply_beamgate_correction();
       status = check_event_quality();
       if(status)
 	_storage->next_event();
@@ -588,18 +588,24 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
 	  _ch_data.push_back(word & 0xfff);
       }else if(last_word_class==PMT::CHANNEL_HEADER   ) {
 	// First of 2 channel header words. Record the values.
-	_ch_data.set_timeslice( (word & 0x1f)<<12 );       // This gives upper 8 bits of 20-bit timeslice number
-	_ch_data.set_channel_frame_id( (word & 0xe0)>>5 ); // Upper 3 of 8 bits is the channel frame ID
+
+	// This gives upper 8 bits of 20-bit timeslice number
+	_ch_data.set_timeslice( (word & 0x1f)<<12 );       
+
+	// Lower 3 of 8 bits is the channel frame ID
+	_ch_data.set_channel_frame_id( ((word & 0xff)>>5) +
+				       (((_event_data->event_frame_id())>>3)<<3) ); 
+
+	// Correct channel frame id roll-over w.r.t. event frame id
+	_ch_data.set_channel_frame_id(round_diff(_event_data->event_frame_id(),
+						 _ch_data.channel_frame_id(),
+						 0x7));
 	_channel_header_count++;
       }else if(last_word_class==PMT::CHANNEL_WORD     ) {
 	// Second of 2 channel header words. Record the values & inspect them.
 	_ch_data.set_timeslice(_ch_data.timeslice() + (word & 0xfff)); // This gives lower 12 bits of 20-bit timeslice number
 	_channel_header_count++;
 
-	// Correct channel frame id roll-over w.r.t. event frame id
-	_ch_data.set_channel_frame_id(round_diff(_event_data->event_frame_id(),
-						 _ch_data.channel_frame_id(),
-						 0x7));
 	if(_verbosity[MSG::INFO]){
 	  sprintf(_buf,"Read-in headers for Ch. %-3d!",_ch_data.channel_number());
 	  Message::send(MSG::INFO,_buf);

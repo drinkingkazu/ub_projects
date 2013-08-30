@@ -10,6 +10,9 @@ xmit_event_search::xmit_event_search() :
   _target_id=PMT::INVALID_WORD;
   _fin.set_format(FORMAT::BINARY);
   _fin.set_mode(bin_io_handler::READ);
+  _index_event_id=0x0;
+  _slow_readout=false;
+  _algo = 0;
 
 }
 
@@ -19,14 +22,20 @@ bool xmit_event_search::run() {
     Message::send(MSG::ERROR,__FUNCTION__,"Event ID not specified!");
     return false;
   }
+
+  _index_event_id = _slow_readout ? SLOW_INDEX_EVENT_ID : XMIT_INDEX_EVENT_ID;
+
+  if(_algo) delete _algo;
+
+  _algo = (_slow_readout) ? (new algo_slow_readout_decoder) : (new algo_xmit_decoder);  
   
   _target_id = (0xf0000000 + ((_target_id & 0xfff) << 16) + 0x0000f000 + ((_target_id >> 12) & 0xfff));
   
-  const PMT::word_t key_header=0xffffffff;
-
   std::vector<PMT::word_t> word_array(4,0);
   PMT::word_t word=0x0;
   bool fire=false;
+
+  _fin.set_verbosity(MSG::ERROR);
   _fin.open();
   
   if(!_fin.is_open()) return false;
@@ -36,7 +45,8 @@ bool xmit_event_search::run() {
     word = _fin.read_word();
 
     if(_fin.eof()) break;
-    if(fire && word==key_header) {
+
+    if(fire && new_event(word)){
 
       word_array.push_back(word);
 
@@ -46,26 +56,25 @@ bool xmit_event_search::run() {
 
       fire=false;
       word_array.clear();
-      word_array.reserve(4);
-      word_array.push_back(0);
-      word_array.push_back(0);
-      word_array.push_back(0);
-      word_array.push_back(0);
+      word_array.reserve(_index_event_id+1);
+      for(size_t i=0; i<=_index_event_id; i++)
+	word_array.push_back(0x0);
     }
 
     if(!fire){
-      word_array[0]=word_array[1];
-      word_array[1]=word_array[2];
-      word_array[2]=word_array[3];
-      word_array[3]=word;
-      
-      if(word_array[0]==key_header && word_array[3]==_target_id){
+
+      for(size_t i=0; i<_index_event_id; i++)
+	word_array[i]=word_array[i+1];
+
+      word_array[_index_event_id] = word;
+
+      if(new_event(word_array[0]) && word_array[_index_event_id]==_target_id){
 	fire=true;
       }
     }else
       word_array.push_back(word);
   }
-
+  
   if(!_continue_mode){
     print_word(&word_array);
   }
@@ -76,8 +85,6 @@ bool xmit_event_search::run() {
 
 void xmit_event_search::print_word(std::vector<PMT::word_t> *in_array){
 
-
-  algo_xmit_decoder algo;  
   size_t ctr=0;
   std::string msg("");
 
@@ -94,7 +101,7 @@ void xmit_event_search::print_word(std::vector<PMT::word_t> *in_array){
       iter!=word_array.end();
       ++iter){
 
-    PMT::PMT_WORD word_type=algo.get_word_class((*iter));
+    PMT::PMT_WORD word_type=_algo->get_word_class((*iter));
     
     switch(word_type){
     case PMT::UNDEFINED_WORD:
