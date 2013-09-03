@@ -205,9 +205,11 @@ PMT::word_t bin_io_handler::read_word() {
     }
 
     while(!_eof && _nchars<8  ) {
-      sprintf(_buf,"Encountered none 32-bit word expression: %x (%d chars)",_word,_nchars);
-      Message::send(MSG::WARNING,__FUNCTION__,_buf);
-      
+      if(_verbosity_level<=MSG::WARNING){
+	sprintf(_buf,"Encountered none 32-bit word expression: %x (%d chars)",_word,_nchars);
+	Message::send(MSG::WARNING,__FUNCTION__,_buf);
+      }
+
       _eof=feof(_handler);
       
       if(fscanf(_handler,"%x%n",&_word,&_nchars)<1) {
