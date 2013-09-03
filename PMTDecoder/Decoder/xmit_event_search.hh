@@ -30,14 +30,15 @@ public:
     else return (0xffffffff == word); 
   };
 
+  static const size_t XMIT_INDEX_EVENT_ID;
+  static const size_t SLOW_INDEX_EVENT_ID;
+
 private:
   
   bin_io_handler _fin;
   PMT::word_t _target_id;
   bool _continue_mode;
   bool _slow_readout;
-  static const size_t XMIT_INDEX_EVENT_ID = 3;
-  static const size_t SLOW_INDEX_EVENT_ID = 2;
 
   size_t _index_event_id;
   algo_base* _algo;

@@ -3,6 +3,9 @@
 
 #include "xmit_event_search.hh"
 
+const size_t xmit_event_search::XMIT_INDEX_EVENT_ID = 3;
+const size_t xmit_event_search::SLOW_INDEX_EVENT_ID = 2;
+
 xmit_event_search::xmit_event_search() : 
   decoder_base() 
 {
