@@ -74,10 +74,10 @@ public:
   bool get_ana_status(ana_base* ptr) const;
   
   /// A method to run a batch process 
-  bool run(uint32_t index=0, uint32_t nevents=0);
+  bool run(uint32_t start_index=0, uint32_t nevents=0);
 
   /// A method to process just one event.
-  bool process_event();
+  bool process_event(uint32_t index=0);
 
   /// A method to append analysis class instance. Returns index number.
   size_t add_process(ana_base* ana){_analyzers.push_back(ana); return _analyzers.size()-1;};

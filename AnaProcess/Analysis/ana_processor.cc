@@ -100,7 +100,7 @@ bool ana_processor::initialize(){
   return true;
 }
 
-bool ana_processor::process_event(){
+bool ana_processor::process_event(uint32_t index){
 
   if(_process==INIT) {
     
@@ -116,7 +116,9 @@ bool ana_processor::process_event(){
   if(_process==READY)
     _process=PROCESSING;
 
-  if(_storage->next_event()){
+  bool event_found = index ? _storage->go_to(index) : _storage->next_event();
+
+  if(event_found){
     
     for(std::vector<ana_base*>::iterator iter(_analyzers.begin());
 	iter!=_analyzers.end();
