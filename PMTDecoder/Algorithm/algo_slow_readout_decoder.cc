@@ -549,7 +549,7 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
       // Initialize channel info, then fill with channel number & disc. id.
       init_ch_info();
       _ch_data.set_channel_number( word & 0x3f ); // Lower-most 6 bits of 12-bit word is channel number
-      _ch_data.set_disc_id((PMT::DISCRIMINATOR)((word & 0xffff)>>10));  // Upper-most 2 bits of 12-bit word is discriminator ID
+      _ch_data.set_disc_id((PMT::DISCRIMINATOR)((word & 0xfff)>>9));  // Upper-most 2 bits of 12-bit word is discriminator ID
     }
     break;
 
@@ -620,6 +620,8 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
 	  sprintf(_buf,"Event frame  : %d",_event_data->event_frame_id());
 	  Message::send(MSG::INFO,_buf);
 	  sprintf(_buf,"PMT frame    : %d",_ch_data.channel_frame_id());
+	  Message::send(MSG::INFO,_buf);
+	  sprintf(_buf,"Disc. ID     : %d",_ch_data.disc_id());
 	  Message::send(MSG::INFO,_buf);
 	  sprintf(_buf,"Start Time   : %d",_ch_data.timeslice());
 	  Message::send(MSG::INFO,_buf);
