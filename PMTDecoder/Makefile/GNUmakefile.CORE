@@ -36,7 +36,7 @@ lib/$(SHLIB): $(OBJECTS) $(DICT).o
 
 # rule for making symlink in $(PMT_DECODER_DIR)/lib
 $(PMT_DECODER_DIR)/lib/$(SHLIB): lib/$(SHLIB)
-	@echo '<< installing $(SHLIB) in $(PMT_DECODER_DIR)/lib >>'
+	@echo '<< installing $(SHLIB) >>'
 	@mkdir -p $(PMT_DECODER_DIR)/lib
 	@ln -sf $(PWD)/lib/$(SHLIB) $(PMT_DECODER_DIR)/lib
 

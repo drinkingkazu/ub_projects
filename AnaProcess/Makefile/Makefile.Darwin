@@ -12,6 +12,9 @@ CXXFLAGS        += -O2
 #AFLAGS          += -O
 #DLLFLAGS        += -O
 
+###### std lib version flag
+CFLAGS          += -std=c++0x
+CXXFLAGS        += -std=c++0x
 
 #######DEBUG FLAG:  BOTH COMPILER & LINKER
 CFLAGS          += -ggdb
