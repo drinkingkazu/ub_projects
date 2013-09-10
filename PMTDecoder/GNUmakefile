@@ -32,7 +32,7 @@ export PMT_DECODER_DIR
 # Define directories to be compile upon a global "make"...
 #
 #SUBDIRS := Base DataFormat FileIO Algorithm Analysis Decoder Encoder
-SUBDIRS := FileIO Algorithm Decoder Encoder
+SUBDIRS := FileIO Algorithm Decoder Encoder PulseReco
 
 #####################################################################################
 #
