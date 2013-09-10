@@ -46,8 +46,7 @@ public:
       Children should implement to perform (1) decoding and (2) storing event data upon
       this function call.
   */
-  virtual bool process_word(PMT::word_t word)
-  {return true;};
+  virtual bool process_word(PMT::word_t word)=0;
 
   /// Function called just after processing word.
   virtual void finalize(){};

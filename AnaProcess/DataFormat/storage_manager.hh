@@ -85,7 +85,7 @@ public:
   STATUS status() const        {return _status;};
 
   /// Reset variables and I/O process to prepare for a new I/O.
-  void reset(size_t len=0);
+  void reset();
 
   /// Open I/O file. Return true upon success.
   bool open();  

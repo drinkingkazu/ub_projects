@@ -35,7 +35,7 @@ data_base* storage_manager::get_data(DATA_STRUCT::DATA_TYPE type){
 
 }
 
-void storage_manager::reset(size_t len)
+void storage_manager::reset()
 {
   if(_verbosity[MSG::DEBUG])
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called ...");

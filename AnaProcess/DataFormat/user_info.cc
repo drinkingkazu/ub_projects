@@ -4,6 +4,7 @@
 #include "user_info.hh"
 
 user_info::user_info(const user_info &original) :
+  data_base(original),
   _d_map(original._d_map),
   _i_map(original._i_map),
   _s_map(original._s_map),

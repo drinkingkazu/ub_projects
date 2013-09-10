@@ -56,8 +56,8 @@ bool algo_trig_decoder::decode_trigger_words(PMT::word_t *trigger_words){
   }
     
   _data->set_trig_timeslice( (trigger_words[0]>>4) & 0xfff );
-  _data->set_trig_frame_id( (trigger_words[1] & 0xff)<<16 + (trigger_words[0]>>16) );
-  _data->set_trig_id( trigger_words[1] >> 8);
+  _data->set_trig_frame_id( ((trigger_words[1] & 0xff)<<16) + (trigger_words[0]>>16) );
+  _data->set_trig_id( (trigger_words[1]>>8) );
   _data->set_pmt_data( trigger_words[2] & 0xff );
 
   _data->set_trigger_bits( (trigger_words[2]>>8  & 0x1),   // pc

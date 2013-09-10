@@ -31,7 +31,7 @@ void pmt_slow_encoder::encode_event_header(const event_waveform* data) {
 
   // (1) First 32-bit word include module address and id
   _words[_index]  = (format(PMT::EVENT_HEADER,
-			    (data->module_id())<<5 + data->module_address()))<<16;
+			    ((data->module_id())<<5) + data->module_address()))<<16;
   _words[_index] += format(PMT::EVENT_HEADER,0xfff);
   _index++;
 
@@ -61,7 +61,7 @@ void pmt_slow_encoder::encode_event_header(const event_waveform* data) {
   _words[_index]  = (format(PMT::EVENT_HEADER,
 			    (data->trigger_timeslice()) & 0xff))<<16;
   _words[_index] += format(PMT::EVENT_HEADER,
-			   ((data->trigger_frame_id()) & 0xf)<<4 + (data->trigger_timeslice() & 0xffff)>>8);
+			   (((data->trigger_frame_id()) & 0xf)<<4) + ((data->trigger_timeslice() & 0xffff)>>8));
   _index++;
   
 }
