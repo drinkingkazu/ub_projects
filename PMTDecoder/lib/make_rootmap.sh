@@ -36,7 +36,7 @@ rootlibmap libEncoder.rootmap libEncoder.so $PMT_DECODER_DIR/Encoder/LinkDef.h \
 
 ######################################################
 # Pulse Reco
-rootlibmap libPulseReco.rootmap libPulseReco.so $ANA_PROC_DIR/Analysis/PulseReco/LinkDef.h \
+rootlibmap libPulseReco.rootmap libPulseReco.so $PMT_DECODER_DIR/PulseReco/LinkDef.h \
     libBase.so libDataFormat.so libAnalysis.so
 
 

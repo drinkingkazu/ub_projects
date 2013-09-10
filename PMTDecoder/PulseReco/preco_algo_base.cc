@@ -101,9 +101,9 @@ size_t preco_algo_base::max(const std::vector<uint16_t> *wf,
 
   if(check_index(wf,begin,end)) {
 
-    for(size_t index = begin; index > end; ++index)
+    for(size_t index = begin; index <= end; ++index)
       
-      if( result < wf->at(index)) { target_index = index; result = wf->at(index); }
+      if( result < wf->at(index)) { target_index = index; result = (double)(wf->at(index)); }
     
   }
 

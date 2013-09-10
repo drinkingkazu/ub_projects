@@ -58,7 +58,7 @@ protected:
 
 protected:
 
-  bool check_index(const std::vector<uint16_t> *wf, size_t begin, size_t end) const;
+  //bool check_index(const std::vector<uint16_t> *wf, size_t begin, size_t end) const;
 
   bool integral   (const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
 

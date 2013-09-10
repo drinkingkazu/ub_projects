@@ -15,7 +15,11 @@ algo_fixed_window::algo_fixed_window() : preco_algo_base() {
 
 void algo_fixed_window::reset(){
 
-  preco_algo_base::reset();
+  if(!(_pulse_v.size()))
+
+    _pulse_v.push_back(_pulse);
+
+  _pulse_v[0].reset_param();
 
 }
 
@@ -23,21 +27,21 @@ bool algo_fixed_window::reco(const std::vector<uint16_t> *wf) {
 
   this->reset();
 
-  _pulse.t_start = (double)(_index_start);
+  _pulse_v[0].t_start = (double)(_index_start);
 
   if(!_index_end)
 
-    _pulse.t_end = (double)(wf->size() - 1);
+    _pulse_v[0].t_end = (double)(wf->size() - 1);
 
   else
 
-    _pulse.t_end = (double)_index_end;
+    _pulse_v[0].t_end = (double)_index_end;
 
-  _pulse.t_max = preco_algo_base::max(wf, _pulse.peak, _index_start, _index_end);
+  _pulse_v[0].t_max = preco_algo_base::max(wf, _pulse_v[0].peak, _index_start, _index_end);
 
-  preco_algo_base::integral(wf, _pulse.area, _index_start, _index_end);
+  preco_algo_base::integral(wf, _pulse_v[0].area, _index_start, _index_end);
 
-  _pulse.area = _pulse.area - ( _pulse.t_end - _pulse.t_start + 1) * _ped_mean;
+  _pulse_v[0].area = _pulse_v[0].area - ( _pulse_v[0].t_end - _pulse_v[0].t_start + 1) * _ped_mean;
 
   return true;
 
