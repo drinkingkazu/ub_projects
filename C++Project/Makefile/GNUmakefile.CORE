@@ -1,11 +1,11 @@
 ###################################################
 
 # default target list
-all: .depend $(DICT).cc lib/$(SHLIB)  $(MAKE_TOP_DIR)/lib/$(SHLIB) 
+all: .depend $(DICT).cc lib/$(SHLIB)  $(ANA_PROC_DIR)/lib/$(SHLIB) 
 
 # define ROOTMAP and add it to the default target list, unless NO_ROOTMAP set
 ifndef NO_ROOTMAP
-ROOTMAP= $(MAKE_TOP_DIR)/lib/$(SHLIB:.so=.rootmap)
+ROOTMAP= $(ANA_PROC_DIR)/lib/$(SHLIB:.so=.rootmap)
 all: $(ROOTMAP)
 
 endif
@@ -31,19 +31,19 @@ lib/$(SHLIB): $(OBJECTS) $(DICT).o
 	@mkdir -p lib
 	@$(SOMAKER) $(SOFLAGS) -o lib/$(SHLIB) $(filter-out $(DICT).o, $(OBJECTS)) $(DICT).o
 
-# rule for making symlink in $(MAKE_TOP_DIR)/lib
-$(MAKE_TOP_DIR)/lib/$(SHLIB): lib/$(SHLIB)
-	@echo '<< installing $(SHLIB) in $(MAKE_TOP_DIR)/lib >>'
-	@mkdir -p $(MAKE_TOP_DIR)/lib
-	@ln -sf $(PWD)/lib/$(SHLIB) $(MAKE_TOP_DIR)/lib
+# rule for making symlink in $(ANA_PROC_DIR)/lib
+$(ANA_PROC_DIR)/lib/$(SHLIB): lib/$(SHLIB)
+	@echo '<< installing $(SHLIB) >>'
+	@mkdir -p $(ANA_PROC_DIR)/lib
+	@ln -sf $(PWD)/lib/$(SHLIB) $(ANA_PROC_DIR)/lib
 
 
 # if ROOTMAP defined, define rule for making it
 ifdef ROOTMAP
-$(ROOTMAP): $(MAKE_TOP_DIR)/lib/$(SHLIB)
+$(ROOTMAP): $(ANA_PROC_DIR)/lib/$(SHLIB)
 	@echo "<< Making rootmaps >>"
-	@cd $(MAKE_TOP_DIR)/lib && ./make_rootmap.sh
-	@rm -f $(MAKE_TOP_DIR)/lib/*.temp
+	@cd $(ANA_PROC_DIR)/lib && ./make_rootmap.sh
+	@rm $(ANA_PROC_DIR)/lib/*.temp
 endif
 
 ###################################################
@@ -55,7 +55,7 @@ clean:
 ###################################################
 libclean:
 	@echo '<< clearning lib directory >>'
-	@rm -f $(MAKE_TOP_DIR)/lib/$(SHLIB) 
+	@rm -f $(ANA_PROC_DIR)/lib/$(SHLIB) 
 	@rm -f lib/$(SHLIB) 
 
 ###################################################
@@ -69,7 +69,7 @@ clearCINT:
 .depend: $(SOURCES) $(HEADERS)
 	@#rm .depend
 	@echo '<< checking dependencies >>'
-	@g++ -M $(CXXFLAGS) $(INCFLAGS) $(SOURCES) > .depend
+	@$(CXX) -M $(CXXFLAGS) $(INCFLAGS) $(SOURCES) > .depend
 
 -include .depend
 
