@@ -1,9 +1,8 @@
 #COMPILER:
 CC              = gcc
-CXX             = g++
+CXX             = clang
 LINKER          = libtool
 SOMAKER         = libtool
-#g++
 
 #######"-O" FLAG: (not always ideal with debugging info)
 CFLAGS          += -O2
@@ -13,8 +12,8 @@ CXXFLAGS        += -O2
 #DLLFLAGS        += -O
 
 ###### std lib version flag
-CFLAGS          += -std=c++0x
-CXXFLAGS        += -std=c++0x
+CXXFLAGS        += -std=c++11 -stdlib=libc++ 
+#SOFLAGS         += -stdlib=libc++
 
 #######DEBUG FLAG:  BOTH COMPILER & LINKER
 CFLAGS          += -ggdb
@@ -83,7 +82,7 @@ SOFLAGS         += -undefined dynamic_lookup
 
 #FORTRAN FLAGS:
 FFLAGS          += -Wall
-FLDFLAGS        += -lstdc++ -bundle -undefined dynamic_lookup -O2 -bind_at_load  -L.
+FLDFLAGS        += -lstdc++ -bundle -undefined dynamic_lookup -O2 -bind_at_load  -L. 
 
 ################
 #NOT USED -> OLD VERSION: DEPRECATED???
