@@ -4,6 +4,8 @@
 #include "algo_fixed_window.hh"
 
 algo_fixed_window::algo_fixed_window() : preco_algo_base() {
+
+  _name = "algo_fixed_window";
   
   reset();
 

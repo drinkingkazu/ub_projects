@@ -58,8 +58,6 @@ protected:
 
 protected:
 
-  //bool check_index(const std::vector<uint16_t> *wf, size_t begin, size_t end) const;
-
   bool integral   (const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
 
   bool derivative (const std::vector<uint16_t> *wf, std::vector<int32_t> &diff, size_t begin=0, size_t end=0) const;

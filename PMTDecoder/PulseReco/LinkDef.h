@@ -11,6 +11,7 @@
 
 #pragma link C++ class preco_algo_base+;
 #pragma link C++ class algo_fixed_window+;
+#pragma link C++ class algo_threshold+;
 #pragma link C++ class ped_estimator+;
 #pragma link C++ class pulse_reco+;
 #pragma link C++ struct pulse_param+;

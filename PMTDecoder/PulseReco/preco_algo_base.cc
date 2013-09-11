@@ -3,8 +3,10 @@
 
 #include "preco_algo_base.hh"
 
-bool check_index(const std::vector<uint16_t> *wf, const size_t &begin, size_t &end){
-
+//***************************************************************
+bool check_index(const std::vector<uint16_t> *wf, const size_t &begin, size_t &end)
+//***************************************************************
+{
   if(begin >= wf->size() || end >= wf->size() || begin > end){
 
     Message::send(MSG::ERROR,__FUNCTION__,
@@ -19,8 +21,12 @@ bool check_index(const std::vector<uint16_t> *wf, const size_t &begin, size_t &e
   return true;
 }
 
+//***************************************************************
 preco_algo_base::preco_algo_base() : decoder_base(), _pulse()
+//***************************************************************
 {
+
+  _name = "preco_algo_base";
   
   _ped_mean = _ped_rms = -1;
 
@@ -38,7 +44,10 @@ void preco_algo_base::reset(){
   
 }
 
-const pulse_param* preco_algo_base::get_pulse(size_t index) const{
+//***************************************************************
+const pulse_param* preco_algo_base::get_pulse(size_t index) const
+//***************************************************************
+{
 
   if(index >= _pulse_v.size()) return 0;
 
@@ -46,10 +55,12 @@ const pulse_param* preco_algo_base::get_pulse(size_t index) const{
 
 }
 
+//***************************************************************
 bool preco_algo_base::integral(const std::vector<uint16_t> *wf,
 			       double &result,
 			       size_t begin,
 			       size_t end) const
+//***************************************************************
 {
   
   if(!check_index(wf,begin,end)) return false;
@@ -67,13 +78,16 @@ bool preco_algo_base::integral(const std::vector<uint16_t> *wf,
   return true;
 }
 
+//***************************************************************
 bool preco_algo_base::derivative(const std::vector<uint16_t> *wf,
 				 std::vector<int32_t> &diff,
 				 size_t begin,
-				 size_t end) const {
+				 size_t end) const 
+//***************************************************************
+{
 
   if(check_index(wf,begin,end)){
-
+    
     diff.clear();
     diff.reserve(end - begin);
 
@@ -88,11 +102,12 @@ bool preco_algo_base::derivative(const std::vector<uint16_t> *wf,
 
 }
 
-
+//***************************************************************
 size_t preco_algo_base::max(const std::vector<uint16_t> *wf,
 			    double &result,
 			    size_t begin,
 			    size_t end) const
+//***************************************************************
 {
 
   size_t target_index = wf->size() + 1;
@@ -111,11 +126,12 @@ size_t preco_algo_base::max(const std::vector<uint16_t> *wf,
 
 }
 
-
+//***************************************************************
 size_t preco_algo_base::min(const std::vector<uint16_t> *wf,
 			    double &result,
 			    size_t begin,
 			    size_t end) const
+//***************************************************************
 {
 
   size_t target_index = wf->size() + 1;
@@ -126,7 +142,7 @@ size_t preco_algo_base::min(const std::vector<uint16_t> *wf,
 
     for(size_t index = begin; index > end; ++index)
       
-      if( result > wf->at(index)) { target_index = index; result = wf->at(index); }
+      if( result > wf->at(index)) { target_index = index; result = (double)(wf->at(index)); }
     
   }
 
