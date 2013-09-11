@@ -87,17 +87,27 @@ bool ana_processor::initialize(){
 
   }
 
+  bool status = true;
+
   for(std::vector<ana_base*>::iterator iter(_analyzers.begin());
       iter!=_analyzers.end();
       ++iter) {
-    (*iter)->set_output_file(_fout);
-    (*iter)->initialize();
-  }
 
+    (*iter)->set_output_file(_fout);
+
+    if(!((*iter)->initialize())){
+
+      Message::send(MSG::ERROR,__PRETTY_FUNCTION__,
+		    Form("Failed to initialize: %s",(*iter)->class_name().c_str()));
+
+      status = false;
+    }
+
+  }    
   _process=READY;
   _index=0;
   _nevents=0;
-  return true;
+  return status;
 }
 
 bool ana_processor::process_event(uint32_t index){
@@ -105,8 +115,7 @@ bool ana_processor::process_event(uint32_t index){
   if(_process==INIT) {
     
     if(!initialize()) {
-      Message::send(MSG::ERROR,__FUNCTION__,
-		    "Failed initialization. Aborting event processing.");
+      Message::send(MSG::ERROR,__FUNCTION__,"Aborting.");
       return false;
     }
     else
@@ -141,9 +150,15 @@ bool ana_processor::run(uint32_t start_index, uint32_t nevents){
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called...");
 
   bool status=true;
+
   if(_process==INIT) status = initialize();
 
-  if(!status) return false;
+  if(!status){
+
+    Message::send(MSG::ERROR,__PRETTY_FUNCTION__,"Aborting.");
+
+    return false;
+  }
 
   _index=start_index;
 
