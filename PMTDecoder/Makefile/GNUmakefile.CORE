@@ -1,11 +1,11 @@
 ###################################################
 
 # default target list
-all: .depend $(DICT).cc lib/$(SHLIB)  $(ANA_PROC_DIR)/lib/$(SHLIB) 
+all: .depend $(DICT).cc lib/$(SHLIB)  $(PMT_DECODER_DIR)/lib/$(SHLIB) 
 
 # define ROOTMAP and add it to the default target list, unless NO_ROOTMAP set
 ifndef NO_ROOTMAP
-ROOTMAP= $(ANA_PROC_DIR)/lib/$(SHLIB:.so=.rootmap)
+ROOTMAP= $(PMT_DECODER_DIR)/lib/$(SHLIB:.so=.rootmap)
 all: $(ROOTMAP)
 
 endif
@@ -31,19 +31,19 @@ lib/$(SHLIB): $(OBJECTS) $(DICT).o
 	@mkdir -p lib
 	@$(SOMAKER) $(SOFLAGS) -o lib/$(SHLIB) $(filter-out $(DICT).o, $(OBJECTS)) $(DICT).o
 
-# rule for making symlink in $(ANA_PROC_DIR)/lib
-$(ANA_PROC_DIR)/lib/$(SHLIB): lib/$(SHLIB)
+# rule for making symlink in $(PMT_DECODER_DIR)/lib
+$(PMT_DECODER_DIR)/lib/$(SHLIB): lib/$(SHLIB)
 	@echo '<< installing $(SHLIB) >>'
-	@mkdir -p $(ANA_PROC_DIR)/lib
-	@ln -sf $(PWD)/lib/$(SHLIB) $(ANA_PROC_DIR)/lib
+	@mkdir -p $(PMT_DECODER_DIR)/lib
+	@ln -sf $(PWD)/lib/$(SHLIB) $(PMT_DECODER_DIR)/lib
 
 
 # if ROOTMAP defined, define rule for making it
 ifdef ROOTMAP
-$(ROOTMAP): $(ANA_PROC_DIR)/lib/$(SHLIB)
+$(ROOTMAP): $(PMT_DECODER_DIR)/lib/$(SHLIB)
 	@echo "<< Making rootmaps >>"
-	@cd $(ANA_PROC_DIR)/lib && ./make_rootmap.sh
-	@rm $(ANA_PROC_DIR)/lib/*.temp
+	@cd $(PMT_DECODER_DIR)/lib && ./make_rootmap.sh
+	@rm $(PMT_DECODER_DIR)/lib/*.temp
 endif
 
 ###################################################
@@ -55,7 +55,7 @@ clean:
 ###################################################
 libclean:
 	@echo '<< clearning lib directory >>'
-	@rm -f $(ANA_PROC_DIR)/lib/$(SHLIB) 
+	@rm -f $(PMT_DECODER_DIR)/lib/$(SHLIB) 
 	@rm -f lib/$(SHLIB) 
 
 ###################################################

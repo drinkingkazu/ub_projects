@@ -17,7 +17,7 @@ rootlibmap() {
 ######################################################
 # FileIO
 rootlibmap libFileIO.rootmap libFileIO.so $PMT_DECODER_DIR/FileIO/LinkDef.h \
-    libBase.so 
+    libBase.so
 
 ######################################################
 # Algorithm
@@ -27,12 +27,12 @@ rootlibmap libAlgorithm.rootmap libAlgorithm.so $PMT_DECODER_DIR/Algorithm/LinkD
 ######################################################
 # Decoder
 rootlibmap libDecoder.rootmap libDecoder.so $PMT_DECODER_DIR/Decoder/LinkDef.h \
-    libBase.so libDataFormat.so libAlgorithm.so libAnalysis.so libFileIO.so
+    libBase.so libDataFormat.so libAnalysis.so libAlgorithm.so libFileIO.so
 
 ######################################################
 # Encoder
 rootlibmap libEncoder.rootmap libEncoder.so $PMT_DECODER_DIR/Encoder/LinkDef.h \
-    libBase.so libDataFormat.so libAlgorithm.so libAnalysis.so libFileIO.so
+    libBase.so libDataFormat.so libAnalysis.so libAlgorithm.so libFileIO.so
 
 ######################################################
 # Pulse Reco
