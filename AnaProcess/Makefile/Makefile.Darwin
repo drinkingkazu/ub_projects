@@ -1,8 +1,8 @@
 #COMPILER:
 CC              = gcc
-CXX             = clang
+CXX             = clang++ -std=c++11 
 LINKER          = libtool
-SOMAKER         = libtool
+SOMAKER         = libtool 
 
 #######"-O" FLAG: (not always ideal with debugging info)
 CFLAGS          += -O2
@@ -10,10 +10,6 @@ CXXFLAGS        += -O2
 #SOFLAGS         += -O
 #AFLAGS          += -O
 #DLLFLAGS        += -O
-
-###### std lib version flag
-CXXFLAGS        += -std=c++11 -stdlib=libc++ 
-#SOFLAGS         += -stdlib=libc++
 
 #######DEBUG FLAG:  BOTH COMPILER & LINKER
 CFLAGS          += -ggdb
