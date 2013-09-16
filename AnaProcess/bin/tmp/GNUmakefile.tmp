@@ -17,13 +17,13 @@ OSNAME          = $(shell uname -s)
 HOST            = $(shell uname -n)
 OSNAMEMODE      = $(OSNAME)
 
-include $(MAKE_TOP_DIR)/Makefile/Makefile.${OSNAME}
+include $(ANA_PROC_DIR)/Makefile/Makefile.${OSNAME}
 
 # set compiler options for ROOT
 CXXFLAGS +=  `root-config --cflags`
 
 # call the common GNUmakefile
-include $(MAKE_TOP_DIR)/Makefile/GNUmakefile.CORE
+include $(ANA_PROC_DIR)/Makefile/GNUmakefile.CORE
 
 
 
