@@ -576,7 +576,9 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
 	_ch_data.set_disc_id(_last_disc_id);
 	if(_verbosity[MSG::NORMAL])
 	  Message::send(MSG::NORMAL,__FUNCTION__,
-			"Found consecutively readout data arrays (missing channel very first header)!");
+			Form("Found consecutively readout data arrays @ event %d (missing channel very first header)!",
+			     _event_data->event_id())
+			);
       }
 
       //
