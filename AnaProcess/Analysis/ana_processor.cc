@@ -29,8 +29,7 @@ void ana_processor::reset(){
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called...");
 
   if(_fout){
-    _fout->Write();
-    //_fout->Close(); // somehow causes a seg-fault... need to be looked in
+    _fout->Close();
     _fout=0;
   }
 
@@ -58,13 +57,6 @@ bool ana_processor::initialize(){
     return false;
   }
 
-  if(_ofile_name.size()==0){
-
-    Message::send(MSG::ERROR,__FUNCTION__,
-		  "Must provide an output filename!");
-    return false;
-  }
-
   //_storage->set_io_mode(storage_manager::READ);
   if(!_storage->open()) {
 
@@ -74,6 +66,12 @@ bool ana_processor::initialize(){
 
   }
 
+  if(_ofile_name.size()==0){
+
+    Message::send(MSG::ERROR,__FUNCTION__,
+		  "Must provide an output filename!");
+    return false;
+  }
 
   _fout=TFile::Open(_ofile_name.c_str(),"RECREATE");
 
