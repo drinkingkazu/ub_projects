@@ -21,7 +21,7 @@ bool pulse_reco::initialize(){
   _channel_Q = new TH2D("_channel_Q","Summed Charge vs. Channel Number; Channel Number; Charge;",
 			40,-0.5,39.5,200,0,100000);
 
-  _channel_A = new TH2D("_channel_Q","Summed Amplitude vs. Channel Number; Channel Number; Amplitude;",
+  _channel_A = new TH2D("_channel_A","Summed Amplitude vs. Channel Number; Channel Number; Amplitude;",
 			40,-0.5,39.5,200,0,20000);
 
   _event_Q   = new TH1D("_event_Q","Summed Charge (all Ch.); Charge; Entries",
@@ -56,6 +56,14 @@ bool pulse_reco::analyze(storage_manager* storage){
   for(event_waveform::iterator iter(waveforms->begin());
       iter!=waveforms->end();
       ++iter){
+
+    if((*iter).size()<1){
+      
+      Message::send(MSG::ERROR,__PRETTY_FUNCTION__,
+		    Form("Found 0-length waveform vector! Skipping Event = %d, Ch. = %d ...",
+			 waveforms->event_id(), (*iter).channel_number()));
+      continue;
+    }
   
     switch(_ped_method){
 

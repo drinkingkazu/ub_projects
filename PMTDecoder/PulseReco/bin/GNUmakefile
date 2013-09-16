@@ -1,6 +1,5 @@
 
 LD := $(subst build/,$(ROOTSYS)/build/,$(LD))
-LIBDIR  = $(PMT_DECODER_DIR)/lib
 LDFLAGS  += -L$(ROOTSYS)/lib  $(shell root-config --libs) -g
 
 # Include your header file location
@@ -11,7 +10,8 @@ CXXFLAGS += -I$(PMT_DECODER_DIR)/PulseReco
 CXXFLAGS += -I. $(shell root-config --cflags) -g
 
 # Include your shared object lib location
-LDFLAGS += -L$(LIBDIR) -lBase -lDataFormat -lAnalysis -lPulseReco
+LDFLAGS += -L$(PMT_DECODER_DIR)/lib -lPulseReco
+LDFLAGS += -L$(ANA_PROC_DIR)/lib -lBase -lDataFormat -lAnalysis -lPulseReco
 
 # Add your program below with a space after the previous one.
 # This makefile compiles all binaries specified below.

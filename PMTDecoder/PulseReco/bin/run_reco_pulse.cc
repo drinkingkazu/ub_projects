@@ -4,6 +4,7 @@
 //
 
 #include <TSystem.h>
+#include <PulseReco-TypeDef.hh>
 #include <Analysis-TypeDef.hh>
 #include <TString.h>
 int main(int argc, char** argv){

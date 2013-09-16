@@ -71,7 +71,7 @@ bool preco_algo_base::integral(const std::vector<uint16_t> *wf,
 
   begin_iter = begin_iter + begin;
 
-  end_iter = end_iter + end;
+  end_iter = end_iter + end + 1;
   
   result = (double)(std::accumulate(begin_iter, end_iter, 0));
 
@@ -91,7 +91,7 @@ bool preco_algo_base::derivative(const std::vector<uint16_t> *wf,
     diff.clear();
     diff.reserve(end - begin);
 
-    for(size_t index = begin ; index != end ; ++index)
+    for(size_t index = begin ; index <= end ; ++index)
       
       diff.push_back(wf->at(index+1) - wf->at(index));
 
@@ -140,7 +140,7 @@ size_t preco_algo_base::min(const std::vector<uint16_t> *wf,
 
   if(check_index(wf,begin,end)) {
 
-    for(size_t index = begin; index > end; ++index)
+    for(size_t index = begin; index <= end; ++index)
       
       if( result > wf->at(index)) { target_index = index; result = (double)(wf->at(index)); }
     

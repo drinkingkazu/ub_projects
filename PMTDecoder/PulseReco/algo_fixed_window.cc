@@ -41,6 +41,8 @@ bool algo_fixed_window::reco(const std::vector<uint16_t> *wf) {
 
   _pulse_v[0].t_max = preco_algo_base::max(wf, _pulse_v[0].peak, _index_start, _index_end);
 
+  _pulse_v[0].peak -= _ped_mean;
+
   preco_algo_base::integral(wf, _pulse_v[0].area, _index_start, _index_end);
 
   _pulse_v[0].area = _pulse_v[0].area - ( _pulse_v[0].t_end - _pulse_v[0].t_start + 1) * _ped_mean;

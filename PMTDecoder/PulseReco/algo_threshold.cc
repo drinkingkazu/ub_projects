@@ -63,13 +63,13 @@ bool algo_threshold::reco(const std::vector<uint16_t> *wf) {
 
       // Add this adc count to the integral
 
-      _pulse.area += ((double)value);
+      _pulse.area += ((double)value - (double)_ped_mean);
 
-      if(_pulse.peak < ((double)value)) {
+      if(_pulse.peak < ((double)value - (double)_ped_mean)) {
 
 	// Found a new maximum
 	
-	_pulse.peak = ((double)value);
+	_pulse.peak = ((double)value - (double)_ped_mean);
 
 	_pulse.t_max = counter;
 
