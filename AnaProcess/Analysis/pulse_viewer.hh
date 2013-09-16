@@ -18,6 +18,13 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 #include <TLine.h>
+#include <TPad.h>
+#include <TPaveText.h>
+#include <TROOT.h>
+#include <TStyle.h>
+#include <TGaxis.h>
+#include <TColor.h>
+
 #include <set>
 #include <algorithm>
 
@@ -169,6 +176,9 @@ public:
 
 protected:
 
+  /// set Kazu's style
+  void set_style();
+  
   /// reset cut values
   void reset_cuts();
 
@@ -208,9 +218,21 @@ protected:
   std::map<PMT::ch_number_t,std::vector<double> >      _pulse_pedrms;         ///< a set of reco-ed pulse pedestal baseline standard deviation
   std::map<PMT::ch_number_t,std::map<PMT::word_t,std::map<PMT::word_t,std::vector<PMT::ch_adc_t> > > > _waveforms; ///< waveform containers
 
-  /// Local canvas poitner
+  /// Local (yet main) canvas poitner
   TCanvas* _cWF;
   
+  // TPads to be drawn within the main canvas
+  TPad *_pTitle; ///< title pad
+  TPad *_pData;  ///< data (histogram, numbers) pad
+
+  // TPads to be drawn within the _pData pad
+  TPad *_pNote;  ///< pulse parameters
+  TPad *_pWF;    ///< waveform histogram
+
+  // Texts to on the pads
+  TText     *_fTitle; ///< canvas title
+  TPaveText *_fNote;  ///< pulse parameters
+
   /// Waveform container histogram pointer
   TH1D* _hWF;
 

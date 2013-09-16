@@ -49,7 +49,39 @@ void pulse_viewer::clear_viewer() {
 
 bool pulse_viewer::initialize() {
 
-  if(!_cWF) _cWF = new TCanvas("_cWF","",800,500);
+  if(_verbosity_level==MSG::DEBUG)
+
+    Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called...");
+
+  set_style();
+
+  if(!_cWF){
+
+    _cWF    = new TCanvas("_cWF","",1200,800);
+    _cWF->SetLeftMargin(0.02);
+    _cWF->SetBottomMargin(0.02);
+    _cWF->SetRightMargin(0.02);
+
+    _cWF->cd();
+    //_pTitle = new TPad("_pTitle", "Title",      0.05, 0.92, 0.95, 0.99);
+    //_pTitle->Draw();
+
+    _cWF->cd();
+    _pData  = new TPad("_pWF",    "Data",       0.01, 0.01, 0.99, 0.99);
+    _pData->Draw();
+
+    _pData->cd();
+    _pNote  = new TPad("_pNote",  "Parameters", 0.80, 0.02, 0.98, 0.99);
+    _pWF    = new TPad("_pWF",    "Waveform",   0.02, 0.02, 0.80, 0.99);
+    _pWF->SetRightMargin(0.01);
+    _pWF->SetLeftMargin(0.12);
+    _pNote->Draw();
+    _pWF->Draw();
+
+    _fNote = new TPaveText(0.1,0.1,0.99,0.99);
+    
+  }
+
   clear_map();
   clear_viewer();
   return true;
@@ -91,9 +123,15 @@ void pulse_viewer::add_channel_entry(PMT::ch_number_t ch){
 }
 
 bool pulse_viewer::analyze(storage_manager* storage) {
+
+  if(_verbosity_level==MSG::DEBUG)
+
+    Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called...");
   
   pulse_collection *pulses = (pulse_collection*)(storage->get_data(DATA_STRUCT::PULSE_COLLECTION));
   event_waveform   *wfs    = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  _ch_iter     = _channels.begin();
+
   if(pulses->size()==0) {
     Message::send(MSG::ERROR,__FUNCTION__,"No Pulse Found!");
     return false;
@@ -210,6 +248,7 @@ bool pulse_viewer::analyze(storage_manager* storage) {
   } // Finieh processing for this channel.
 
   _ch_iter=_channels.begin();
+  std::cout<<_channels.size()<<std::endl;
 
   return true;
 }
@@ -333,6 +372,7 @@ TH1D* pulse_viewer::previous_pulse(PMT::ch_number_t ch){
 TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
 
   clear_viewer();
+  gStyle->SetOptStat(0);
   
   bool is_wf_stored=true;
   PMT::word_t sample=_pulse_sample_number[ch][index];
@@ -371,7 +411,7 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
   //double x_min=_pulse_tend[ch][index]-20;
   //double x_max=_pulse_tend[ch][index]+20;
   double y_min=_pulse_pedbase[ch][index] - _pulse_pedrms[ch][index]*5 - 20;
-  double y_max=_pulse_pedbase[ch][index] + _pulse_amp[ch][index]*1.5;
+  double y_max=_pulse_pedbase[ch][index] + _pulse_amp[ch][index]*1.1;
   
   _hWF->SetFillColor(kGray);
   _hWF->SetFillStyle(3004);
@@ -379,7 +419,15 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
   _hWF->SetMinimum(y_min);
   _hWF->SetMaximum(y_max);
   //_hWF->GetXaxis()->SetRangeUser(x_min,x_max);
-    
+
+  //
+  // Canvas title
+  //
+  //_fTitle->SetText(0.5,0.5,Form("Reconstructed Waveform @ Event = %d ... Channel %d", _event_id,ch));
+
+  //
+  // Report parameters to stdout stream
+  // 
   sprintf(_buf,"\n\n");
   sprintf(_buf,"%s Event ID       : %d\n",_buf,_event_id);
   sprintf(_buf,"%s Channel        : %d\n",_buf,ch);
@@ -392,6 +440,24 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
   sprintf(_buf,"%s Charge         : %g\n",_buf,_pulse_charge[ch][index]);
   Message::send(MSG::NORMAL,__FUNCTION__,_buf);
 
+  //
+  // Report parameters to a canvas
+  //
+  _fNote->Clear();
+  _fNote->AddText(Form("Event ID       : %d",_event_id));
+  _fNote->AddText(Form("Frame  Number  : %d",_pulse_frame_id[ch][index]));
+  _fNote->AddText(Form("Sample Number  : %d\n",_pulse_sample_number[ch][index]));
+  _fNote->AddText(Form("Start T        : %g",_pulse_tstart[ch][index]));
+  _fNote->AddText(Form("Start T (RECO) : %g",_pulse_tstart_reco[ch][index]));
+  _fNote->AddText(Form("End T          : %g",_pulse_tend[ch][index]));
+  _fNote->AddText(Form("Ped. Mean      : %g",_pulse_pedbase[ch][index]));
+  _fNote->AddText(Form("Ped. RMS       : %g",_pulse_pedrms[ch][index]));
+  _fNote->AddText(Form("Peak Amp.      : %g",_pulse_amp[ch][index]));
+  _fNote->AddText(Form("Charge         : %g",_pulse_charge[ch][index]));
+
+  //
+  // Make waveform related  objects to be drawn
+  //  
   _lBase = new TLine(_hWF->GetXaxis()->GetXmin(), _pulse_pedbase[ch][index], 
 		     _hWF->GetXaxis()->GetXmax(), _pulse_pedbase[ch][index]);
   _lBase->SetLineWidth(2);
@@ -410,25 +476,29 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
   _lRMSBottom->SetLineStyle(2);
   _lRMSBottom->SetLineColor(kGray);
 
-  _lStart = new TLine(_pulse_tstart[ch][index], _pulse_pedbase[ch][index],
-		      _pulse_tstart[ch][index], _pulse_pedbase[ch][index]+_pulse_amp[ch][index]);
+  _lStart = new TLine(_pulse_tstart[ch][index]-0.5, _pulse_pedbase[ch][index],
+		      _pulse_tstart[ch][index]-0.5, _pulse_pedbase[ch][index]+_pulse_amp[ch][index]);
   _lStart->SetLineWidth(2);
   _lStart->SetLineStyle(2);
   _lStart->SetLineColor(kBlue);
 
-  _lEnd = new TLine(_pulse_tend[ch][index], _pulse_pedbase[ch][index],
-		    _pulse_tend[ch][index], _pulse_pedbase[ch][index]+_pulse_amp[ch][index]);
+  _lEnd = new TLine(_pulse_tend[ch][index]+0.5, _pulse_pedbase[ch][index],
+		    _pulse_tend[ch][index]+0.5, _pulse_pedbase[ch][index]+_pulse_amp[ch][index]);
   _lEnd->SetLineWidth(2);
   _lEnd->SetLineStyle(2);
   _lEnd->SetLineColor(kRed);
 
-  _lTop = new TLine(_pulse_tstart[ch][index], _pulse_pedbase[ch][index] + _pulse_amp[ch][index],
-		    _pulse_tend[ch][index],   _pulse_pedbase[ch][index] + _pulse_amp[ch][index]);
+  _lTop = new TLine(_pulse_tstart[ch][index]-0.5, _pulse_pedbase[ch][index] + _pulse_amp[ch][index],
+		    _pulse_tend[ch][index]+0.5,   _pulse_pedbase[ch][index] + _pulse_amp[ch][index]);
   _lTop->SetLineWidth(2);
   _lTop->SetLineStyle(2);
   _lTop->SetLineColor(kMagenta-7);
-  
+
+  // Draw
   _cWF->cd();
+
+  // Waveform
+  _pWF->cd();
   _hWF->Draw();
   _lBase->Draw();
   _lStart->Draw();
@@ -436,10 +506,21 @@ TH1D* pulse_viewer::get_waveform(PMT::ch_number_t ch, size_t index) {
   _lRMSTop->Draw();
   _lRMSBottom->Draw();
   _lTop->Draw();
+  _pWF->Modified();
+  _pWF->Update();
 
-  _cWF->Modified();
+  // Title
+  //_pTitle->cd();
+  //_fTitle->Draw();
+  //_pTitle->Update();
+
+  // Pulse parameters
+  _pNote->cd();
+  _fNote->Draw();
+  _pNote->Update();
+  _pData->Update();
+
   _cWF->Update();
-  _cWF->Draw();
 
   return _hWF;
 }
@@ -477,6 +558,56 @@ void pulse_viewer::display_cut_ranges(){
   msg += Form("    Pedestal RMS        : %g -> %g\n",_cut_pedrms.first,_cut_pedrms.second);
 
   Message::send(MSG::NORMAL,__FUNCTION__,msg.c_str());
+
+}
+
+void pulse_viewer::set_style(){
+
+  TGaxis::SetMaxDigits(10);
+  //TGaxis::SetNoExponent();
+  gROOT->SetStyle("Plain");
+  gStyle->SetEndErrorSize(0);
+  gStyle->SetStatX(0.88);
+  gStyle->SetOptFit(1);
+  gStyle->SetOptDate(0);
+
+  // Canvas
+  gStyle->SetCanvasDefW(600);
+  gStyle->SetCanvasDefH(500);
+  gStyle->SetCanvasColor(0);
+  gStyle->SetStatColor(0);
+  gStyle->SetStatBorderSize(1);
+  gStyle->SetFrameFillColor(10);
+  gStyle->SetPadColor(23);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+  gStyle->SetTitleColor(0, "");
+  gStyle->SetPadTopMargin(0.11);
+  gStyle->SetPadRightMargin(0.08);
+  gStyle->SetPadLeftMargin(0.13);
+  gStyle->SetPadBottomMargin(0.10);
+  
+  // Font ... use large Times-Roman fonts
+  gStyle->SetTextFont(42);
+  gStyle->SetTextSize(0.01);
+  gStyle->SetLabelFont(22,"xyz");
+  gStyle->SetLabelSize(0.04,"xy");
+  gStyle->SetLabelOffset(0.01,"xy");
+  gStyle->SetTitleFont(22,"xyz");
+  gStyle->SetTitleSize(0.04,"xy");
+  gStyle->SetTitleOffset(1.2,"x");
+  gStyle->SetTitleOffset(1.5,"y");
+  
+  
+  // Gradient Color
+  const Int_t NRGBs = 5;  
+  const Int_t NCont = 99;
+  Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00};
+  Double_t red[NRGBs] =   { 0.00, 0.00, 0.87, 1.00, 0.51};
+  Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00};
+  Double_t blue[NRGBs] =  { 0.51, 1.00, 0.12, 0.00, 0.00};
+  TColor::CreateGradientColorTable(NRGBs,stops,red,green,blue,NCont);
+  gStyle->SetNumberContours(NCont);
 
 }
 
