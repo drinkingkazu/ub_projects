@@ -14,8 +14,7 @@ int main(int argc, char** argv){
   // This time, we use a sample file prepared.
   my_proc.add_input_file(argv[1]);
 
-  my_proc.set_data_to_write(DATA_STRUCT::PULSE_COLLECTION);
-
+  // Set output data root file
   my_proc.set_output_file("out.root");
 
   // Specify IO mode

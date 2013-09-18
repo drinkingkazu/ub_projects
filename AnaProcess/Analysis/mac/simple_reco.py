@@ -17,9 +17,6 @@ my_proc=ana_processor()
 # We want to read & write the data file
 my_proc.set_io_mode(storage_manager.BOTH)
 
-# We want to add reconstructed pulse data members
-my_proc.set_data_to_write(DATA_STRUCT.PULSE_COLLECTION)
-
 # Set input root file: this is decoder output root file.
 # This time, we use a sample file prepared.
 my_proc.add_input_file(sys.argv[1])

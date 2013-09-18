@@ -13,23 +13,20 @@ int main(int argc, char** argv){
 
   my_proc.add_input_file(argv[1]);
 
-  my_proc.set_data_to_write(DATA_STRUCT::PULSE_COLLECTION);
-
   my_proc.set_output_file("out.root");
 
   my_proc.set_io_mode(storage_manager::BOTH);
 
   my_proc.set_ana_output_file("ana.root");
 
-  my_proc.add_process(new pmtbaseline());
-
   pulse_reco* preco = new pulse_reco;
 
-  preco->set_reco_algo(new algo_threshold);
+  //preco->set_reco_algo(new algo_threshold);
+  preco->add_reco_algo(new algo_fixed_window);
 
   preco->set_ped_algo(preco->kHEAD);
   
-  preco->set_ped_nsample_head(2);
+  preco->set_ped_nsample_cosmic(3);
 
   my_proc.add_process(preco);
   

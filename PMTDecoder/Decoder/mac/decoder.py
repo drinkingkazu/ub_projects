@@ -48,10 +48,6 @@ algo=algo_xmit_decoder()
 # Attach algorithm to the decoder.
 decoder.set_decoder(algo);
 
-# Set data type to be written in the output
-decoder.set_data_to_write(DATA_STRUCT.WF_COLLECTION)
-#decoder.set_data_to_write(DATA_STRUCT.WF_COLLECTION)
-
 # Set input file format ... ASCII or BINARY
 #decoder.set_format(FORMAT.ASCII)
 decoder.set_format(FORMAT.BINARY)
