@@ -10,5 +10,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class bin_io_handler+;
+#pragma link C++ class bin_word_search+;
 
 #endif

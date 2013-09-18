@@ -10,5 +10,5 @@
 
 // Class forward declaration here
 class bin_io_handler;
-
+class bin_word_search;
 #endif
