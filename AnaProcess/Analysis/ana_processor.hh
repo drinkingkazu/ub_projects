@@ -102,14 +102,12 @@ private:
   std::vector<ana_base*>   _analyzers;  ///< A vector of analysis modules
   std::map<ana_base*,bool> _ana_status; ///< A map of analysis module status
 
-  storage_manager::MODE _mode; ///< I/O mode for data
   PROCESS_FLAG _process;       ///< Processing status flag
   uint32_t _nevents;           ///< Number of events being processed
   uint32_t _index;             ///< Index of currently processing event
   std::string _ofile_name;     ///< Output file name
   TFile*   _fout;              ///< Output file pointer
   storage_manager* _storage;   ///< Storage manager pointer
-  event_waveform* _event;      ///< Event data class instance pointer
 
 };
 #endif

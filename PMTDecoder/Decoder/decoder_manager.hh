@@ -90,7 +90,6 @@ private:
   //
   // File IO variables
   //
-  FORMAT::INPUT_FILE _format; ///< Input file format type
   std::string _input_file;    ///< Input file name
   bin_io_handler _fin;        ///< Input file I/O handler
 

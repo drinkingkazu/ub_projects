@@ -16,8 +16,7 @@
 #define ANA_BASE_HH
 
 #include <TFile.h>
-#include "event_waveform.hh"
-#include "storage_manager.hh"
+#include "DataFormat-TypeDef.hh"
 
 /**
    \class ana_base
