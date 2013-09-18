@@ -104,10 +104,13 @@ namespace DATA_STRUCT{
 
   /// Define identifier for a data container class to be loaded through storage_manager::get_data()
   enum DATA_TYPE{
-    WF_COLLECTION=0,  ///< event_waveform ... event-wise collection of waveforms
-    TRIG_INFO,        ///< trig_info ... event-wise trigger information
-    PULSE_COLLECTION, ///< pulse_info_collection ... event-wise collection of reco-ed pulse
-    USER_COLLECTION,  ///< user_collection ... event-wise collection of user defined variables
+    WF_COLLECTION=0,            ///< event_waveform ... event-wise collection of waveforms
+    TRIG_INFO,                  ///< trig_info ... event-wise trigger information
+    PULSE_COLLECTION,           ///< pulse_info_collection ... event-wise collection of reco-ed pulse (generic)
+    FIXED_WIN_PULSE_COLLECTION, ///< pulse_info_collection ... output from algo_fixed_window
+    THRES_WIN_PULSE_COLLECTION, ///< pulse_info_collection ... output from algo_threshold
+    SLIDE_WIN_PULSE_COLLECTION, ///< pulse_info_collection ... output from algo_sliding_window
+    USER_COLLECTION,            ///< user_collection ... event-wise collection of user defined variables
     DATA_TYPE_MAX
   };
 
@@ -115,10 +118,13 @@ namespace DATA_STRUCT{
 
   /// Define tree name
   const std::string DATA_TREE_NAME[DATA_TYPE_MAX] = {
-    "event_waveform_tree",
-    "trig_info_tree",
-    "pulse_collection_tree",
-    "user_collection_tree"
+    "event_waveform",
+    "trig_info",
+    "pulse_collection",
+    "pulse_fixed_window",
+    "pulse_thres_window",
+    "pulse_slide_window",
+    "user_collection"
   };
 
 

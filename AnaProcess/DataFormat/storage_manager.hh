@@ -110,32 +110,6 @@ public:
    */
   data_base* get_data(DATA_STRUCT::DATA_TYPE type);
 
-  /*
-  /// Return a const event_waveform for READ-ONLY
-  const event_waveform get_event_waveform() const 
-  {return *((event_waveform*)(_ptr_data_array[DATA_STRUCT::WF_COLLECTION]));};
-
-  /// Return a const trig_info for READ-ONLY
-  const trig_info get_trig_info() const  
-  {return *((trig_info*)(_ptr_data_array[DATA_STRUCT::TRIG_INFO]));};
-
-  /// Return a const pulse_collection for READ-ONLY
-  const pulse_collection get_pulse_collection() const 
-  { return *((pulse_collection*)(_ptr_data_array[DATA_STRUCT::PULSE_COLLECTION]));};
-
-  /// Return a pointer to event_waveform for READ & WRITE
-  event_waveform* get_event_waveform_writeable()  
-  {return (event_waveform*)(_ptr_data_array[DATA_STRUCT::WF_COLLECTION]);};
-
-  /// Retrun a pointer to trig_info for READ & WRITE
-  trig_info* get_trig_info_writeable()   
-  {return (trig_info*)(_ptr_data_array[DATA_STRUCT::TRIG_INFO]);};
-
-  /// Return a pointer to pulse_collection for READ & WRITE
-  pulse_collection* get_pulse_collection_writeable() 
-  {return (pulse_collection*)(_ptr_data_array[DATA_STRUCT::PULSE_COLLECTION]);};
-  */
-
   /// Getter for a shared object instance pointer. Not limited to be a singleton.
   static storage_manager* get() 
   { if(!me) me= new storage_manager(); return me; };

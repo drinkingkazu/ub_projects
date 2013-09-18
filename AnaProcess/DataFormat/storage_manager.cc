@@ -31,6 +31,29 @@ storage_manager::storage_manager(storage_manager::MODE mode)
 
 data_base* storage_manager::get_data(DATA_STRUCT::DATA_TYPE type){
 
+  // If data class object does not exist, and if it's either WRITE or BOTH mode, create it.
+  if(!_ptr_data_array[type] && _mode != READ){
+
+    _fout->cd();
+
+    _out_ch[(size_t)type]=new TTree(Form("%s_tree",DATA_STRUCT::DATA_TREE_NAME[type].c_str()),
+				    Form("%s Tree",DATA_STRUCT::DATA_TREE_NAME[type].c_str()));
+    
+    create_data_ptr(type);
+    
+    _out_ch[(size_t)type]->Branch(Form("%s_branch",DATA_STRUCT::DATA_TREE_NAME[type].c_str()),
+				  _ptr_data_array[(size_t)type]->GetName(),
+				  &(_ptr_data_array[(size_t)type]));
+
+    Message::send(MSG::WARNING,__FUNCTION__,
+		  Form("Requested tree %s which does not exists yet. Created a new one.", 
+		       _out_ch[(size_t)type]->GetName())
+		  );
+
+    _write_data_array[(size_t)type]=true;
+
+  }
+
   return _ptr_data_array[type];
 
 }
@@ -185,7 +208,7 @@ bool storage_manager::prepare_tree(){
 
     if(_mode!=WRITE && _read_data_array[i]) {
 
-      _in_ch[i]=new TChain(DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str(),
+      _in_ch[i]=new TChain(Form("%s_tree",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()),
 			   Form("%s Tree",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()));
 
       for(size_t j=0; j<_in_fnames.size(); ++j)
@@ -209,16 +232,18 @@ bool storage_manager::prepare_tree(){
     }
 
     if(_mode!=READ && _write_data_array[i] ) {
-      
-      _out_ch[i]=new TTree(DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str(),
+
+      _fout->cd();
+
+      _out_ch[i]=new TTree(Form("%s_tree",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()),
 			   Form("%s Tree",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()));
       
       create_data_ptr((DATA_STRUCT::DATA_TYPE)i);
       
-      _out_ch[i]->Branch(Form("%s_branch",_ptr_data_array[i]->GetName()),
+      _out_ch[i]->Branch(Form("%s_branch",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()),
 			 _ptr_data_array[i]->GetName(),
 			 &(_ptr_data_array[i]));
-
+      
     }
 
     _nevents_written=0;
@@ -266,6 +291,15 @@ void storage_manager::create_data_ptr(DATA_STRUCT::DATA_TYPE type){
   case DATA_STRUCT::PULSE_COLLECTION:
     _ptr_data_array[type] = (data_base*)(new pulse_collection());
     break;
+  case DATA_STRUCT::THRES_WIN_PULSE_COLLECTION:
+    _ptr_data_array[type] = (data_base*)(new pulse_collection());
+    break;
+  case DATA_STRUCT::FIXED_WIN_PULSE_COLLECTION:
+    _ptr_data_array[type] = (data_base*)(new pulse_collection());
+    break;
+  case DATA_STRUCT::SLIDE_WIN_PULSE_COLLECTION:
+    _ptr_data_array[type] = (data_base*)(new pulse_collection());
+    break;
   case DATA_STRUCT::USER_COLLECTION:
     _ptr_data_array[type] = (data_base*)(new user_collection());
     break;
@@ -305,16 +339,32 @@ bool storage_manager::close(){
     break;
   case OPERATING:
     if(_mode!=READ){
-      _fout->CurrentFile()->cd();
+
+      _fout->cd();
 
       for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX; i++) {
-	if(!_out_ch[i]) continue;
+
+	if(!_out_ch[i]) {
+	  
+	  if(_verbosity[MSG::DEBUG])
+	    
+	    Message::send(MSG::DEBUG,__FUNCTION__,
+			  Form("Skipping to write a Tree %s_tree...", 
+			       DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()));
+
+	  continue;
+	}
+
+	if(_verbosity[MSG::INFO])
+
+	  Message::send(MSG::INFO,__FUNCTION__,Form("Writing TTree: %s",_out_ch[i]->GetName()));
+
 	_out_ch[i]->Write();
 
-	sprintf(_buf,"TTree \"%s\" written with %lld events...",
-		_out_ch[i]->GetName(),
-		_out_ch[i]->GetEntries());
-	Message::send(MSG::NORMAL,__FUNCTION__,_buf);
+	Message::send(MSG::NORMAL,__FUNCTION__,
+		      Form("TTree \"%s\" written with %lld events...",
+			   _out_ch[i]->GetName(),
+			   _out_ch[i]->GetEntries()));
       }
     }
     break;
@@ -324,7 +374,7 @@ bool storage_manager::close(){
 
     sprintf(_buf,"Closing the output: %s",_out_fname.c_str());
     Message::send(MSG::NORMAL,__FUNCTION__,_buf);
-    if(_fout) {_fout->Write(); _fout->Close();}
+    if(_fout) _fout->Close();
     _fout=0;
 
     for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX; ++i) {
