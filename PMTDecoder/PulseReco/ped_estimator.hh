@@ -21,9 +21,8 @@
 #include <cmath>
 
 /**
-   /class ped_estimator
-   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").
-   
+   \class ped_estimator
+   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").   
  */
 class ped_estimator : public decoder_base {
 
