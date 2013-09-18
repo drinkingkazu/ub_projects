@@ -1,3 +1,18 @@
+/**
+ * \file ped_estimator.hh
+ *
+ * \ingroup PulseReco
+ * 
+ * \brief Class definition file of ped_estimator
+ *
+ * @author Kazu - Nevis 2013
+ */
+
+/** \addtogroup PulseReco
+
+    @{*/
+
+
 #ifndef PED_ESTIMATOR_HH
 #define PED_ESTIMATOR_HH
 
@@ -5,40 +20,40 @@
 #include "DataFormat-TypeDef.hh"
 #include <cmath>
 
+/**
+   /class ped_estimator
+   A class that calculates pedestal mean & standard deviation (here and elsewhere called as "RMS").
+   
+ */
 class ped_estimator : public decoder_base {
 
 public:
 
+  /// Default constructor
   ped_estimator();
 
-  ~ped_estimator(){};
+  /// Default destructor
+  virtual ~ped_estimator(){};
 
-  void set_nsample_head(size_t n){ _nsample_head = n;};
+  /// Method to compute a pedestal of the input waveform using "nsample" ADC samples from "start" index.
+  void compute_pedestal(const std::vector<uint16_t>* wf, size_t start, size_t nsample);
 
-  void set_nsample_tail(size_t n){ _nsample_tail = n;};
+  /// Getter of the pedestal mean value
+  double mean(){return _mean;};
 
-  void analyze_head(const std::vector<uint16_t>*wf);
-
-  void analyze_tail(const std::vector<uint16_t>*wf);
-
-  double mean_head() const { return _mean_head;};
-
-  double rms_head() const { return _rms_head;};
-
-  double mean_tail() const { return _mean_tail;};
-
-  double rms_tail() const { return _rms_tail;};
-
+  /// Getter of the pedestal standard deviation
+  double sigma() {return _sigma;};
 
 protected:
 
-  size_t _nsample_head;
-  size_t _nsample_tail;
+  /// A variable holder for pedestal mean value
+  double _mean;
 
-  double _mean_head, _rms_head;
-  double _mean_tail, _rms_tail;
+  /// A variable holder for pedestal standard deviation
+  double _sigma;
 
 };
 
 #endif
 
+/** @} */ // end of doxygen group

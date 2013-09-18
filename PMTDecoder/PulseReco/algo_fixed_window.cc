@@ -3,7 +3,9 @@
 
 #include "algo_fixed_window.hh"
 
+//***************************************************************
 algo_fixed_window::algo_fixed_window() : preco_algo_base() {
+//***************************************************************
 
   _name = "algo_fixed_window";
   
@@ -25,7 +27,9 @@ void algo_fixed_window::reset(){
 
 }
 
+//***************************************************************
 bool algo_fixed_window::reco(const std::vector<uint16_t> *wf) {
+//***************************************************************
 
   this->reset();
 

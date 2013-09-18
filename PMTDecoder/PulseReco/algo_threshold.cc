@@ -3,7 +3,9 @@
 
 #include "algo_threshold.hh"
 
+//***************************************************************
 algo_threshold::algo_threshold() : preco_algo_base() {
+//***************************************************************
 
   _name = "algo_threshold";
 
@@ -21,7 +23,9 @@ void algo_threshold::reset(){
 
 }
 
+//***************************************************************
 bool algo_threshold::reco(const std::vector<uint16_t> *wf) {
+//***************************************************************
 
   bool fire = false;
 
