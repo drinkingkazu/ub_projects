@@ -143,7 +143,7 @@ bool beamgate_debugger::analyze(storage_manager* data){
   uint16_t max_time=0;
   uint16_t index=0;
 
-  event_waveform *ewf = (event_waveform*)(data->get_data(DATA_STRUCT::WF_COLLECTION));
+  pmt_wf_collection *ewf = (pmt_wf_collection*)(data->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
 
   for(std::vector<pmt_waveform>::const_iterator wf_iter(ewf->begin());
       wf_iter!=ewf->end();

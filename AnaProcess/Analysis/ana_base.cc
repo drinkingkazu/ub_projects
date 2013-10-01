@@ -1,6 +1,6 @@
-#ifndef BEAMGATE_DEBUGGER_CC
-#define BEAMGATE_DEBUGGER_CC
+#ifndef ANA_BASE_CC
+#define ANA_BASE_CC
 
-#include "beamgate_debugger.hh"
+#include "ana_base.hh"
 
 #endif

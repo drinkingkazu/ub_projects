@@ -34,13 +34,13 @@ public:
   virtual ~ana_base(){};
 
   /// Initialization method to be called before analyze any data
-  virtual bool initialize(){return true;};
+  virtual bool initialize()=0;
 
   /// Analyze a data event-by-event  
-  virtual bool analyze(storage_manager* data){return (bool)data;};
+  virtual bool analyze(storage_manager* data)=0;
 
   /// Finalize method to be called after all events processed.
-  virtual bool finalize(){return true;};
+  virtual bool finalize()=0;
 
   /// A setter for analysis output file poitner
   void set_output_file(TFile* fout){_fout=fout;};

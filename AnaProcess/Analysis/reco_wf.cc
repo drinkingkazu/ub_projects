@@ -40,7 +40,7 @@ bool reco_wf::initialize() {
 
 bool reco_wf::analyze(storage_manager* storage){
 
-  event_waveform *data = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  pmt_wf_collection *data = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
   clear_event();
 
   if(!(data->size()))
@@ -56,7 +56,7 @@ bool reco_wf::analyze(storage_manager* storage){
   // Loop over event (collection of channel waveforms) to first
   // identify the maximum length of waveform vector to be stored.
   //
-  std::set<size_t> skip_index; // a set of index in event_waveform array to be skipped
+  std::set<size_t> skip_index; // a set of index in pmt_wf_collection array to be skipped
   for(size_t i=0; i<data->size(); ++i){
 
     const pmt_waveform* pmt_data = &(data->at(i));

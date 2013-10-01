@@ -20,7 +20,7 @@ my_proc.set_io_mode(storage_manager.READ)
 #my_proc.set_io_mode(storage_manager.BOTH)
 
 # Specify what data to read
-my_proc.set_data_to_read(DATA_STRUCT.WF_COLLECTION)
+my_proc.set_data_to_read(DATA_STRUCT.PMT_WF_COLLECTION)
 
 # Set input root file: this is decoder output root file.
 # This time, we use a sample file prepared.

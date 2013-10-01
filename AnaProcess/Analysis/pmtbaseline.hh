@@ -104,10 +104,11 @@ private:
   TH1D *pedMeanCutrms;  ///< 1D histogram of head pedestal mean for RMS>0.5
   TH1D *pedRMSCutrms;   ///< 1D histogram of head pedestal rms for RMS>0.5
 
-  
+  /*  
   TH1D *peakheights; ///< 1D histogram of pulse amplitude
   TH1D *peakareas;   ///< 1D histogram of pulse charge
   TH1D *nptstaken;   
+  */
   TH1D *reco_time;
   TH1D *reco_time_diff;
   

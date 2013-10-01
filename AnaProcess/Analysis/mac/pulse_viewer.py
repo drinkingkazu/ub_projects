@@ -8,12 +8,16 @@ def main(pv_ptr) :
 
     proc=ana_processor()
 
+    #    proc.set_verbosity(MSG.DEBUG)
+
     proc.set_ana_output_file("ana.root")
     
     proc.set_io_mode(storage_manager.READ)
     
     proc.set_data_to_read(DATA_STRUCT.PULSE_COLLECTION)
-    
+    proc.set_data_to_read(DATA_STRUCT.FIXED_WIN_PULSE_COLLECTION)
+    proc.set_data_to_read(DATA_STRUCT.THRES_WIN_PULSE_COLLECTION)
+
     proc.add_input_file(sys.argv[1])
     
     proc.add_process(pv_ptr)

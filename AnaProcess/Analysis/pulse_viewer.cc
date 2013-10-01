@@ -129,8 +129,15 @@ bool pulse_viewer::analyze(storage_manager* storage) {
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called...");
   
   pulse_collection *pulses = (pulse_collection*)(storage->get_data(DATA_STRUCT::PULSE_COLLECTION));
-  event_waveform   *wfs    = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  pmt_wf_collection   *wfs    = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
   _ch_iter     = _channels.begin();
+
+
+  if(!pulses)
+    pulses = (pulse_collection*)(storage->get_data(DATA_STRUCT::FIXED_WIN_PULSE_COLLECTION));
+
+  if(!pulses)
+    pulses = (pulse_collection*)(storage->get_data(DATA_STRUCT::THRES_WIN_PULSE_COLLECTION));
 
   if(pulses->size()==0) {
     Message::send(MSG::ERROR,__FUNCTION__,"No Pulse Found!");
@@ -217,7 +224,7 @@ bool pulse_viewer::analyze(storage_manager* storage) {
 
 
 
-  for(event_waveform::const_iterator ch_iter(wfs->begin());
+  for(pmt_wf_collection::const_iterator ch_iter(wfs->begin());
       ch_iter!=wfs->end();
       ++ch_iter){
     PMT::ch_number_t ch        = (*ch_iter).channel_number();

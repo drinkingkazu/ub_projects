@@ -16,7 +16,7 @@
 
 #include <TH2D.h>
 
-#include "event_waveform.hh"
+#include "pmt_waveform.hh"
 #include "ana_base.hh"
 
 /**

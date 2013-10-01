@@ -5,23 +5,34 @@
 
 pulse_analyzer::pulse_analyzer() { 
   _name="pulse_analyzer"; 
-
-  clear_event();
-}
-
-void pulse_analyzer::clear_event(){
-
+  _pulse_type=DATA_STRUCT::THRES_WIN_PULSE_COLLECTION;
 }
 
 bool pulse_analyzer::initialize() {
-  amplitude   = new TH1D("pulse_peak", "Amplitude", 205, 0, 4100);
+
+  _ch_tree = new TTree("ch_tree","");
+  _ch_tree->Branch("event_id",&_event_id,"event_id/I");
+  _ch_tree->Branch("frame_id",&_ch_frame_id,"frame_id/I");
+  _ch_tree->Branch("sample_id",&_ch_sample_id,"sample_id/I");
+  _ch_tree->Branch("disc_id",&_disc_id,"disc_id/I");
+  _ch_tree->Branch("ch",&_ch,"ch/I");
+  _ch_tree->Branch("charge",&_wf_charge,"charge/D");
+  _ch_tree->Branch("peak",&_wf_peak,"peak/D");
+  _ch_tree->Branch("t_start",&_wf_ts,"t_start/D");
+  _ch_tree->Branch("t_max",&_wf_tm,"t_max/D");
+  _ch_tree->Branch("t_end",&_wf_te,"t_end/D");
+  _ch_tree->Branch("ped_mean",&_ped_mean,"ped_mean/D");
+  _ch_tree->Branch("ped_rms",&_ped_rms,"ped_rms/D");
+  _ch_tree->Branch("nsample",&_nsample,"nsample/I");
+
   return true;
 }
 
 bool pulse_analyzer::analyze(storage_manager* storage) {
   
-  pulse_collection *pulses = (pulse_collection*)(storage->get_data(DATA_STRUCT::PULSE_COLLECTION));
-  event_waveform   *wfs    = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  pulse_collection *pulses = (pulse_collection*)(storage->get_data(_pulse_type));
+  pmt_wf_collection   *wfs    = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
+
   if(pulses->size()==0) {
     Message::send(MSG::ERROR,__FUNCTION__,"No Pulse Found!");
     return false;
@@ -31,37 +42,25 @@ bool pulse_analyzer::analyze(storage_manager* storage) {
     return false;
   }
 
-  _event_id    = wfs->event_id();
-  _sum_charge  = pulses->sum_charge();
-  _sum_peak    = pulses->sum_peak();
-  _npulse      = pulses->npulse();
-
-  
   // Fill map for this event
   for(pulse_collection::const_iterator iter(pulses->begin());
       iter!=pulses->end();
       ++iter){
-
-    //PMT::ch_number_t ch((*iter).channel_number());
-    //PMT::word_t sample   = (*iter).timeslice();
-    //PMT::word_t frame    = (*iter).frame_id();
-    //double      t_start  = (*iter).start_time();
-    //double      t_end    = (*iter).end_time();
-    //double      charge   = (*iter).charge();
-    double      amp      = (*iter).pulse_peak();
-    amplitude->Fill(amp);
-    //double      ped_base = (*iter).ped_mean();
-    //double      ped_rms  = (*iter).ped_rms();
-    //double      t_start_reco = (*iter).start_time_reco();
-
-    int temp_ctr = 0;
-    for(event_waveform::const_iterator ch_iter(wfs->begin());
-      ch_iter!=wfs->end();
-      ++ch_iter){
+    _ch           = (*iter).channel_number();
+    _ch_frame_id  = (*iter).frame_id();
+    _ch_sample_id = (*iter).timeslice();
+    _disc_id      = (int)((*iter).disc_id());
+    _wf_charge    = (*iter).charge();
+    _wf_peak      = (*iter).pulse_peak();
+    _wf_ts        = (*iter).start_time();
+    _wf_tm        = (*iter).max_time();
+    _wf_te        = (*iter).end_time();
+    _ped_mean     = (*iter).ped_mean();
+    _ped_rms      = (*iter).ped_rms();
+    _ch_tree->Fill();
     
-      temp_ctr++;
-    }
   }
+  
   return true;
 }
 
@@ -71,7 +70,9 @@ bool pulse_analyzer::finalize() {
   // Do all variable finalization you wish to do here.
   // If you need, you can store your ROOT class instance in the output
   // file. You have an access to the output file through "_fout" pointer.
-  amplitude->Write();
+  //amplitude->Write();
+  _fout->cd();
+  _ch_tree->Write();
   return true;
 }
 

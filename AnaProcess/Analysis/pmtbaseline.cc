@@ -2,7 +2,7 @@
 #define PMTBASELINE_CC
 
 #include "pmtbaseline.hh"
-#include "event_waveform.hh"
+#include "pmt_waveform.hh"
 
 pmtbaseline::pmtbaseline(){
 
@@ -129,9 +129,9 @@ void pmtbaseline::histosetup(){
   reco_time = new TH1D("reco_time", "Reconstructed Start Time", 100, 0 , 50);
   reco_time_diff = new TH1D("reco_time_diff", "Reconstructed Start Time Diff: start - reco", 100, -5, 5);
   /*
-  peakheights = new TH1D("peakheights","Subtracted Pulse Heights",500,0,1000);
-  peakareas = new TH1D("peakareas","Areas",1125,0,5000);
-  nptstaken = new TH1D("npointstake","Num. Points Taken for A.",40,0,80);
+    peakheights = new TH1D("peakheights","Subtracted Pulse Heights",500,0,1000);
+    peakareas = new TH1D("peakareas","Areas",1125,0,5000);
+    nptstaken = new TH1D("npointstake","Num. Points Taken for A.",40,0,80);
   */
 }
 
@@ -152,7 +152,7 @@ bool pmtbaseline::analyze(storage_manager* storage) {
   int npulse=0;
 
   //Get event waveform from storage
-  event_waveform   *ewform = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  pmt_wf_collection   *ewform = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
   pulse_collection *pulses = (pulse_collection*)(storage->get_data(DATA_STRUCT::PULSE_COLLECTION));
   
   //looping through all channels

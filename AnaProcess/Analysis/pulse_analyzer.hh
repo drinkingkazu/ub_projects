@@ -15,6 +15,7 @@
 #ifndef PULSE_ANALYZER_HH
 #define PULSE_ANALYZER_HH
 
+#include <TTree.h>
 #include <TH1D.h>
 #include <TCanvas.h>
 #include <TLine.h>
@@ -60,27 +61,23 @@ public:
   /// Finalize method to be called after all events processed.
   virtual bool finalize();
 
-  /// Clear event
-  void clear_event();
+  void set_pulse_type(DATA_STRUCT::DATA_TYPE type){_pulse_type=type;};
 
-  /** CORE METHOD 1
-      Given the channel number, this method iterates over the locally stored
-      values for a reconstructed pulse. It visualize these information on
-      a canvas with the original waveform which is returned as TH1D object pointer.
-      The canvas can be retrieved through pulse_viewer::get_canvas() method after
-      you call this function.
-   */
+private:
 
-  PMT::word_t _event_id;   ///< event id holder
-  double      _sum_charge; ///< event-wise summed charge holder
-  double      _sum_peak;   ///< event-wise summed peak height holder
-  uint32_t    _npulse;     ///< event-wise number of reco-ed pulse holder
-  std::set<PMT::ch_number_t>                           _channels;             ///< set of channel numbers for reco-ed pulses
-  std::set<PMT::ch_number_t>::iterator                 _ch_iter;              ///< internal iterator for _channels member
-  /** Map of pulse count: the first element in the pair holds the total reco-ed pulse count while the second
-      element holds the internal index to be updated by pulse_viewer::next_pulse() and pulse_viewer::previous_pulse() methods.
-  */
-  TH1D* amplitude;
+  PMT::word_t _event_id;       ///< event id holder
+  PMT::word_t _ch_frame_id;
+  PMT::word_t _ch_sample_id;
+  PMT::word_t _disc_id;
+
+  DATA_STRUCT::DATA_TYPE _pulse_type;
+  
+  TTree *_ch_tree;
+
+  int _ch, _nsample;
+
+  double _wf_charge, _wf_peak, _wf_ts, _wf_tm, _wf_te, _ped_mean, _ped_rms;
+  
 };
 
 #endif
