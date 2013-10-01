@@ -30,12 +30,6 @@ rootlibmap libDataFormat.rootmap libDataFormat.so $ANA_PROC_DIR/DataFormat/LinkD
 ######################################################
 # Analysis
 rootlibmap libAnalysis.rootmap libAnalysis.so $ANA_PROC_DIR/Analysis/LinkDef.h \
-    libGeom.so libGui.so libHist.so  libBase.so libDataFormat.so 
-
-
-
-
-
-
+    libTree.so libGeom.so libGui.so libHist.so  libBase.so libDataFormat.so 
 
 
