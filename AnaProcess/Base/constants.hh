@@ -86,6 +86,7 @@ namespace PMT{
     DISC_MAX
   };
 
+  /*
   /// Defines PMT word-type
   enum PMT_WORD{
     UNDEFINED_WORD = 0, ///< Word type ... undefined
@@ -95,6 +96,20 @@ namespace PMT{
     CHANNEL_HEADER,     ///< Channel header word
     CHANNEL_WORD,       ///< Channel word such as ADC sample
     CHANNEL_LAST_WORD , ///< Last word per channel-wise readout
+    FEM_LAST_WORD,      ///< Last word per fem
+    EVENT_LAST_WORD     ///< Last word in the event
+  };
+  */
+
+  /// Defines PMT word-type
+  enum PMT_WORD{
+    UNDEFINED_WORD = 0, ///< Word type ... undefined
+    EVENT_HEADER,       ///< A signal word (no data) to flag the start of headers 
+    FEM_HEADER,         ///< Event header word
+    FEM_FIRST_WORD,     ///< First word in the event (after the event header, before channel data )
+    CHANNEL_HEADER,     ///< Channel header word
+    CHANNEL_WORD,       ///< Channel word such as ADC sample
+    CHANNEL_LAST_WORD,  ///< Last word per channel-wise readout
     FEM_LAST_WORD,      ///< Last word per fem
     EVENT_LAST_WORD     ///< Last word in the event
   };

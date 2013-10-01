@@ -116,8 +116,8 @@ bool algo_slow_readout_decoder::process_word(PMT::word_t word) {
     // warn a user & process it as a header
     //
     PMT::word_t word_class=get_word_class(word);
-    if(word_class==PMT::EVENT_HEADER || 
-       word_class==PMT::EVENT_FIRST_HEADER) {
+    if(word_class==PMT::FEM_HEADER || 
+       word_class==PMT::EVENT_HEADER) {
       sprintf(_buf,"Found an event header (%x) while looping over channel data (last word: %x)!",
 	      word,_last_word);
       Message::send(MSG::ERROR,__FUNCTION__,_buf);
@@ -189,7 +189,7 @@ bool algo_slow_readout_decoder::process_header(const PMT::word_t word) {
     break;
 
     // Raise error for non-header words
-  case PMT::FIRST_WORD:
+  case PMT::FEM_FIRST_WORD:
   case PMT::CHANNEL_HEADER:
   case PMT::CHANNEL_WORD:
   case PMT::CHANNEL_LAST_WORD:
@@ -208,29 +208,29 @@ bool algo_slow_readout_decoder::process_header(const PMT::word_t word) {
     break;
 
     // Header word -> store & process
-  case PMT::EVENT_FIRST_HEADER:
+  case PMT::EVENT_HEADER:
     // This is just a marker. Nothing really to be done.
     if(_continue_to_next_event) _continue_to_next_event=false;
     break;
-  case PMT::EVENT_HEADER:
+  case PMT::FEM_HEADER:
     if(_continue_to_next_event) _continue_to_next_event=false;
 
     // Event header should come as a 32-bit word which is a pair of two 16-bit header words.
     // The first 16-bit is already checked by this point. Check the second part.
-    if(get_word_class(word>>16)!=PMT::EVENT_HEADER) {
+    if(get_word_class(word>>16)!=PMT::FEM_HEADER) {
       sprintf(_buf,"Found an odd event header word: %x",word);
       Message::send(MSG::ERROR,__FUNCTION__,_buf);
       status=false;
       break;
     }
 
-    if (_event_header_count<EVENT_HEADER_COUNT) {
+    if (_event_header_count<FEM_HEADER_COUNT) {
 
       // Store header words
       _event_header_words[_event_header_count]=word;
       _event_header_count++;
 
-      if(_event_header_count==EVENT_HEADER_COUNT) {
+      if(_event_header_count==FEM_HEADER_COUNT) {
 	
 	// Process header words
 	if(decode_event_header(_event_header_words)) {
@@ -507,8 +507,8 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
   
   switch(word_class){
 
-  case PMT::EVENT_FIRST_HEADER:
   case PMT::EVENT_HEADER:
+  case PMT::FEM_HEADER:
     //
     // Found an event header: -> unexpected. This should be handled in process_word().
     // Return "false" if executed even in _debug_mode (as it's this program's logic error)
@@ -528,10 +528,10 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
     status=false;
     break;
 
-  case PMT::FIRST_WORD:
+  case PMT::FEM_FIRST_WORD:
     //
     // First channel word in this event ... nothing special to do
-    if(last_word_class!=PMT::EVENT_HEADER){
+    if(last_word_class!=PMT::FEM_HEADER){
       Message::send(MSG::ERROR,__FUNCTION__,
 		    "Found the first word while the previous one was not event header!");
       status=false;
@@ -541,7 +541,7 @@ bool algo_slow_readout_decoder::decode_ch_word(const PMT::word_t word,
   case PMT::CHANNEL_HEADER:
     //
     // Channel header ... read in channel info from this word
-    if(last_word_class!=PMT::FIRST_WORD && last_word_class!=PMT::CHANNEL_LAST_WORD) {
+    if(last_word_class!=PMT::FEM_FIRST_WORD && last_word_class!=PMT::CHANNEL_LAST_WORD) {
       Message::send(MSG::ERROR,__FUNCTION__,
 		    "Found the channel header in wrong place: previous word is missing!");
       status=false;

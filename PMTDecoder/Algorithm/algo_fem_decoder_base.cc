@@ -27,7 +27,7 @@ void algo_fem_decoder_base::reset() {
 
   _search_for_next_event = false;
 
-  for(size_t i=0; i< EVENT_HEADER_COUNT; i++)
+  for(size_t i=0; i< FEM_HEADER_COUNT; i++)
 
     _event_header_words[i] = 0;
 
@@ -65,7 +65,7 @@ bool algo_fem_decoder_base::process_word(PMT::word_t word)
 
   // Check if _search_for_next_event flag is on or not.
   // If it is on, it is OK to simply skip this word. 
-  if(_search_for_next_event && word_class!=PMT::EVENT_FIRST_HEADER){
+  if(_search_for_next_event && word_class!=PMT::EVENT_HEADER){
 
     if(_verbosity[MSG::WARNING]){
       
@@ -77,14 +77,40 @@ bool algo_fem_decoder_base::process_word(PMT::word_t word)
     return status;
   }
 
+  /*
+  switch(word_class){
+    
+  case PMT::EVENT_HEADER:
+
+    // (1) Check if the previous word was end of event word (if this is not the 1st word)
+    break;
+
+  case PMT::FEM_HEADER:
+
+    // (1) If last word was not FEM_HEADER nor EVENT_HEADER, attempt to store event
+    // (2) Read FEM header info
+    break;
+
+  case PMT::FEM_FIRST_WORD:
+    // Undefined for this process. Nothing to do.
+    break;
+
+  case PMT::CHANNEL_HEADER:
+  case PMT::CHANNEL_WORD:
+  case PMT::CHANNEL_LAST_WORD:
+    // Do channel-wise operation
+    break;
+
+  }
+  */
   switch(_process){
 
   case READ_HEADER:
     //
     // Exceptional case handling: if word type is NOT event header
     //
-    if(word_class!=PMT::EVENT_HEADER && 
-       word_class!=PMT::EVENT_FIRST_HEADER) {
+    if(word_class!=PMT::FEM_HEADER && 
+       word_class!=PMT::EVENT_HEADER) {
       
       // Call an exception handling method. 
       // This method should be implemented in children class, and handle whatever needs to be done.
@@ -110,8 +136,8 @@ bool algo_fem_decoder_base::process_word(PMT::word_t word)
     //
     // Exceptional case handling: if word type is event header,
     //
-    if(word_class == PMT::EVENT_HEADER ||
-       word_class == PMT::EVENT_FIRST_HEADER) {
+    if(word_class == PMT::FEM_HEADER ||
+       word_class == PMT::EVENT_HEADER) {
 
       // Warn a user & process it as a header
       Message::send(MSG::ERROR,__FUNCTION__,
@@ -203,7 +229,7 @@ bool algo_fem_decoder_base::process_event_header(const PMT::word_t word, PMT::wo
     break;
 
     // Non-event-header word
-  case PMT::FIRST_WORD:
+  case PMT::FEM_FIRST_WORD:
   case PMT::CHANNEL_HEADER:
   case PMT::CHANNEL_WORD:
   case PMT::CHANNEL_LAST_WORD:
@@ -219,7 +245,7 @@ bool algo_fem_decoder_base::process_event_header(const PMT::word_t word, PMT::wo
     break;
 
     // Header word -> store & process
-  case PMT::EVENT_FIRST_HEADER:
+  case PMT::EVENT_HEADER:
 
     // This is just a marker. Nothing really to be done.
     // Unflagg _search_for_next_event in case it is true (we no longer skip anything as a new header just found)
@@ -227,10 +253,10 @@ bool algo_fem_decoder_base::process_event_header(const PMT::word_t word, PMT::wo
 
     break;
 
-  case PMT::EVENT_HEADER:
+  case PMT::FEM_HEADER:
     // Event header should come as a 32-bit word which is a pair of two 16-bit header words.
     // The first 16-bit is already checked by this point. Check the second part.
-    if(get_word_class(word>>16)!=PMT::EVENT_HEADER) {
+    if(get_word_class(word>>16)!=PMT::FEM_HEADER) {
 
       Message::send(MSG::ERROR,__FUNCTION__,Form("Found an odd event header word: %x",word));
 
@@ -241,14 +267,14 @@ bool algo_fem_decoder_base::process_event_header(const PMT::word_t word, PMT::wo
     }
 
     // Process the subject word as an event header
-    if (_event_header_count<EVENT_HEADER_COUNT) {
+    if (_event_header_count<FEM_HEADER_COUNT) {
 
       // Store header words
       _event_header_words[_event_header_count]=word;
       _event_header_count++;
 
       // If stored number of header words reached to the expected number, decode.
-      if(_event_header_count==EVENT_HEADER_COUNT) {
+      if(_event_header_count==FEM_HEADER_COUNT) {
 	
 	// Decode header words
 	status = decode_event_header(_event_header_words);

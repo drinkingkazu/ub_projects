@@ -111,14 +111,14 @@ void xmit_event_search::print_word(std::vector<PMT::word_t> *in_array){
     case PMT::CHANNEL_WORD:
       msg+=Form(" %04x ",(*iter));
       break;
-    case PMT::EVENT_FIRST_HEADER:
     case PMT::EVENT_HEADER:
+    case PMT::FEM_HEADER:
     case PMT::EVENT_LAST_WORD:
       msg+=" \033[93m";
       msg+=Form("%04x ",(*iter));
       msg+="\033[0m";
 	break;
-    case PMT::FIRST_WORD:
+    case PMT::FEM_FIRST_WORD:
     case PMT::FEM_LAST_WORD:
       msg+=" \033[91m";
       msg+=Form("%04x ",(*iter));

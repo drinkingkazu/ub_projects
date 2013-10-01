@@ -86,9 +86,9 @@ public:
   /// Implementation of algo_base::process_word
   virtual inline PMT::PMT_WORD get_word_class(const PMT::word_t word) const {
     if     ( (word & 0xf000) == 0xf000 )
-      return PMT::EVENT_HEADER;
+      return PMT::FEM_HEADER;
     else if( (word & 0xf000) == 0x4000 )
-      return PMT::FIRST_WORD;
+      return PMT::FEM_FIRST_WORD;
     else if( (word & 0xf000) == 0x9000 )
       return PMT::CHANNEL_HEADER;
     else if( (word & 0xf000) == 0xa000 )
@@ -173,13 +173,13 @@ protected:
   // Comment out the following if you deal with an older format with 1 less header
 #define INCLUDE_EXTRA_HEADER
 #ifdef INCLUDE_EXTRA_HEADER
-  static const size_t EVENT_HEADER_COUNT=6; ///< Number of event header words
+  static const size_t FEM_HEADER_COUNT=6; ///< Number of event header words
 #else
-  static const size_t EVENT_HEADER_COUNT=5; ///< Number of event header words
+  static const size_t FEM_HEADER_COUNT=5; ///< Number of event header words
 #endif
 
   // variables
-  PMT::word_t          _event_header_words[EVENT_HEADER_COUNT]; ///< Event header word holder
+  PMT::word_t          _event_header_words[FEM_HEADER_COUNT]; ///< Event header word holder
 
   //
   // Run control variable
