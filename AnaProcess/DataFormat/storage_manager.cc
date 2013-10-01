@@ -16,17 +16,6 @@ storage_manager::storage_manager(storage_manager::MODE mode)
   reset();
   _mode=mode;
 
-  for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX; ++i) {
-    _read_data_array[i]=false;
-    _write_data_array[i]=false;
-    _in_ch[i]=0;
-    _out_ch[i]=0;
-    _ptr_data_array[i]=0;
-  }
-
-  _read_data_array[DATA_STRUCT::WF_COLLECTION]=true;
-  _write_data_array[DATA_STRUCT::WF_COLLECTION]=true;
-
 };
 
 data_base* storage_manager::get_data(DATA_STRUCT::DATA_TYPE type){
@@ -73,12 +62,22 @@ void storage_manager::reset()
   case CLOSED:
     break;
   }
+
   _index=0;
   _nevents=0;
   _nevents_written=0;
   _nevents_read=0;
   _mode=UNDEFINED;
   _status=INIT;
+  _in_fnames.clear();
+
+  for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX; ++i) {
+    _read_data_array[i]=false;
+    _write_data_array[i]=false;
+    _in_ch[i]=0;
+    _out_ch[i]=0;
+    _ptr_data_array[i]=0;
+  }
 
   if(_verbosity[MSG::DEBUG])
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"ends ...");  
@@ -221,7 +220,7 @@ bool storage_manager::prepare_tree(){
 
 	create_data_ptr((DATA_STRUCT::DATA_TYPE)i);
 
-	_in_ch[i]->SetBranchAddress(Form("%s_branch",_ptr_data_array[i]->GetName()),&(_ptr_data_array[i]));
+	_in_ch[i]->SetBranchAddress(Form("%s_branch",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()),&(_ptr_data_array[i]));
 
 	if(!_nevents) _nevents = nevents_array[i];
 
@@ -282,8 +281,8 @@ void storage_manager::create_data_ptr(DATA_STRUCT::DATA_TYPE type){
   if(_ptr_data_array[type]) return;
 
   switch(type){
-  case DATA_STRUCT::WF_COLLECTION:
-    _ptr_data_array[type] = (data_base*)(new event_waveform());
+  case DATA_STRUCT::PMT_WF_COLLECTION:
+    _ptr_data_array[type] = (data_base*)(new pmt_wf_collection());
     break;
   case DATA_STRUCT::TRIG_INFO:
     _ptr_data_array[type] = (data_base*)(new trig_info());
@@ -302,6 +301,9 @@ void storage_manager::create_data_ptr(DATA_STRUCT::DATA_TYPE type){
     break;
   case DATA_STRUCT::USER_COLLECTION:
     _ptr_data_array[type] = (data_base*)(new user_collection());
+    break;
+  case DATA_STRUCT::TPC_WF_COLLECTION:
+    _ptr_data_array[type] = (data_base*)(new tpc_wf_collection());
     break;
   case DATA_STRUCT::DATA_TYPE_MAX:
     break;

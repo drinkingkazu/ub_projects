@@ -1,9 +1,9 @@
 /**
- * \file event_waveform.hh
+ * \file tpc_waveform.hh
  *
  * \ingroup DataFormat
  * 
- * \brief event-wise data class def header file.
+ * \brief PMT-wise data class def header file.
  *
  * @author Kazu - Nevis 2013
  */
@@ -11,30 +11,79 @@
 /** \addtogroup DataFormat
 
     @{*/
+#ifndef TPC_WAVEFORM_HH
+#define TPC_WAVEFORM_HH
 
-#ifndef EVENT_WAVEFORM_HH
-#define EVENT_WAVEFORM_HH
-
-#include "pmt_waveform.hh"
+#include "data_base.hh"
 
 /**
- \class event_waveform 
+ \class tpc_waveform 
+ Channel-wise data member class to hold a collection of ADC samples for TPC readout.
+*/
+class tpc_waveform : public std::vector<PMT::ch_adc_t>, 
+		     public data_base {
+
+public:
+
+  /// Default constructor
+  tpc_waveform(PMT::ch_number_t ch  = PMT::INVALID_CH,
+	       size_t           len = 0               ) 
+    : std::vector<PMT::ch_adc_t>(len), 
+      data_base(),
+      _channel_number(ch)
+  {};
+
+  /// Default copy constructor
+  tpc_waveform(const tpc_waveform& original)
+    : std::vector<PMT::ch_adc_t>(original),
+      data_base(original),
+      _channel_number(original._channel_number)
+  {};
+
+  /// Setter for the channel number
+  void set_channel_number   (PMT::ch_number_t ch)   {_channel_number=ch;};
+
+  /// Getter for the channel number
+  PMT::ch_number_t channel_number() const {return _channel_number;};
+
+  /// Method to clear currently held data contents in the buffer
+  virtual void clear_data();
+
+  /// Default destructor
+  ~tpc_waveform(){};
+
+
+private:
+
+  /// Internal function to reset variables.
+  void init_vars();
+
+  PMT::ch_number_t _channel_number; ///< Channel number
+  
+  ////////////////////////
+  ClassDef(tpc_waveform,1)
+  ////////////////////////
+};
+
+
+/**
+ \class tpc_wf_collection 
  Event-wise data member class to hold a collection of ch-wise data members
 */
-class event_waveform : public std::vector<pmt_waveform>, 
-		       public data_base {
+class tpc_wf_collection : public std::vector<tpc_waveform>, 
+			  public data_base {
 
 public:
 
   /// Default constructor ... provide an option to set the length of ch-wise data
-  event_waveform(size_t len = 0) :
-    std::vector<pmt_waveform>(len), 
+  tpc_wf_collection(size_t len = 0) :
+    std::vector<tpc_waveform>(len), 
     data_base()
-  {};
+  {clear_data();};
 
   /// Default copy constructor needed to avoid memory leak in ROOT streamer
-  event_waveform(const event_waveform& original)
-    : std::vector<pmt_waveform>(original),
+  tpc_wf_collection(const tpc_wf_collection& original)
+    : std::vector<tpc_waveform>(original),
       data_base(original),
       _event_id(original._event_id),
       _event_frame_id(original._event_frame_id),
@@ -46,7 +95,7 @@ public:
   {};
 
   /// Default destructor
-  ~event_waveform(){};
+  ~tpc_wf_collection(){};
 
   /// Setter for the envet id number
   void set_event_id(PMT::word_t id)       {_event_id=id;};
@@ -103,12 +152,23 @@ public:
   PMT::word_t trigger_timeslice() const {return _trigger_timeslice;};
 
   /// A function to reset data member variables
-  virtual void clear_data();
+  virtual void clear_data(){ data_base::clear_data(); init_vars();};
 
 
 private:
 
-  void init_vars();
+  void init_vars() {
+    _event_id=PMT::INVALID_WORD;
+    _event_frame_id=PMT::INVALID_WORD;
+    _module_address=PMT::INVALID_WORD;
+    _module_id=PMT::INVALID_WORD;
+    _channel_header_count=PMT::INVALID_WORD;
+    _checksum=PMT::INVALID_WORD;
+    _nwords=PMT::INVALID_WORD;
+    _trigger_frame_id=PMT::INVALID_WORD;
+    _trigger_timeslice=PMT::INVALID_WORD;
+  };
+
   /// Actual implementation function of resetting variables
 
   PMT::word_t _event_id;             ///< event ID number
@@ -124,9 +184,11 @@ private:
   PMT::word_t _nwords;               ///< # of event words readout
 
   ///////////////////////////
-  ClassDef(event_waveform,3)
+  ClassDef(tpc_wf_collection,3)
   //////////////////////////
 };
 
+
 #endif
+
 /** @} */ // end of doxygen group 

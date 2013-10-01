@@ -1,7 +1,7 @@
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
-#include "event_waveform.hh"
+#include "pmt_waveform.hh"
 
 int main(){
 
@@ -17,7 +17,7 @@ int main(){
   //
 
   // Create an empty data
-  event_waveform* data=new event_waveform();
+  pmt_wf_collection* data=new pmt_wf_collection();
   data->set_event_id(event_id);
 
   // Save in TTree & File.

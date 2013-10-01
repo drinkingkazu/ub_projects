@@ -1,7 +1,7 @@
 from ROOT import gSystem
 gSystem.Load("libDataFormat")
-from ROOT import event_waveform, pmt_waveform
-event=event_waveform()
+from ROOT import pmt_wf_collection, pmt_waveform
+event=pmt_wf_collection()
 
 for x in xrange(100):
     ch=pmt_waveform(x,0,0,100)

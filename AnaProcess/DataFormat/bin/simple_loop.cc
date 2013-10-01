@@ -52,19 +52,19 @@ int main(){
 
   // Let's count # of events, and maybe loop over ADC samples to get the
   // highest ADC count.
-  //event_waveform* data=0;
+  //pmt_wf_collection* data=0;
   int ctr=0;
   int highest_adc=-1;
   int highest_adc_pmt=-1;
   while(kazu.next_event()){
 
     ctr++;
-    event_waveform *data=(event_waveform*)(kazu.get_data(DATA_STRUCT::WF_COLLECTION));
+    pmt_wf_collection *data=(pmt_wf_collection*)(kazu.get_data(DATA_STRUCT::PMT_WF_COLLECTION));
 
     // Let's loop over pmt-wise information. You can access this using
     // a index number such as data[0] to access the 1st entry. But here
     // I use an iterator.
-    for(event_waveform::const_iterator pmt_iter(data->begin());
+    for(pmt_wf_collection::const_iterator pmt_iter(data->begin());
 	pmt_iter!=data->end();
 	++pmt_iter) {
 
