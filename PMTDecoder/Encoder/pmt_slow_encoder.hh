@@ -87,8 +87,8 @@ public:
 
 protected:
 
-  virtual void encode_event_header(const event_waveform* data);
-  virtual void encode_ch_word(const event_waveform* data);
+  virtual void encode_event_header(const pmt_wf_collection* data);
+  virtual void encode_ch_word(const pmt_wf_collection* data);
 
   bin_io_handler _bin_file;
   PMT::word_t _words[60000];

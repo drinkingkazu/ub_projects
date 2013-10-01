@@ -17,7 +17,7 @@ bool pmt_slow_encoder::analyze(storage_manager *storage){
 
   _index=0;
 
-  event_waveform *data = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  pmt_wf_collection *data = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
 
   encode_event_header(data);
   encode_ch_word(data);
@@ -27,7 +27,7 @@ bool pmt_slow_encoder::analyze(storage_manager *storage){
   return true;
 }
 
-void pmt_slow_encoder::encode_event_header(const event_waveform* data) {
+void pmt_slow_encoder::encode_event_header(const pmt_wf_collection* data) {
 
   // (1) First 32-bit word include module address and id
   _words[_index]  = (format(PMT::EVENT_HEADER,
@@ -66,10 +66,10 @@ void pmt_slow_encoder::encode_event_header(const event_waveform* data) {
   
 }
 
-void pmt_slow_encoder::encode_ch_word(const event_waveform* data) {
+void pmt_slow_encoder::encode_ch_word(const pmt_wf_collection* data) {
 
 
-  for(event_waveform::const_iterator iter(data->begin());
+  for(pmt_wf_collection::const_iterator iter(data->begin());
       iter!=data->end();
       ++iter){
 
