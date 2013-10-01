@@ -24,7 +24,7 @@
    This class takes care of decoding, grouping of PMT/event data,
    and storing them through storage_manager.
  */
-class algo_xmit_decoder : public algo_slow_readout_decoder{
+class algo_xmit_decoder : public algo_slow_readout_decoder {
   
 public:
   

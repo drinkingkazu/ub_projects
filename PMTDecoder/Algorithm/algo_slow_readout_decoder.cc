@@ -95,9 +95,9 @@ bool algo_slow_readout_decoder::process_word(PMT::word_t word) {
 
   // IF data pointer is not set, set
   if(!_event_data) {
-    _event_data=(event_waveform*)(_storage->get_data(DATA_STRUCT::WF_COLLECTION));
+    _event_data=(pmt_wf_collection*)(_storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
     if(!_event_data) {
-      Message::send(MSG::ERROR,__FUNCTION__,"Could not retrieve event_waveform poitner!");
+      Message::send(MSG::ERROR,__FUNCTION__,"Could not retrieve pmt_wf_collection poitner!");
       return false;
     }
   }
