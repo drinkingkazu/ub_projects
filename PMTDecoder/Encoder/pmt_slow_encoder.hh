@@ -55,13 +55,13 @@ public:
   virtual inline PMT::word_t format(PMT::PMT_WORD type,PMT::word_t word=0x0) const 
   {
     switch(type){
-    case PMT::EVENT_FIRST_HEADER:
+    case PMT::EVENT_HEADER:
       word = 0xffffffff;
       break;
-    case PMT::EVENT_HEADER:
+    case PMT::FEM_HEADER:
       word = 0xf000 + (0xfff & word);
       break;
-    case PMT::FIRST_WORD:
+    case PMT::FEM_FIRST_WORD:
       word = 0x4000 + (0xfff & word);
       break;
     case PMT::CHANNEL_HEADER:

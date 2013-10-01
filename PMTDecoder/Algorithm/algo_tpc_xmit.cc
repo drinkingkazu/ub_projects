@@ -66,7 +66,7 @@ bool algo_tpc_xmit::process_ch_word(const PMT::word_t word,
     //
     // Check if the last word was event header or channel last word
     //
-    if(last_word_class == PMT::EVENT_HEADER ||
+    if(last_word_class == PMT::FEM_HEADER ||
        last_word_class == PMT::CHANNEL_LAST_WORD ) {
 
       // New data starts here. 
@@ -167,9 +167,9 @@ bool algo_tpc_xmit::process_ch_word(const PMT::word_t word,
 
   case PMT::FEM_LAST_WORD:
   case PMT::UNDEFINED_WORD:
-  case PMT::EVENT_FIRST_HEADER:
   case PMT::EVENT_HEADER:
-  case PMT::FIRST_WORD:
+  case PMT::FEM_HEADER:
+  case PMT::FEM_FIRST_WORD:
 
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Unexpected word found while channel word processing: %x",word));
@@ -196,7 +196,7 @@ bool algo_tpc_xmit::check_event_quality(){
   bool status = true;
 
   // In case of TPC, nwords & checksum include event header
-  for(size_t i=0; i<EVENT_HEADER_COUNT; i++){
+  for(size_t i=0; i<FEM_HEADER_COUNT; i++){
 
     _nwords++;
     _checksum += _event_header_words[i];
