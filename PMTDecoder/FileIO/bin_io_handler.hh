@@ -80,6 +80,8 @@ public:
   /// A method to initialize the class instance.
   void reset();
 
+  PMT::word_t read_multi_word(size_t length=0);
+
 private:
 
   std::string _filename;    ///< Input/Output filename
@@ -97,6 +99,9 @@ private:
   MODE   _mode;               ///< I/O mode
   FILE* _handler;             ///< File handler pointer
   
+
+  std::vector<PMT::word_t> _read_word_buffer;
+  size_t _multi_word_index;
 };
 
 #endif

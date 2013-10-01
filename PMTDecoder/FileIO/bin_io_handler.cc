@@ -166,6 +166,102 @@ bool bin_io_handler::write_multi_word(const PMT::word_t* words, const size_t ent
   return true;
 }
 
+PMT::word_t bin_io_handler::read_multi_word(size_t length){
+
+  _word = PMT::EMPTY_WORD;
+  if(_status!=OPENED && _status!=OPERATING) {
+    Message::send(MSG::ERROR,__FUNCTION__,
+		  "Invalid file I/O status. Cannot read!");
+    return _word;
+  }
+
+  if(_mode!=READ){
+    Message::send(MSG::ERROR,__FUNCTION__,
+		  "Not allowed as this is input file stream!");    
+    return _word;
+  }
+
+  _status=OPERATING;
+
+  // Check if a buffer holds words to be read out
+  if(_multi_word_index < _read_word_buffer.size()) {
+
+    _word = _read_word_buffer.at(_multi_word_index);
+
+    _multi_word_index++;
+
+    return _word;
+  }
+
+  if(feof(_handler)){
+    Message::send(MSG::DEBUG,__FUNCTION__,"Reached EOF!");
+    _eof=true;
+    return PMT::EMPTY_WORD;
+  }
+
+  size_t nwords_to_read = length;
+  size_t nwords_read    = 0;
+  
+  if(!(nwords_to_read)) nwords_to_read = read_word();
+ 
+  if(_format==FORMAT::ASCII){
+
+    _read_word_buffer.clear();
+
+    _read_word_buffer.reserve(nwords_to_read);
+
+    for(nwords_read=0; nwords_read<nwords_to_read && !_eof; nwords_read++){
+
+      if(fscanf(_handler,"%x%n",&_word,&_nchars)<1) {
+	Message::send(MSG::DEBUG,__FUNCTION__,"Reached EOF!");
+	_eof=true;
+      }
+
+      while(!_eof && _nchars<8  ) {
+	if(_verbosity_level<=MSG::WARNING){
+	  sprintf(_buf,"Encountered none 32-bit word expression: %x (%d chars)",_word,_nchars);
+	  Message::send(MSG::WARNING,__FUNCTION__,_buf);
+	}
+	
+	_eof=feof(_handler);
+	
+	if(fscanf(_handler,"%x%n",&_word,&_nchars)<1) {
+	  _eof=true;
+	  break;
+	}
+      }
+      
+      if(!_eof) _read_word_buffer.push_back(_word);
+    }
+
+  }
+  else{
+
+    _read_word_buffer.clear();
+    _read_word_buffer.resize(nwords_to_read,0);
+    
+    nwords_read=fread(&_read_word_buffer[0],sizeof(_word),nwords_to_read,_handler);
+
+    if(nwords_read < nwords_to_read) {
+
+      _eof = true;
+
+      _read_word_buffer.resize(nwords_read);
+
+    }
+  }
+
+  if(_verbosity[MSG::INFO]){
+    
+    sprintf(_buf,"Read-in %zu/%zu words from the file...",nwords_read,nwords_to_read);
+    Message::send(MSG::INFO,__FUNCTION__,_buf);
+  }
+
+  _multi_word_index = 0;
+
+  return _read_word_buffer[_multi_word_index];
+}
+
 PMT::word_t bin_io_handler::read_word() {
 
   if(_eof) return PMT::EMPTY_WORD;
