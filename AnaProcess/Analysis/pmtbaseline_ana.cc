@@ -48,16 +48,16 @@ bool pmtbaseline_ana::analyze(storage_manager* storage) {
   //
   // Do your event-by-event analysis here. This function is called for 
   // each event in the loop. You have "data" pointer which contains 
-  // event-wise data. For a reference of event_waveform class instance, 
+  // event-wise data. For a reference of pmt_wf_collection class instance, 
   // see the class index in the documentation.
   // 
   // Example to print out event id on screen...
   //
-  //const event_waveform* event_wf = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  //const pmt_wf_collection* event_wf = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
   //std::cout << Form("Event ID: %d",event_wf->event_id()) << std::endl;
   //
 
-  const event_waveform* wfs = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  const pmt_wf_collection* wfs = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
   const pulse_collection* pulses = (pulse_collection*)(storage->get_data(DATA_STRUCT::PULSE_COLLECTION));
 
   PMT::word_t event_id = wfs->event_id();
