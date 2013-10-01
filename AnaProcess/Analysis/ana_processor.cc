@@ -177,8 +177,11 @@ bool ana_processor::run(uint32_t start_index, uint32_t nevents){
 
     status=process_event();
 
-    if(nevents && nevents < _nevents)
+    if(nevents && nevents < _nevents){
+      Message::send(MSG::NORMAL,__FUNCTION__,Form("Processed %d/%d events! Aborting...",_nevents,nevents));
+      finalize();
       break;
+    }
 
     if(nevents > 10 && (_nevents >= ten_percent_ctr * nevents/10)) {
       
