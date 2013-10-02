@@ -4,11 +4,12 @@
 #include "pmt_waveform.hh"
 
 void pmt_waveform::clear_data(){
-  clear();
+  data_base::clear_data();
   init_vars();
 }
 
 void pmt_waveform::init_vars(){
+  clear();
   _channel_number=PMT::INVALID_CH;
   _channel_frame_id=PMT::INVALID_WORD;
   _disc_id=PMT::DISC_MAX;
@@ -16,11 +17,12 @@ void pmt_waveform::init_vars(){
 }
 
 void pmt_wf_collection::clear_data(){
-  clear();
+  data_base::clear_data();
   init_vars();
 }
 
 void pmt_wf_collection::init_vars(){
+  clear();
   _event_id=PMT::INVALID_WORD;
   _event_frame_id=PMT::INVALID_WORD;
   _module_address=PMT::INVALID_WORD;

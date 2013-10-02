@@ -18,7 +18,7 @@
 
 /**
  \class tpc_waveform 
- Channel-wise data member class to hold a collection of ADC samples for TPC readout.
+ PMT-wise data member class to hold a collection of ADC samples.
 */
 class tpc_waveform : public std::vector<PMT::ch_adc_t>, 
 		     public data_base {
@@ -26,11 +26,11 @@ class tpc_waveform : public std::vector<PMT::ch_adc_t>,
 public:
 
   /// Default constructor
-  tpc_waveform(PMT::ch_number_t ch  = PMT::INVALID_CH,
-	       size_t           len = 0               ) 
+  tpc_waveform(PMT::ch_number_t ch = PMT::INVALID_CH,
+	       size_t len=0) 
     : std::vector<PMT::ch_adc_t>(len), 
       data_base(),
-      _channel_number(ch)
+      _channel_number(ch) 
   {};
 
   /// Default copy constructor
@@ -61,9 +61,10 @@ private:
   PMT::ch_number_t _channel_number; ///< Channel number
   
   ////////////////////////
-  ClassDef(tpc_waveform,1)
+  ClassDef(tpc_waveform,3)
   ////////////////////////
 };
+
 
 
 /**
@@ -72,14 +73,14 @@ private:
 */
 class tpc_wf_collection : public std::vector<tpc_waveform>, 
 			  public data_base {
-
+  
 public:
 
   /// Default constructor ... provide an option to set the length of ch-wise data
   tpc_wf_collection(size_t len = 0) :
     std::vector<tpc_waveform>(len), 
     data_base()
-  {clear_data();};
+  {};
 
   /// Default copy constructor needed to avoid memory leak in ROOT streamer
   tpc_wf_collection(const tpc_wf_collection& original)
@@ -152,23 +153,12 @@ public:
   PMT::word_t trigger_timeslice() const {return _trigger_timeslice;};
 
   /// A function to reset data member variables
-  virtual void clear_data(){ data_base::clear_data(); init_vars();};
+  virtual void clear_data();
 
 
 private:
 
-  void init_vars() {
-    _event_id=PMT::INVALID_WORD;
-    _event_frame_id=PMT::INVALID_WORD;
-    _module_address=PMT::INVALID_WORD;
-    _module_id=PMT::INVALID_WORD;
-    _channel_header_count=PMT::INVALID_WORD;
-    _checksum=PMT::INVALID_WORD;
-    _nwords=PMT::INVALID_WORD;
-    _trigger_frame_id=PMT::INVALID_WORD;
-    _trigger_timeslice=PMT::INVALID_WORD;
-  };
-
+  void init_vars();
   /// Actual implementation function of resetting variables
 
   PMT::word_t _event_id;             ///< event ID number
@@ -187,7 +177,6 @@ private:
   ClassDef(tpc_wf_collection,3)
   //////////////////////////
 };
-
 
 #endif
 
