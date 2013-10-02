@@ -24,7 +24,7 @@
    This class takes care of decoding, grouping of PMT/event data,
    and storing them through storage_manager.
  */
-class algo_xmit_decoder : public algo_slow_readout_decoder{
+class algo_xmit_decoder : public algo_slow_readout_decoder {
   
 public:
   
@@ -41,13 +41,13 @@ public:
   virtual inline PMT::PMT_WORD get_word_class(const PMT::word_t word) const {
     // One of core functions to identify PMT binary word format
     if( (word & 0xffffffff) == 0xffffffff )
-      return PMT::EVENT_FIRST_HEADER;
+      return PMT::EVENT_HEADER;
     if( (word & 0xffff) == 0xffff )
-      return PMT::EVENT_HEADER;
+      return PMT::FEM_HEADER;
     else if( (word & 0xf000) == 0xf000 )
-      return PMT::EVENT_HEADER;
+      return PMT::FEM_HEADER;
     else if( (word & 0xf000) == 0x4000 )
-      return PMT::FIRST_WORD;
+      return PMT::FEM_FIRST_WORD;
     else if( (word & 0xf000) == 0x9000 )
       return PMT::CHANNEL_HEADER;
     else if( (word & 0xf000) == 0xa000 )

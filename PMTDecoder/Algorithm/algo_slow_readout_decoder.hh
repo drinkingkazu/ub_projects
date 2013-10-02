@@ -44,14 +44,14 @@ public:
   void print_adcval(bool doit=true){_print_adcval=doit;};
 
   /// Implementation of algo_base::process_word
-  virtual bool process_word(PMT::word_t word);
+  virtual bool process_word(const PMT::word_t word);
 
   /// Implementation of algo_base::process_word
   virtual inline PMT::PMT_WORD get_word_class(const PMT::word_t word) const {
     if     ( (word & 0xf000) == 0xf000 )
-      return PMT::EVENT_HEADER;
+      return PMT::FEM_HEADER;
     else if( (word & 0xf000) == 0x4000 )
-      return PMT::FIRST_WORD;
+      return PMT::FEM_FIRST_WORD;
     else if( (word & 0xf000) == 0x9000 )
       return PMT::CHANNEL_HEADER;
     else if( (word & 0xf000) == 0xa000 )
@@ -81,6 +81,12 @@ public:
 
   /// Override function to reset the instance
   virtual void reset();
+
+  /// Implementation of a method to inquire a status whether the event data empty or not
+  virtual bool is_event_empty(){ 
+    if(_event_data) return (_event_data->event_id()==PMT::INVALID_WORD);
+    else return true;
+  };
 
 protected:
 
@@ -119,17 +125,17 @@ protected:
   // Comment out the following if you deal with an older format with 1 less header
 #define INCLUDE_EXTRA_HEADER
 #ifdef INCLUDE_EXTRA_HEADER
-  static const size_t EVENT_HEADER_COUNT=6; ///< Number of event header words
+  static const size_t FEM_HEADER_COUNT=6; ///< Number of event header words
 #else
-  static const size_t EVENT_HEADER_COUNT=5; ///< Number of event header words
+  static const size_t FEM_HEADER_COUNT=5; ///< Number of event header words
 #endif
   static const size_t CHANNEL_HEADER_COUNT=2; ///< Number of channel header words
 
   // variables
-  PMT::word_t _event_header_words[EVENT_HEADER_COUNT]; ///< Event header word holder
+  PMT::word_t _event_header_words[FEM_HEADER_COUNT]; ///< Event header word holder
   pmt_waveform _ch_data;                               ///< Channel data holder.
-  event_waveform *_event_data;                         ///< Event waveform
-  PMT::DISCRIMINATOR _last_disc_id;                   ///< Holder of last channel data's disc. id
+  pmt_wf_collection *_event_data;                         ///< Event waveform
+  PMT::DISCRIMINATOR _last_disc_id;                    ///< Holder of last channel data's disc. id
   PMT::ch_number_t _last_channel_number;               ///< Holder of last channel data's channel number
 
   //

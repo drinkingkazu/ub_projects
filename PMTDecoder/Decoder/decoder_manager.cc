@@ -11,6 +11,9 @@ decoder_manager::decoder_manager()
   _debug_mode=false;
   _fin=bin_io_handler();
 
+  _read_block_size = 0;
+  _read_by_block   = false;
+
   _storage=storage_manager::get();
   _storage->set_io_mode(storage_manager::WRITE);
 
@@ -90,7 +93,7 @@ bool decoder_manager::decode() {
     Message::send(MSG::DEBUG,__FUNCTION__," begins...");
 
   bool status=true;
-  PMT::word_t word=_fin.read_word();
+  PMT::word_t word = (_read_by_block) ? _fin.read_multi_word(_read_block_size) : _fin.read_word();
   uint32_t ctr=0;
   time_t watch;
   while(!(_fin.eof()) && status) {
@@ -107,15 +110,15 @@ bool decoder_manager::decode() {
     */
 
     if(!status){
-      if(_decoder->backtrace_mode())
-	_decoder->backtrace();
+      //if(_decoder->backtrace_mode())
+      //_decoder->backtrace();
       if(_debug_mode){
 	Message::send(MSG::ERROR,__FUNCTION__,"Process status failure ... but continue since DEBUG mode!");
 	status=true;
       }
     }
 
-    word=_fin.read_word();
+    word = (_read_by_block) ? _fin.read_multi_word(_read_block_size) : _fin.read_word();
     if(_storage->get_index()==(ctr*2000)){
       time(&watch);
       sprintf(_buf,"  ... processed %-6d events : %s",ctr*2000,ctime(&watch));
@@ -125,24 +128,25 @@ bool decoder_manager::decode() {
   }
   
   if(!status && !_debug_mode){
-    sprintf(_buf,"Event loop terminated. Last event: %d  ... stored: %d events",
-	    ((event_waveform*)(_storage->get_data(DATA_STRUCT::WF_COLLECTION)))->event_id(),
-	    _storage->get_entries());
-    Message::send(MSG::ERROR,__FUNCTION__,_buf);
-  }else if(((event_waveform*)(_storage->get_data(DATA_STRUCT::WF_COLLECTION)))->size()){
-    Message::send(MSG::WARNING,
-		  __FUNCTION__,
-		  "Last event not stored by algorithm. Missing end-of-event word??");
+
+    Message::send(MSG::ERROR,__FUNCTION__,Form("Event loop terminated. Stored: %d events",_storage->get_entries()));
+
+  }else if(!(_decoder->is_event_empty())){
+
+    Message::send(MSG::WARNING,__FUNCTION__,"Last event not stored by algorithm. Missing end-of-event word??");
+
     if(_decoder->check_event_quality()){
-      sprintf(_buf,"Last event checksum agreed. Saving on file... event id: %d",
-	      ((event_waveform*)(_storage->get_data(DATA_STRUCT::WF_COLLECTION)))->event_id());
-      Message::send(MSG::WARNING,__FUNCTION__,_buf);
+
+      Message::send(MSG::WARNING,__FUNCTION__,"Last event checksum agreed. Saving on file...");
+
       _storage->next_event();
+
     }else{
-      sprintf(_buf,"Skip saving the last event: %d ",
-	      ((event_waveform*)(_storage->get_data(DATA_STRUCT::WF_COLLECTION)))->event_id());
-      Message::send(MSG::WARNING,__FUNCTION__,_buf);
+
+      Message::send(MSG::WARNING,__FUNCTION__,"Skip saving the last event...");
+
       status=false;
+
     }    
   }
     

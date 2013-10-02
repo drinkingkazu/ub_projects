@@ -35,7 +35,7 @@ public:
   /** A parent process to run this decoder should pass a stream of words to this method. 
       In this framework, a parent class should be decoder_manager for decoding, for instance.
   */
-  virtual bool process_word(PMT::word_t word);
+  virtual bool process_word(const PMT::word_t word);
 
   /** A method to check event quality upon saving in the output file.
    */
@@ -46,6 +46,12 @@ public:
 
   /// Override a function to prepare for new processing
   virtual void reset();
+
+  /// A method to inquire if the local data holder is empty or not
+  virtual bool is_event_empty(){
+    if(_data) return (_data->trig_id()==PMT::INVALID_WORD);
+    else return true;
+  };
 
 protected:
 

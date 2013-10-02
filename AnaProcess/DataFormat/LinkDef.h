@@ -11,13 +11,13 @@
 
 #pragma link C++ class data_base+;
 
+#pragma link C++ class tpc_waveform+;
+#pragma link C++ class std::vector<tpc_waveform>+;
+#pragma link C++ class tpc_wf_collection+;
+
 #pragma link C++ class pmt_waveform+;
 #pragma link C++ class std::vector<pmt_waveform>+;
 #pragma link C++ class pmt_wf_collection+;
-
-#pragma link C++ class tpc_waveform+;
-#pragma lnnk C++ class std::vector<tpc_waveform>+;
-#pragma link C++ class tpc_wf_collection+;
 
 #pragma link C++ class trig_info+;
 

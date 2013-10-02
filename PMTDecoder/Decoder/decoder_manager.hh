@@ -65,6 +65,17 @@ public:
 
   /// A method to initialize members for new decoding process.
   void reset();
+
+  /// A method to enable block-read for an input binary/ascii file
+  void set_read_by_block(bool doit=true){_read_by_block=doit;};
+
+  /** 
+      A method to set the size of block-read (in terms of number of 32-bit words.
+      Note that one does not have to set this variable. If unset (=default value of 0),
+      then it assumes the input file holds a 32-bit word at the beginning of each
+      block that should represent # of 32-bit words to be read in that particular block.
+  */
+  void set_read_block_size(size_t n){_read_block_size=n;};
   
 private:
 
@@ -92,6 +103,16 @@ private:
   //
   std::string _input_file;    ///< Input file name
   bin_io_handler _fin;        ///< Input file I/O handler
+  /** 
+      Read a chunk of data sample from the input file if set to true.
+      A chunk can be specified as number of 32-bit words through a parameter
+      _read_block_size. If _read_block_size is 0, then it assumes the
+      input file holds a block size at the beginning of each I/O block.
+  */
+  bool _read_by_block;        
+
+  /// Number of words to be read as a chunk. See _read_by_block comment for details.
+  size_t _read_block_size;
 
   // storage I/O
   storage_manager* _storage;  ///< Output file I/O handler

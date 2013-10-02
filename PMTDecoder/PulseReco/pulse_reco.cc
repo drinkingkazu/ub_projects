@@ -38,11 +38,11 @@ bool pulse_reco::initialize(){
 bool pulse_reco::analyze(storage_manager* storage){
 //***************************************************************
 
-  event_waveform *waveforms = (event_waveform*)(storage->get_data(DATA_STRUCT::WF_COLLECTION));
+  pmt_wf_collection *waveforms = (pmt_wf_collection*)(storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
 
   bool status = true;
   
-  for(event_waveform::iterator iter(waveforms->begin());
+  for(pmt_wf_collection::iterator iter(waveforms->begin());
       iter!=waveforms->end();
       ++iter){
     
@@ -107,12 +107,12 @@ bool pulse_reco::analyze(storage_manager* storage){
       
       break;
     }
-    
+
     //
     // Step 2: apply reco algos
     //
     for(auto reco_algo : _reco_algo_v){
-      
+
       reco_algo->set_ped_mean(ped_mean);
       
       reco_algo->set_ped_rms (sigma);

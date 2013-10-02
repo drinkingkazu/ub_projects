@@ -21,8 +21,8 @@
 #include "trig_info.hh"
 #include "pulse_info.hh"
 #include "user_info.hh"
-#include "tpc_waveform.hh"
 #include "pmt_waveform.hh"
+#include "tpc_waveform.hh"
 
 /**
    \class storage_manager

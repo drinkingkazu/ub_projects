@@ -10,21 +10,30 @@
 #include "pmt_waveform.hh"
 #include "tpc_waveform.hh"
 #include "trig_info.hh"
-#include "storage_manager.hh"
 #include "pulse_info.hh"
 #include "user_info.hh"
+#include "storage_manager.hh"
 // Class forward declaration here
 class data_base;
+
 class pmt_waveform;
-class tpc_waveform;
 class pmt_wf_collection;
-class tpc_wf_collection;
+
+class aho_waveform;
+class aho_wf_collection;
+
+//class tpc_waveform;
+//class tpc_wf_collection;
+
 class trig_info;
-class storage_manager;
+
 class pulse_info;
 class pulse_collection;
+
 class user_info;
 class user_collection;
+
+class storage_manager;
 #endif
 
 

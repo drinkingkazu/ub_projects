@@ -38,7 +38,7 @@ bool algo_threshold::reco(const std::vector<uint16_t> *wf) {
   reset();
 
   for(auto value : *wf){
-
+    
     if( !fire && ((double)value) > threshold ){
 
       // Found a new pulse
@@ -82,6 +82,20 @@ bool algo_threshold::reco(const std::vector<uint16_t> *wf) {
     }
     
     counter++;
+  }
+
+  if(fire){
+
+    // Take care of a pulse that did not finish within the readout window.
+    
+    fire = false;
+    
+    _pulse.t_end = counter - 1;
+    
+    _pulse_v.push_back(_pulse);
+    
+    _pulse.reset_param();
+
   }
 
   return true;
