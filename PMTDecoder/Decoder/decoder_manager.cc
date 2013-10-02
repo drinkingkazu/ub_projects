@@ -110,8 +110,8 @@ bool decoder_manager::decode() {
     */
 
     if(!status){
-      if(_decoder->backtrace_mode())
-	_decoder->backtrace();
+      //if(_decoder->backtrace_mode())
+      //_decoder->backtrace();
       if(_debug_mode){
 	Message::send(MSG::ERROR,__FUNCTION__,"Process status failure ... but continue since DEBUG mode!");
 	status=true;
@@ -132,7 +132,7 @@ bool decoder_manager::decode() {
 	    ((pmt_wf_collection*)(_storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION)))->event_id(),
 	    _storage->get_entries());
     Message::send(MSG::ERROR,__FUNCTION__,_buf);
-  }else if(((pmt_wf_collection*)(_storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION)))->size()){
+  }else if(!(_decoder->is_event_empty())){
     Message::send(MSG::WARNING,
 		  __FUNCTION__,
 		  "Last event not stored by algorithm. Missing end-of-event word??");

@@ -35,15 +35,6 @@ class algo_fem_decoder_base : public algo_base {
 
 public:
 
-  /// Processing status enum for decision making
-  enum PROCESS_FLAG{
-
-    READ_HEADER=0, ///< Process status flag ... reading event header 
-
-    READ_CHANNEL   /// Process status flag ... reading channel adc info 
-
-  };
-
   /// A local data holder struct for FEM header information
   struct InfoFEM_t {
 
@@ -55,8 +46,9 @@ public:
     PMT::word_t trigger_timeslice;   ///< Trigger sample number
     PMT::word_t nwords;              ///< Number of words in an event
     PMT::word_t checksum;            ///< Data checksum
+    bool        quality;             ///< Event-wise quality check
 
-    void reset(){
+    void clear_event(){
       
       module_address    = PMT::INVALID_WORD;
       module_id         = PMT::INVALID_WORD;
@@ -66,9 +58,10 @@ public:
       trigger_timeslice = PMT::INVALID_WORD;
       nwords            = 0;
       checksum          = 0;
+      quality           = true;
     }
 
-    InfoFEM_t(){ reset(); }
+    InfoFEM_t(){ clear_event(); }
 
   };
 
@@ -81,7 +74,7 @@ public:
   virtual ~algo_fem_decoder_base(){};
 
   /// Implementation of algo_base::process_word
-  virtual bool process_word(PMT::word_t word);
+  virtual bool process_word(const PMT::word_t word);
 
   /// Implementation of algo_base::process_word
   virtual inline PMT::PMT_WORD get_word_class(const PMT::word_t word) const {
@@ -110,13 +103,28 @@ public:
   /// A simple round-diff algorithm for binary words
   PMT::word_t round_diff(PMT::word_t ref_id, PMT::word_t subject_id, PMT::word_t diff) const;
 
+  /// A simple method to inquire if the data storage buffer is currently empty or not
+  virtual bool is_event_empty(){ return (_header_info.event_id == PMT::INVALID_WORD);};
+
 protected:
 
-  /// A method to process event header word passed from process_word method
-  virtual bool process_event_header(const PMT::word_t word, PMT::word_t &last_word);
+  /// A method to store event-wise data
+  virtual bool store_event()=0;
 
-  /// A method to decode event header word passed from process_header 
-  virtual bool decode_event_header(const PMT::word_t *event_header);
+  /// A method to clear event-wise data
+  virtual void clear_event(){_event_header_count=0; _header_info.clear_event();};
+
+  /// A method to process FEM header word passed from process_word method
+  virtual bool process_fem_header(const PMT::word_t word, PMT::word_t &last_word);
+
+  /// A method to decode fem header word passed from process_header 
+  virtual bool decode_fem_header(const PMT::word_t *event_header);
+
+  /**
+     TO BE IMPLEMENTED!
+     A method to process event header word.
+  */
+  virtual bool process_event_header(const PMT::word_t word, PMT::word_t &last_word)=0;
 
   /**
      TO BE IMPLEMENTED!
@@ -140,33 +148,6 @@ protected:
   virtual bool process_event_last_word(const PMT::word_t word,
 				       PMT::word_t &last_word) = 0;
 
-  /**
-     TO BE IMPLEMENTED!
-     A method to handle the case of unexpected event header word while processing channel word.
-     This is an operation while processing channel words, hence must be implemented in children.
-  */
-  virtual bool handle_unexpected_header(const PMT::word_t word, PMT::word_t &last_word)=0;
-
-  /**
-     A method to handle the case of unexpected channel word while processing event header.
-     Children may override this handling if necessary.
-  */
-  virtual bool handle_unexpected_ch_word(const PMT::word_t word, PMT::word_t &last_word);
-  
-  /**
-     A method to handle the case of failure in processing event word.
-     This class implements such that the stream of input binary words are to be skipped
-     until the next event's header is found. Children may override if necessary.
-  */
-  virtual bool handle_failure_header(const PMT::word_t word, PMT::word_t &last_word);
-
-  /**
-     TO BE IMPLEMENTED!
-     A method to handle the case of failure in processing channel data word.
-     This is called within the channel word processing logic, hence to be implemented in children.
-  */
-  virtual bool handle_failure_ch_word(const PMT::word_t word, PMT::word_t &last_word)=0;
-
   //
   // Constants
   //
@@ -184,7 +165,6 @@ protected:
   //
   // Run control variable
   //
-  PROCESS_FLAG  _process;                ///< Process status flag holder
   PMT::word_t   _last_word;              ///< Last word processed
   size_t        _event_header_count;     ///< A counter for event header words
   /// A run control boolean: skips any action till it finds the new event header.

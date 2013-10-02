@@ -46,7 +46,7 @@ public:
       Children should implement to perform (1) decoding and (2) storing event data upon
       this function call.
   */
-  virtual bool process_word(PMT::word_t word)=0;
+  virtual bool process_word(const PMT::word_t word)=0;
 
   /// Function called just after processing word.
   virtual void finalize(){};
@@ -86,13 +86,16 @@ public:
     for(std::deque<PMT::word_t>::const_iterator iter(_bt_words.begin());
 	iter!=_bt_words.end();
 	++iter) {
-      printf("%x ",(*iter));
+      printf("%08x ",(*iter));
       if(ctr%8==0 && ctr) std::cout<<std::endl;
       ctr++;
     }
     std::cout<<std::endl<<std::endl;
   };
   
+  /// A function to inquire if the local event data holder is empty or not
+  virtual bool is_event_empty()=0;
+
 protected:
 
   /// Function to initialize checker information

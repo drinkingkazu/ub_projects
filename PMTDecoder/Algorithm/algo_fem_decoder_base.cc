@@ -19,8 +19,6 @@ void algo_fem_decoder_base::reset() {
 
   algo_base::reset();
   
-  _process               = READ_HEADER;
-
   _last_word             = PMT::INVALID_WORD;
 
   _event_header_count    = 0;
@@ -63,150 +61,127 @@ bool algo_fem_decoder_base::process_word(PMT::word_t word)
   bool status=true;
   PMT::word_t word_class=get_word_class(word);
 
-  // Check if _search_for_next_event flag is on or not.
-  // If it is on, it is OK to simply skip this word. 
-  if(_search_for_next_event && word_class!=PMT::EVENT_HEADER){
+  //
+  // Skip this word if a boolean is set to skip to the next event header
+  //
+  if( _search_for_next_event &&  
+      word_class == PMT::FEM_HEADER &&
+      get_word_class(_last_word) != PMT::FEM_HEADER ) 
+    
+    _search_for_next_event = false;
 
-    if(_verbosity[MSG::WARNING]){
-      
-      Message::send(MSG::WARNING,__FUNCTION__,
-		    Form("Skipping till next event (debug mode): %x",word));
-      
-    }
 
-    return status;
+  if( _search_for_next_event ) {
+
+    if(_verbosity[MSG::INFO])
+
+      Message::send(MSG::INFO,__FUNCTION__,
+		    Form("Skipping a word (%x, previous=%x) to the next event..",word,_last_word));
+
+    _last_word = PMT::INVALID_WORD;
+
+    return true;
   }
 
-  /*
   switch(word_class){
     
   case PMT::EVENT_HEADER:
 
-    // (1) Check if the previous word was end of event word (if this is not the 1st word)
+    // (1) Call process_event_header()
+    status = process_event_header(word,_last_word);
     break;
 
   case PMT::FEM_HEADER:
 
-    // (1) If last word was not FEM_HEADER nor EVENT_HEADER, attempt to store event
-    // (2) Read FEM header info
+    // (1) Check if the last word was EVENT_HEADER, FEM_HEADER, or EVENT_LAST_WORD
+    //     - If EVENT_HEADER, continue to (2)
+    //     - If FEM_HEADER,   continue to (2)
+    //     - If EVENT_LAST_WORD, attempt to store & continue to (2)
+    // (2) Call process_fem_header()
+    status = process_fem_header(word,_last_word);
     break;
 
   case PMT::FEM_FIRST_WORD:
-    // Undefined for this process. Nothing to do.
-    break;
-
   case PMT::CHANNEL_HEADER:
   case PMT::CHANNEL_WORD:
   case PMT::CHANNEL_LAST_WORD:
-    // Do channel-wise operation
-    break;
-
-  }
-  */
-  switch(_process){
-
-  case READ_HEADER:
-    //
-    // Exceptional case handling: if word type is NOT event header
-    //
-    if(word_class!=PMT::FEM_HEADER && 
-       word_class!=PMT::EVENT_HEADER) {
+  case PMT::FEM_LAST_WORD:
+    {
+      // (1) Call process_ch_word()
+      //     - Children class should implement what should be checked in correlation to the last word.
       
-      // Call an exception handling method. 
-      // This method should be implemented in children class, and handle whatever needs to be done.
-      // The return boolean decides what to do for further processing (false = terminate)
-      status = handle_unexpected_ch_word(word, _last_word);
-
-    }else{
-
-      //
-      // hand over 32-bit word as it is for processing event header
-      //
-      status=process_event_header(word, _last_word);
-      
-      // If status return of processing header is false, handle the case
-      if(!status) 
-	
-	status = handle_failure_header(word,_last_word);
-    }
-
-    break;
-
-  case READ_CHANNEL:
-    //
-    // Exceptional case handling: if word type is event header,
-    //
-    if(word_class == PMT::FEM_HEADER ||
-       word_class == PMT::EVENT_HEADER) {
-
-      // Warn a user & process it as a header
-      Message::send(MSG::ERROR,__FUNCTION__,
-		    Form("Found an event header (%x) while looping over channel data (last word: %x)!",
-			 word,_last_word));
-
-      // Call an exception handling method. 
-      // This method should be implemented in children class, and handle whatever needs to be done.
-      // The return boolean decides what to do for further processing (false = terminate)
-      status = handle_unexpected_header(word, _last_word);
-      
-    }
-    else if(word_class == PMT::FEM_LAST_WORD) 
-
-      // Special operation @ end of FEM data stream (32-bit word operation)
-      status = process_fem_last_word(word, _last_word);
-
-    else if(word_class == PMT::EVENT_LAST_WORD)
-      
-      // Special operation @ end of event data stream (32-bit word operation)
-      status = process_event_last_word(word, _last_word);
-
-    else {
-      //
-      // Everything else is 16-bit word operation that is to be done
-      // by process_ch_word() method (children implement what-to-do).
-      //
-
       // Split two 16 bit words
-      PMT::word_t first_word  = word & 0xffff;
-      PMT::word_t second_word = word >> 16;
+      PMT::word_t first_word  = (word & 0xffff);
+      PMT::word_t second_word = (word >> 16);
 
-      //
-      // Process the 1st word
-      //
-      status = process_ch_word(first_word, _last_word);
+      if(status) status = process_ch_word(first_word,_last_word);
+      
+      // Check if the left 16-bit word is also the relevant type or not
+      if(status){
 
-      // If return is false, handle the failure
-      if(!status)
-	
-	status = handle_failure_ch_word(first_word, _last_word);
-
-      //
-      // If status return is alright and _process is still READ_CHANNEL, process the 2nd word
-      //
-      if(status && _process == READ_CHANNEL) {
-
-	status = process_ch_word(second_word, _last_word);
-
-      // If return is false, handle the failure
-      if(!status)
-	
-	status = handle_failure_ch_word(first_word, _last_word);
+	switch(get_word_class(second_word)){
+	case PMT::FEM_FIRST_WORD:
+	case PMT::CHANNEL_HEADER:
+	case PMT::CHANNEL_WORD:
+	case PMT::CHANNEL_LAST_WORD:
+	  status = process_ch_word(second_word,_last_word);
+	  break;
+	case PMT::FEM_LAST_WORD:
+	  status = process_fem_last_word(second_word,_last_word);
+	  break;
+	default:
+	  status = false;
+	  Message::send(MSG::ERROR,__FUNCTION__,
+			Form("Unexpected word (%x) while processing channel data (previous=%x)",second_word,first_word));
+	}
 
       }
-
       break;
     }
-
+  case PMT::EVENT_LAST_WORD:
+    // (1) Call process_event_last_word()
+    status = process_event_last_word(word,_last_word);
     break;
+
+  case PMT::UNDEFINED_WORD: 
+
+    if(get_word_class(_last_word) == PMT::EVENT_LAST_WORD)
+
+      // This happens sometimes according to Chi 10/01/13
+      Message::send(MSG::WARNING,__FUNCTION__,
+		    Form("Padding of undefined word (tolerated): %x (previous=%x)",word,_last_word));
+
+    else{
+
+      Message::send(MSG::ERROR,__FUNCTION__,
+		    Form("Undefined word: %x (previous = %x)",word,_last_word));
+      
+      status = false;
+    }
+  }
+
+  if(!status){
+
+    backtrace();
+
+    if(_debug_mode) {
+
+      if(_header_info.event_id>0)
+
+	Message::send(MSG::WARNING,__FUNCTION__,Form("Failed decoding event %d ...",_header_info.event_id));
+
+      Message::send(MSG::WARNING,__FUNCTION__,"DEBUG MODE => Continue to the next event...\n");
+
+      _search_for_next_event = true;
+      clear_event();
+    }
   }
 
   return status;
-
 }
 
-
 //#################################################
-bool algo_fem_decoder_base::process_event_header(const PMT::word_t word, PMT::word_t &last_word) {
+bool algo_fem_decoder_base::process_fem_header(const PMT::word_t word, PMT::word_t &last_word) {
 //#################################################
   
   bool status=true;
@@ -218,152 +193,99 @@ bool algo_fem_decoder_base::process_event_header(const PMT::word_t word, PMT::wo
     sprintf(_buf,"Processing Header: %x",word);
     Message::send(MSG::DEBUG,__FUNCTION__,_buf);
   }
-  switch(word_class){
 
-    // Undefined word
-  case PMT::UNDEFINED_WORD:
 
-    Message::send(MSG::WARNING,__FUNCTION__,
-		  Form("Found Undefined word while searching an event header: %x",word));
-
-    break;
-
-    // Non-event-header word
-  case PMT::FEM_FIRST_WORD:
-  case PMT::CHANNEL_HEADER:
-  case PMT::CHANNEL_WORD:
-  case PMT::CHANNEL_LAST_WORD:
-  case PMT::FEM_LAST_WORD:
-  case PMT::EVENT_LAST_WORD:
-
+  if( word_class != PMT::FEM_HEADER) {
+    
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Encountered unexpected word while an event header search: %x (word type=%d)",
 		       word,word_class) );
-    
-    status = false;
+    status = false;    
 
-    break;
+  }else if(get_word_class(word>>16)!=PMT::FEM_HEADER) {
 
-    // Header word -> store & process
-  case PMT::EVENT_HEADER:
-
-    // This is just a marker. Nothing really to be done.
-    // Unflagg _search_for_next_event in case it is true (we no longer skip anything as a new header just found)
-    _search_for_next_event = false;
-
-    break;
-
-  case PMT::FEM_HEADER:
     // Event header should come as a 32-bit word which is a pair of two 16-bit header words.
     // The first 16-bit is already checked by this point. Check the second part.
-    if(get_word_class(word>>16)!=PMT::FEM_HEADER) {
 
-      Message::send(MSG::ERROR,__FUNCTION__,Form("Found an odd event header word: %x",word));
-
-      status = false;
-
-      break;
-
-    }
-
-    // Process the subject word as an event header
-    if (_event_header_count<FEM_HEADER_COUNT) {
-
-      // Store header words
-      _event_header_words[_event_header_count]=word;
-      _event_header_count++;
-
-      // If stored number of header words reached to the expected number, decode.
-      if(_event_header_count==FEM_HEADER_COUNT) {
-	
-	// Decode header words
-	status = decode_event_header(_event_header_words);
-
-	// Check the return status. If success, set the header count to 0 & change process status
-	if(status){
-
-	  _event_header_count=0;
-
-	  _process=READ_CHANNEL;
-
-	}
-      }
-    }
-    else {
-      // Raise error if a header word count > set constant (should not happen)
-      Message::send(MSG::ERROR,__FUNCTION__,
-		    "Logic error: event header word counter not working!");
-      status=false;
-    }
-    break;
+    Message::send(MSG::ERROR,__FUNCTION__,Form("Found an odd event header word: %x",word));
+      
+    status = false;
+    
   }
 
-  // Update the last word if status is true
-  if(status) last_word = word;    
+  if(status) {
 
-  return status;  
+    //
+    // Check the last word type
+    //
+    switch(get_word_class(last_word)){
+    case PMT::EVENT_HEADER:      
+    case PMT::FEM_HEADER:
+      // Expected. Nothing to do
+      break;
+    case PMT::FEM_FIRST_WORD:
+    case PMT::CHANNEL_HEADER:
+    case PMT::CHANNEL_WORD:
+    case PMT::UNDEFINED_WORD:
+    case PMT::EVENT_LAST_WORD:
+      // ERROR
+      Message::send(MSG::ERROR,__FUNCTION__,
+		    Form("Unexpected word while FEM_HEADER processing: %x (previous word=%x)",word,last_word));
+      status = false;
+      break;
+    case PMT::CHANNEL_LAST_WORD:
+      // Store data
+      status = store_event();
+      if(_debug_mode) status = true; // If debug mode, then this does not matter
+      break;
+    case PMT::FEM_LAST_WORD:
+      // Store data
+      status = store_event();
+      if(_debug_mode) status = true; // If debug mode, then this does not matter
+      break;
+    }
 
-}
-
-
-
-//#################################################
-bool algo_fem_decoder_base::handle_failure_header(const PMT::word_t word, 
-						  PMT::word_t &last_word)
-{
-//#################################################
-  //
-  // In this base class, we simply set the algorithm to skip any word till it finds a new
-  // event header ONLY IF _debug_mode is set.
-  //
-
-  bool status = false;
-
-  if(_debug_mode){ 
-
-    status = true;
+    if(status){
+    
+      // Process the subject word as an event header
+      if (_event_header_count<FEM_HEADER_COUNT) {
+	
+	// Store header words
+	_event_header_words[_event_header_count]=word;
+	_event_header_count++;
+	
+	// If stored number of header words reached to the expected number, decode.
+	if(_event_header_count==FEM_HEADER_COUNT) {
+	  
+	  // Decode header words
+	  status = decode_fem_header(_event_header_words);
+	  
+	}
+      }else{
+	
+	// Raise error if a header word count > set constant (should not happen)
+	Message::send(MSG::ERROR,__FUNCTION__,
+		      "Logic error: event header word counter not working!");
+	status=false;
+      }
+    }
+  }
+  
+  if(!status){
     
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Failed processing the word %x (last word %x) as an event header!",word,last_word));
 
-    _process = READ_HEADER;
-
-    _search_for_next_event = true;
-
   }
-
+  
+  last_word = word;
   return status;  
-
-}
-
-//#################################################
-bool algo_fem_decoder_base::handle_unexpected_ch_word(const PMT::word_t word,
-						      PMT::word_t &last_word)
-{
-//#################################################
-
-  //
-  // Ignore this word, continue to the next event if in _debug_mode
-  //
-  bool status = false;
-
-  if(_debug_mode){
-
-    status = true;
-
-    _process = READ_HEADER;
-
-    _search_for_next_event = true;
-
-  }
-
-  return status;
-
+  
 }
 
 
 //#################################################
-bool algo_fem_decoder_base::decode_event_header(const PMT::word_t *event_header){
+bool algo_fem_decoder_base::decode_fem_header(const PMT::word_t *event_header){
 //#################################################
 
   bool status=true;
@@ -378,7 +300,7 @@ bool algo_fem_decoder_base::decode_event_header(const PMT::word_t *event_header)
   if(!status) return status;
 
   // Initialize data holder
-  _header_info.reset();
+  _header_info.clear_event();
 
   // (2) get module address ... lowest 5 of 12 bits
   _header_info.module_address = ( (event_header[0]>>16 & 0xfff)    & 0x1f);
@@ -427,9 +349,9 @@ bool algo_fem_decoder_base::decode_event_header(const PMT::word_t *event_header)
       Message::send(MSG::INFO,Form("Trigger Sample %d",_header_info.trigger_timeslice));
     }
 
-  _checksum=_header_info.checksum;
+  _checksum=0;
 
-  _nwords=_header_info.nwords;
+  _nwords=0;
 		      
   return status;
 }

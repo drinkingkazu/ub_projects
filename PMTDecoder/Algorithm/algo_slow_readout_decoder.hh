@@ -44,7 +44,7 @@ public:
   void print_adcval(bool doit=true){_print_adcval=doit;};
 
   /// Implementation of algo_base::process_word
-  virtual bool process_word(PMT::word_t word);
+  virtual bool process_word(const PMT::word_t word);
 
   /// Implementation of algo_base::process_word
   virtual inline PMT::PMT_WORD get_word_class(const PMT::word_t word) const {
@@ -81,6 +81,12 @@ public:
 
   /// Override function to reset the instance
   virtual void reset();
+
+  /// Implementation of a method to inquire a status whether the event data empty or not
+  virtual bool is_event_empty(){ 
+    if(_event_data) return (_event_data->event_id()==PMT::INVALID_WORD);
+    else return true;
+  };
 
 protected:
 

@@ -17,29 +17,11 @@ algo_tpc_xmit::algo_tpc_xmit()
 void algo_tpc_xmit::reset() {
 //#########################################
 
+  _event_data = 0;
+
   _ch_data.clear_data();
 
   algo_fem_decoder_base::reset();
-
-}
-
-
-
-//#########################################
-bool algo_tpc_xmit::process_word(PMT::word_t word) {
-//#########################################
-
-  
-  // If data pointer is not set, set
-  if(!_event_data) {
-    _event_data=(tpc_wf_collection*)(_storage->get_data(DATA_STRUCT::TPC_WF_COLLECTION));
-    if(!_event_data) {
-      Message::send(MSG::ERROR,__FUNCTION__,"Could not retrieve tpc_wf_collection poitner!");
-      return false;
-    }
-  }
-
-  return algo_fem_decoder_base::process_word(word);
 
 }
 
@@ -158,13 +140,6 @@ bool algo_tpc_xmit::process_ch_word(const PMT::word_t word,
     break;
 
   case PMT::EVENT_LAST_WORD:
-
-    store_event();
-
-    _process = READ_HEADER;
-
-    break;
-
   case PMT::FEM_LAST_WORD:
   case PMT::UNDEFINED_WORD:
   case PMT::EVENT_HEADER:
@@ -181,10 +156,21 @@ bool algo_tpc_xmit::process_ch_word(const PMT::word_t word,
 
   // If processing of this word is successful, add it to the checksum
   if(status) {
-    _nwords--;
-    _checksum -= word;
-    last_word = word;
+
+    _nwords++;
+    _checksum += word;
+    //std::cout<<_nwords<<" ... "<<_checksum<<std::endl;
+  }else{
+
+    Message::send(MSG::ERROR,__FUNCTION__,
+		  Form("Failed processing channel word %x (previous=%x)",word,last_word));
+
+    clear_event();
   }
+
+  if(word_class != PMT::UNDEFINED_WORD)
+
+    last_word = word;
 
   return status;
 }
@@ -195,16 +181,10 @@ bool algo_tpc_xmit::check_event_quality(){
 
   bool status = true;
 
-  // In case of TPC, nwords & checksum include event header
-  for(size_t i=0; i<FEM_HEADER_COUNT; i++){
-
-    _nwords++;
-    _checksum += _event_header_words[i];
-
-  }
-  
   // Check if _checksum and _nwords agrees with that of event header.
-  if(_nwords != _header_info.nwords) {
+  //if(_nwords != _header_info.nwords) {
+  _nwords-=1;
+  if(_nwords!=_header_info.nwords){
 
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Disagreement on nwords: counted=%u, expected=%u",_nwords,_header_info.nwords));
@@ -213,14 +193,49 @@ bool algo_tpc_xmit::check_event_quality(){
 
   }
 
-  if(_checksum != _header_info.checksum) {
+  //if(_checksum != _header_info.checksum) {
+  if(_checksum!=_header_info.checksum){
 
     Message::send(MSG::ERROR,__FUNCTION__,
-		  Form("Disagreement on checksum: summed=%u, expected=%u",_checksum,_header_info.checksum));
+		  Form("Disagreement on checksum: summed=%x, expected=%x",_checksum,_header_info.checksum));
 
     status = false;
 
   }
+
+  return status;
+
+}
+
+
+
+//#################################################
+bool algo_tpc_xmit::process_event_header(const PMT::word_t word, 
+					 PMT::word_t &last_word) 
+{
+//#################################################
+
+  bool status = true;
+
+  if(!_event_data)
+
+    _event_data = (tpc_wf_collection*)(_storage->get_data(DATA_STRUCT::TPC_WF_COLLECTION));
+  
+  if(get_word_class(last_word)==PMT::EVENT_LAST_WORD) {
+    
+    // Attempt to store data
+    
+    status = store_event();
+  }else if(last_word != PMT::INVALID_WORD){
+
+    Message::send(MSG::ERROR,__FUNCTION__,
+		  Form("Unexpected word (%x, previous=%x) while processing event header!",word,last_word));
+
+    status = false;
+
+  }
+
+  last_word = word;
 
   return status;
 
@@ -232,18 +247,18 @@ bool algo_tpc_xmit::process_fem_last_word(const PMT::word_t word,
 {
 //#########################################################
 
-  if(_verbosity[MSG::INFO]){
-    
-    Message::send(MSG::INFO,__FUNCTION__,
-		  Form("End of FEM word: %x...",word));
-  }
+  // This should not exist in TPC-XMIT
+  Message::send(MSG::ERROR,__FUNCTION__,
+		Form("FEM-LAST-WORD (%x, previous=%x) ... NOT expected for TPC!",word,last_word));
+
   last_word = word;
-  return true;
+
+  return false;
 }
 
 //#########################################################
 bool algo_tpc_xmit::process_event_last_word(const PMT::word_t word,
-						    PMT::word_t &last_word)
+					    PMT::word_t &last_word)
 {  
 //#########################################################
 
@@ -253,9 +268,10 @@ bool algo_tpc_xmit::process_event_last_word(const PMT::word_t word,
 		  Form("End of event word: %x...",word));
     
   }
+
   last_word = word;
-  _process  = READ_HEADER;
-  return store_event();
+
+  return true;
 }
 
 
@@ -263,7 +279,7 @@ bool algo_tpc_xmit::process_event_last_word(const PMT::word_t word,
 void algo_tpc_xmit::clear_event(){
 //#########################################################
 
-  init_checker_info();
+  algo_fem_decoder_base::clear_event();
 
   _event_data->clear_data();
 
@@ -288,6 +304,15 @@ bool algo_tpc_xmit::store_event(){
 
     }
 
+    _event_data->set_module_address    ( _header_info.module_address    );
+    _event_data->set_module_id         ( _header_info.module_id         );
+    _event_data->set_event_id          ( _header_info.event_id          );
+    _event_data->set_event_frame_id    ( _header_info.event_frame_id    );
+    _event_data->set_trigger_frame_id  ( _header_info.trigger_frame_id  );
+    _event_data->set_trigger_timeslice ( _header_info.trigger_timeslice );
+    _event_data->set_nwords            ( _header_info.nwords            );
+    _event_data->set_checksum          ( _header_info.checksum          );
+
     status = _storage->next_event();
 
   }else{
@@ -295,51 +320,13 @@ bool algo_tpc_xmit::store_event(){
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Skipping to store event %d...",_header_info.event_id));
 
+    status = false;
+    
   }
 
   clear_event();
 
   return status;
-}
-
-//#########################################################
-bool algo_tpc_xmit::handle_unexpected_header (const PMT::word_t word, 
-					      PMT::word_t &last_word){
-//#########################################################
-
-  if(!_debug_mode) return false;
-
-  //
-  // if in debug mode, we continue to process this as the next event header
-  // Attempt to store event data
-  //
-
-  bool status = store_event();
-
-  _process = READ_HEADER;
-  
-  status = process_event_header(word,last_word);
-
-  if(!status) status = handle_failure_header(word, last_word);
-
-  return status;
-
-}
-
-//#########################################################
-bool algo_tpc_xmit::handle_failure_ch_word (const PMT::word_t word, 
-					    PMT::word_t &last_word){
-//#########################################################
-  
-  // Raise warning
-  Message::send(MSG::ERROR,__FUNCTION__,
-		Form("Failed processing ch-word: %x (previous %x)!",word,_last_word));
-  
-  //
-  // if in debug_mode, let it continue
-  //
-  return _debug_mode;
-
 }
 
 //#########################################################
