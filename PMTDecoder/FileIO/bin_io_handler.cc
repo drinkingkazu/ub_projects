@@ -190,6 +190,8 @@ PMT::word_t bin_io_handler::read_multi_word(size_t length){
 
     _multi_word_index++;
 
+    _nwords_in_file++;
+
     return _word;
   }
 
@@ -259,7 +261,11 @@ PMT::word_t bin_io_handler::read_multi_word(size_t length){
 
   _multi_word_index = 0;
 
-  return _read_word_buffer[_multi_word_index];
+  _word = _read_word_buffer[_multi_word_index];
+
+  _multi_word_index++;
+
+  return _word;
 }
 
 PMT::word_t bin_io_handler::read_word() {
