@@ -94,6 +94,7 @@ bool algo_pmt_xmit::check_event_quality(){
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Disagreement on checksum: summed=%x, expected=%x",_checksum,_header_info.checksum));
 
+    backtrace();
     status = false;
 
   }
@@ -157,6 +158,8 @@ bool algo_pmt_xmit::process_fem_last_word(const PMT::word_t word,
   _nwords++;
   //_checksum+=word;
 
+  if(status) store_event();
+
   last_word = word;
 
   return status;
@@ -178,7 +181,7 @@ bool algo_pmt_xmit::process_event_last_word(const PMT::word_t word,
 
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Unexpected word: %x (previous = %x)",word,last_word));
-    std::cout<<get_word_class(last_word)<<std::endl;
+
     status = false;
 
   }
@@ -191,7 +194,7 @@ bool algo_pmt_xmit::process_event_last_word(const PMT::word_t word,
 //#########################################################
 bool algo_pmt_xmit::store_event(){
 //#########################################################
- 
+
   bool status = check_event_quality();
 
   // Store if condition is satisfied

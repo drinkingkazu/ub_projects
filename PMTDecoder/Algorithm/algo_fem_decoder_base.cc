@@ -36,7 +36,7 @@ void algo_fem_decoder_base::reset() {
 bool algo_fem_decoder_base::process_word(PMT::word_t word)
 //#################################################
 {
-
+  //std::cout<<Form("%x",word)<<std::endl;
   // 
   // A simple function to call other members depending on the status.
   // Let other members to deal with expected/unexpected case
@@ -60,13 +60,13 @@ bool algo_fem_decoder_base::process_word(PMT::word_t word)
 
   bool status=true;
   PMT::word_t word_class=get_word_class(word);
-
+  PMT::word_t last_word_class=get_word_class(_last_word);
   //
   // Skip this word if a boolean is set to skip to the next event header
   //
   if( _search_for_next_event &&  
       word_class == PMT::FEM_HEADER &&
-      get_word_class(_last_word) != PMT::FEM_HEADER ) 
+      last_word_class != PMT::FEM_HEADER ) 
     
     _search_for_next_event = false;
 
@@ -145,19 +145,20 @@ bool algo_fem_decoder_base::process_word(PMT::word_t word)
 
   case PMT::UNDEFINED_WORD: 
 
-    if(get_word_class(_last_word) == PMT::EVENT_LAST_WORD)
 
-      // This happens sometimes according to Chi 10/01/13
-      Message::send(MSG::WARNING,__FUNCTION__,
-		    Form("Padding of undefined word (tolerated): %x (previous=%x)",word,_last_word));
-
-    else{
+    if(word != 0x0 || (last_word_class != PMT::EVENT_LAST_WORD && last_word_class != PMT::FEM_LAST_WORD) ) {
 
       Message::send(MSG::ERROR,__FUNCTION__,
 		    Form("Undefined word: %x (previous = %x)",word,_last_word));
       
       status = false;
+    }else if(_verbosity[MSG::INFO]){
+    
+      // This happens sometimes according to Chi 10/01/13
+      Message::send(MSG::INFO,__FUNCTION__,
+		    Form("Padding of undefined word (tolerated): %x (previous=%x)",word,_last_word));
     }
+    break;
   }
 
   if(!status){
@@ -221,6 +222,7 @@ bool algo_fem_decoder_base::process_fem_header(const PMT::word_t word, PMT::word
     switch(get_word_class(last_word)){
     case PMT::EVENT_HEADER:      
     case PMT::FEM_HEADER:
+    case PMT::FEM_LAST_WORD:
       // Expected. Nothing to do
       break;
     case PMT::FEM_FIRST_WORD:
@@ -236,12 +238,16 @@ bool algo_fem_decoder_base::process_fem_header(const PMT::word_t word, PMT::word
     case PMT::CHANNEL_LAST_WORD:
       // Store data
       status = store_event();
-      if(_debug_mode) status = true; // If debug mode, then this does not matter
-      break;
-    case PMT::FEM_LAST_WORD:
-      // Store data
-      status = store_event();
-      if(_debug_mode) status = true; // If debug mode, then this does not matter
+      if(_debug_mode) {
+	// We have to handle this case separately from a uniifed handling @ process_word
+	// Because "this" header word is still good. Make a warning to a user.
+
+	Message::send(MSG::WARNING,__FUNCTION__,"DEBUG MODE => Continue to the next event...\n");
+
+	clear_event();
+
+	status = true; 
+      }
       break;
     }
 
@@ -265,7 +271,8 @@ bool algo_fem_decoder_base::process_fem_header(const PMT::word_t word, PMT::word
 	
 	// Raise error if a header word count > set constant (should not happen)
 	Message::send(MSG::ERROR,__FUNCTION__,
-		      "Logic error: event header word counter not working!");
+		      Form("Logic error: event header word counter not working! (%zu/%zu)",
+			   _event_header_count,FEM_HEADER_COUNT));
 	status=false;
       }
     }

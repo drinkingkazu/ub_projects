@@ -128,24 +128,25 @@ bool decoder_manager::decode() {
   }
   
   if(!status && !_debug_mode){
-    sprintf(_buf,"Event loop terminated. Last event: %d  ... stored: %d events",
-	    ((pmt_wf_collection*)(_storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION)))->event_id(),
-	    _storage->get_entries());
-    Message::send(MSG::ERROR,__FUNCTION__,_buf);
+
+    Message::send(MSG::ERROR,__FUNCTION__,Form("Event loop terminated. Stored: %d events",_storage->get_entries()));
+
   }else if(!(_decoder->is_event_empty())){
-    Message::send(MSG::WARNING,
-		  __FUNCTION__,
-		  "Last event not stored by algorithm. Missing end-of-event word??");
+
+    Message::send(MSG::WARNING,__FUNCTION__,"Last event not stored by algorithm. Missing end-of-event word??");
+
     if(_decoder->check_event_quality()){
-      sprintf(_buf,"Last event checksum agreed. Saving on file... event id: %d",
-	      ((pmt_wf_collection*)(_storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION)))->event_id());
-      Message::send(MSG::WARNING,__FUNCTION__,_buf);
+
+      Message::send(MSG::WARNING,__FUNCTION__,"Last event checksum agreed. Saving on file...");
+
       _storage->next_event();
+
     }else{
-      sprintf(_buf,"Skip saving the last event: %d ",
-	      ((pmt_wf_collection*)(_storage->get_data(DATA_STRUCT::PMT_WF_COLLECTION)))->event_id());
-      Message::send(MSG::WARNING,__FUNCTION__,_buf);
+
+      Message::send(MSG::WARNING,__FUNCTION__,"Skip saving the last event...");
+
       status=false;
+
     }    
   }
     
