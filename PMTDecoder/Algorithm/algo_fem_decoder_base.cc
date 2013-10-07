@@ -334,11 +334,11 @@ bool algo_fem_decoder_base::decode_fem_header(const PMT::word_t *event_header){
 
 
 #ifdef INCLUDE_EXTRA_HEADER
-  _header_info.trigger_frame_id  = ((((event_header[5]>>16) & 0xfff)>>4 & 0xf) +
-				    (((_header_info.event_frame_id)>>4)<<4)); 
+  _header_info.trigger_frame_id  = ( ((event_header[5] & 0xfff)>>4 & 0xf) +
+				     (((_header_info.event_frame_id)>>4)<<4)); 
 
   // Correct for a roll over
-  _header_info.trigger_frame_id  = round_diff(_header_info.event_frame_id, _header_info.trigger_frame_id, 0xf);
+  _header_info.trigger_frame_id  = round_diff(_header_info.event_frame_id, _header_info.trigger_frame_id, 0x7);
 
   _header_info.trigger_timeslice = ((((event_header[5]>>16) & 0xf)<<8) + (event_header[5] & 0xff));
 
@@ -390,18 +390,46 @@ PMT::word_t algo_fem_decoder_base::round_diff(PMT::word_t ref_id,
   else
     return subject_id;
 
-  // Following part is provided by David & Georgia for a specific implementation for PMT... Aug. 12 2013
-  // But I don't think this works right. 
-  // -Kazu Aug. 12 2013
-  /*
-  PMT::word_t correct_frame= ( ( event_frame_id & (~0x7) ) | ( channel_frame_id & 0x7 ) );
-  if( (correct_frame-event_frame_id)<-1 )
-    return correct_frame+8;
-  else if( (correct_frame-event_frame_id)>2 )
-    return correct_frame-8;
-  else 
-    return correct_frame;
-  */
+}
+
+//#################################################
+bool algo_fem_decoder_base::add_huffman_adc(std::vector<uint16_t> &wf, size_t zero_count) 
+{
+//#################################################
+
+  bool status = true;
+
+  switch(zero_count){
+    
+  case 0:
+    wf.push_back( (*(wf.rbegin())) ); break;	  
+    
+  case 1:
+    wf.push_back( (*(wf.rbegin())) -1 ); break;
+    
+  case 2:
+    wf.push_back( (*(wf.rbegin())) +1 ); break;
+    
+  case 3:
+    wf.push_back( (*(wf.rbegin())) -2 ); break;
+    
+  case 4:
+    wf.push_back( (*(wf.rbegin())) +2 ); break;
+    
+  case 5:
+    wf.push_back( (*(wf.rbegin())) -3 ); break;
+    
+  case 6:
+    wf.push_back( (*(wf.rbegin())) +3 ); break;
+    
+  default:
+
+    std::cout<<zero_count<<std::endl;
+    
+    status = false;
+  }
+  
+  return status;
 
 }
 

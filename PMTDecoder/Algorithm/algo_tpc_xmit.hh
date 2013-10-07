@@ -49,7 +49,7 @@ public:
     // One of core functions to identify PMT binary word format
     if( (word & 0xffffffff) == 0xffffffff )
       return PMT::EVENT_HEADER;
-    else if( (word & 0xf0000000) == 0xe0000000 )
+    else if( (word & 0xffffffff) == 0xe0000000 )
       return PMT::EVENT_LAST_WORD;
     if( (word & 0xffff) == 0xffff )
       return PMT::FEM_HEADER;

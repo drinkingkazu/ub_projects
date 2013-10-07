@@ -194,7 +194,7 @@ bool algo_tpc_xmit::check_event_quality(){
   }
 
   //if(_checksum != _header_info.checksum) {
-  if(_checksum!=_header_info.checksum){
+  if((_checksum & 0xffffff) !=_header_info.checksum){
 
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Disagreement on checksum: summed=%x, expected=%x",_checksum,_header_info.checksum));
@@ -353,8 +353,6 @@ bool algo_tpc_xmit::decode_ch_word(const PMT::word_t word,
   }
   else{
 
-    
-
     // Compresed data is in last 15 bit of this word.
     PMT::word_t data = (word & 0x7fff);
 
@@ -370,7 +368,8 @@ bool algo_tpc_xmit::decode_ch_word(const PMT::word_t word,
     //  -2     0001
     //  -3     000001
 
-    size_t zero_count = 0;
+    /*
+    size_t zero_count     = 0;
     for(size_t index=0; index<15 && status; ++index){
 
       if( !((data >> index) & 0x1) ) zero_count++;
@@ -401,13 +400,46 @@ bool algo_tpc_xmit::decode_ch_word(const PMT::word_t word,
 
 	default:
 	  Message::send(MSG::ERROR,__FUNCTION__,
-			Form("Encountered unexpected number of zeros (=%zu) in the compression!",zero_count));
+			Form("Encountered unexpected number of zeros (=%zu) in the compressed word %x!",
+			     zero_count,word));
 	  status = false;
 	};
 	
 	zero_count=0;
       }
     }
+    */
+
+    size_t zero_count = 0;
+    bool   non_zero_found = false;
+    for(size_t index=0; index<15 && status; ++index){
+
+      if( !((data >> index) & 0x1) )
+
+	zero_count += ( non_zero_found ? 1 : 0 );
+	
+      else{
+	
+	if(!non_zero_found) non_zero_found=true;
+
+	else status = add_huffman_adc(_ch_data,zero_count);
+	
+	if(status) zero_count=0;
+      }
+    }
+
+    if(zero_count && status){
+
+      status = add_huffman_adc(_ch_data,zero_count);
+      
+    }    
+
+    if(!status)
+      
+      Message::send(MSG::ERROR,__FUNCTION__,
+		    Form("Encountered unexpected number of zeros (=%zu) in the compressed word %x!",
+			 zero_count,word));
+    
   }
   
   return status;

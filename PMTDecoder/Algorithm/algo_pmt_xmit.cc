@@ -77,7 +77,6 @@ bool algo_pmt_xmit::check_event_quality(){
   bool status = true;
 
   // Check if _checksum and _nwords agrees with that of event header.
-  //if(_nwords != _header_info.nwords) {
   _nwords-=1;
   if(_nwords!=_header_info.nwords){
 
@@ -88,13 +87,13 @@ bool algo_pmt_xmit::check_event_quality(){
 
   }
 
-  //if(_checksum != _header_info.checksum) {
+  // checksum is only 24 bit!
+  _checksum = (_checksum & 0xffffff);
   if(_checksum!=_header_info.checksum){
 
     Message::send(MSG::ERROR,__FUNCTION__,
 		  Form("Disagreement on checksum: summed=%x, expected=%x",_checksum,_header_info.checksum));
 
-    backtrace();
     status = false;
 
   }
@@ -158,7 +157,7 @@ bool algo_pmt_xmit::process_fem_last_word(const PMT::word_t word,
   _nwords++;
   //_checksum+=word;
 
-  if(status) store_event();
+  if(status) status=store_event();
 
   last_word = word;
 

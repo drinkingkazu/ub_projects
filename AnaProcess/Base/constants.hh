@@ -132,7 +132,7 @@ namespace DATA_STRUCT{
 
   /// Define tree name
   const std::string DATA_TREE_NAME[DATA_TYPE_MAX] = {
-    "event_waveform",
+    "pmt_wf_collection",
     "tpc_wf_collection",
     "trig_info",
     "pulse_collection",
