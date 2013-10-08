@@ -43,7 +43,7 @@ public:
   virtual ~decoder_manager(){};
 
   /// Setter for the input filename
-  void add_input_filename(std::string name){ _fin.set_filename(name);};
+  void add_input_filename(std::string name){ _bin_files.push_back(name);};
 
   /// Setter for the output filename
   void set_output_filename(std::string name){ _storage->set_out_filename(name);};
@@ -102,6 +102,8 @@ private:
   // File IO variables
   //
   std::string _input_file;    ///< Input file name
+  std::vector<std::string> _bin_files;
+  std::vector<std::string>::iterator _bin_file_iter;
   bin_io_handler _fin;        ///< Input file I/O handler
   /** 
       Read a chunk of data sample from the input file if set to true.

@@ -32,7 +32,7 @@ void decoder_manager::reset() {
     _storage->reset();
   }
   _fin.reset();
-
+  _bin_files.clear();
 }
 
 bool decoder_manager::open_file()
@@ -58,6 +58,11 @@ bool decoder_manager::initialize()
   _decoder->set_verbosity(_verbosity_level);
   _storage->set_verbosity(_verbosity_level);
   _fin.set_verbosity(_verbosity_level);
+
+  if(_bin_files.size())
+    _bin_file_iter = _bin_files.begin();
+
+  _fin.set_filename((*_bin_file_iter).c_str());
 
   bool status=true;
   // Check if a file can be opened
@@ -96,7 +101,22 @@ bool decoder_manager::decode() {
   PMT::word_t word = (_read_by_block) ? _fin.read_multi_word(_read_block_size) : _fin.read_word();
   uint32_t ctr=0;
   time_t watch;
-  while(!(_fin.eof()) && status) {
+  while(status) {
+
+    if(_fin.eof()){
+
+      _bin_file_iter++;
+      if(_bin_file_iter == _bin_files.end()) break;
+      _fin.close();
+      _fin.set_filename((*_bin_file_iter).c_str());
+
+      if(!_fin.open()) {
+	Message::send(MSG::ERROR,__FUNCTION__,"Failed file I/O...");
+	status = false;
+	break;
+      }
+      word = (_read_by_block) ? _fin.read_multi_word(_read_block_size) : _fin.read_word();
+    }
 
     status=_decoder->process_word(word);
 

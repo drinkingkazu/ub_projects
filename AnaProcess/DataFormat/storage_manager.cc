@@ -27,6 +27,8 @@ data_base* storage_manager::get_data(DATA_STRUCT::DATA_TYPE type){
 
     _out_ch[(size_t)type]=new TTree(Form("%s_tree",DATA_STRUCT::DATA_TREE_NAME[type].c_str()),
 				    Form("%s Tree",DATA_STRUCT::DATA_TREE_NAME[type].c_str()));
+    _out_ch[(size_t)type]->SetMaxTreeSize    (1024*1024*1024);
+    _out_ch[(size_t)type]->SetMaxVirtualSize (1024*1024*1024);
     
     create_data_ptr(type);
     
@@ -236,6 +238,8 @@ bool storage_manager::prepare_tree(){
 
       _out_ch[i]=new TTree(Form("%s_tree",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()),
 			   Form("%s Tree",DATA_STRUCT::DATA_TREE_NAME[(DATA_STRUCT::DATA_TYPE)i].c_str()));
+      _out_ch[i]->SetMaxTreeSize    (1024*1024*1024);
+      _out_ch[i]->SetMaxVirtualSize (1024*1024*1024);
       
       create_data_ptr((DATA_STRUCT::DATA_TYPE)i);
       
@@ -342,7 +346,7 @@ bool storage_manager::close(){
   case OPERATING:
     if(_mode!=READ){
 
-      _fout->cd();
+      //_fout->cd();
 
       for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX; i++) {
 
@@ -361,8 +365,9 @@ bool storage_manager::close(){
 
 	  Message::send(MSG::INFO,__FUNCTION__,Form("Writing TTree: %s",_out_ch[i]->GetName()));
 
+	_fout = _out_ch[i]->GetCurrentFile();
 	_out_ch[i]->Write();
-
+	
 	Message::send(MSG::NORMAL,__FUNCTION__,
 		      Form("TTree \"%s\" written with %lld events...",
 			   _out_ch[i]->GetName(),

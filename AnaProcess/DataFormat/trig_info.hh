@@ -64,8 +64,8 @@ public:
   PMT::word_t trig_timeslice(){return _trig_timeslice;};
 
   /// Getter for trigger ID
-  uint16_t trig_id(){return _trig_id;};
-
+  PMT::word_t trig_id(){return _trig_id;};
+  
   /// Getter for PMT trigger data
   uint16_t pmt_data(){return _pmt_data;};
 

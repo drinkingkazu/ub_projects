@@ -74,6 +74,7 @@ bool bin_io_handler::open(){
   sprintf(_buf,"Opened a file: %s",_filename.c_str());
   Message::send(MSG::NORMAL,__PRETTY_FUNCTION__,_buf);
 
+  _eof = false;
   _status=OPENED;
   return true;
 }

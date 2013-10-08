@@ -299,7 +299,7 @@ bool algo_slow_readout_decoder::decode_event_header(const PMT::word_t *event_hea
   // Correct for a roll over
   _event_data->set_trigger_frame_id( round_diff(_event_data->event_frame_id(), 
 						_event_data->trigger_frame_id(),
-						0xf));
+						0x7));
   _event_data->set_trigger_timeslice( (((event_header[5]>>16) & 0xf)<<8) + (event_header[5] & 0xff) );
 #endif
 
