@@ -275,7 +275,8 @@ bool algo_pmt_xmit::decode_ch_word(const PMT::word_t word,
       status=false;
     }else{
       // Initialize channel info, then fill with channel number & disc. id.
-      store_ch_data();
+      _channel_header_count=0;
+      _ch_data.clear_data();
       _channel_header_count=1;
       // Channel Number
       _ch_data.set_channel_number( word & 0x3f ); 

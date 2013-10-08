@@ -62,9 +62,9 @@ public:
       return PMT::CHANNEL_LAST_WORD;
     else if( (word & 0xf000) == 0xc000 )
       return PMT::FEM_LAST_WORD;
-    else if( (word & 0xf000) == 0xe000 )
-      return PMT::EVENT_LAST_WORD;
     else if( (word & 0xf0000000) == 0xe0000000 )
+      return PMT::EVENT_LAST_WORD;
+    else if( (word & 0xf000) == 0xe000 )
       return PMT::EVENT_LAST_WORD;
     else
       return PMT::UNDEFINED_WORD;
