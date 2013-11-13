@@ -97,7 +97,7 @@ bool reco_wf::analyze(storage_manager* storage){
     if(skip_index.find(i)!=skip_index.end()) continue;
 
     const pmt_waveform* pmt_data = &(data->at(i));
-    uint32_t ch=pmt_data->channel_number();    
+    UInt_t ch=pmt_data->channel_number();    
 
     if(_wf_map.find(ch)==_wf_map.end())
       _wf_map[ch]=PMT::ch_waveform_t(wf_length-_ref_slice+1,0);
@@ -122,7 +122,7 @@ bool reco_wf::analyze(storage_manager* storage){
   return true;
 }
 
-const PMT::ch_waveform_t* reco_wf::get_ch_waveform(uint32_t ch) {
+const PMT::ch_waveform_t* reco_wf::get_ch_waveform(UInt_t ch) {
   
   if(_wf_map.find(ch)==_wf_map.end())
     return 0;
@@ -146,7 +146,7 @@ TH2D* reco_wf::get_histo(){
 
   // Create a histogram
   int ctr=0;
-  for(std::set<uint32_t>::const_iterator iter(_channels.begin());
+  for(std::set<UInt_t>::const_iterator iter(_channels.begin());
       iter!=_channels.end();
       ++iter){
 

@@ -122,7 +122,7 @@ public:
   const std::pair<double,double> range_sum_peak() const           {return _cut_sum_peak;};
 
   /// Getter for the range of event-wise number of pulses to select pulses of interest.
-  const std::pair<uint32_t,uint32_t> range_npulse() const         {return _cut_npulse;};
+  const std::pair<UInt_t,UInt_t> range_npulse() const         {return _cut_npulse;};
 
 protected:
 
@@ -138,7 +138,7 @@ protected:
   std::pair<double,double> _cut_sum_charge, _cut_sum_peak;
 
   /// pairs to define a range of event parameters for displaying pulses.
-  std::pair<uint32_t,uint32_t> _cut_npulse;  
+  std::pair<UInt_t,UInt_t> _cut_npulse;  
 
   /// a pair to define a range of event id for displaying pulses.
   std::pair<PMT::word_t,PMT::word_t> _cut_event_id;

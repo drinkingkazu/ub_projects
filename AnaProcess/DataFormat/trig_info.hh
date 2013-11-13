@@ -34,10 +34,10 @@ public:
   virtual ~trig_info(){};
 
   /// Setter for 16 MHz reminder
-  void set_reminder_16MHz(uint16_t remin){_reminder_16MHz=remin;};
+  void set_reminder_16MHz(UShort_t remin){_reminder_16MHz=remin;};
 
   /// Setter for 64 MHz reminder
-  void set_reminder_64MHz(uint64_t remin){_reminder_64MHz=remin;};
+  void set_reminder_64MHz(UShort_t remin){_reminder_64MHz=remin;};
 
   /// Setter for frame id
   void set_trig_frame_id(PMT::word_t id){_trig_frame_id=id;};
@@ -46,16 +46,16 @@ public:
   void set_trig_timeslice(PMT::word_t t){_trig_timeslice=t;};
 
   /// Setter for trigger ID
-  void set_trig_id(uint16_t id){_trig_id=id;};
+  void set_trig_id(UShort_t id){_trig_id=id;};
 
   /// Setter for PMT trigger data
-  void set_pmt_data(uint16_t data){_pmt_data=data;};
+  void set_pmt_data(UShort_t data){_pmt_data=data;};
 
   /// Getter for 16 MHz reminder
-  uint16_t reminder_16MHz() {return _reminder_16MHz;};
+  UShort_t reminder_16MHz() {return _reminder_16MHz;};
 
   /// Getter for 64 MHz reminder
-  uint16_t reminder_64MHz() {return _reminder_64MHz;};
+  UShort_t reminder_64MHz() {return _reminder_64MHz;};
 
   /// Getter for frame id
   PMT::word_t trig_frame_id(){return _trig_frame_id;};
@@ -67,7 +67,7 @@ public:
   PMT::word_t trig_id(){return _trig_id;};
   
   /// Getter for PMT trigger data
-  uint16_t pmt_data(){return _pmt_data;};
+  UShort_t pmt_data(){return _pmt_data;};
 
   /// Setter for trigger bits
   void set_trigger_bits(bool trig_pc,  bool trig_ext,
@@ -108,10 +108,10 @@ protected:
 
   void init_vars();
 
-  uint16_t    _trig_timeslice;
+  UShort_t    _trig_timeslice;
   PMT::word_t _trig_frame_id;
   PMT::word_t _trig_id;
-  uint16_t    _pmt_data;
+  UShort_t    _pmt_data;
   bool        _trig_pc;
   bool        _trig_ext;
   bool        _active;
@@ -119,8 +119,8 @@ protected:
   bool        _gate2_in;
   bool        _veto_in;
   bool        _calib;
-  uint16_t    _reminder_64MHz;
-  uint16_t    _reminder_16MHz;
+  UShort_t    _reminder_64MHz;
+  UShort_t    _reminder_16MHz;
 
   ////////////////////////
   ClassDef(trig_info,3)

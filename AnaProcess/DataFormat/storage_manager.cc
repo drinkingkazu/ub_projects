@@ -203,9 +203,7 @@ bool storage_manager::prepare_tree(){
     status=false;
   }
 
-  for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX; ++i){
-
-    if(!_status) break;
+  for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX && _status; ++i){
 
     if(_mode!=WRITE && _read_data_array[i]) {
 
@@ -231,7 +229,7 @@ bool storage_manager::prepare_tree(){
 	_in_ch[i]=0;
       }
     }
-
+    
     if(_mode!=READ && _write_data_array[i] ) {
 
       _fout->cd();
@@ -248,12 +246,11 @@ bool storage_manager::prepare_tree(){
 			 &(_ptr_data_array[i]));
       
     }
-
-    _nevents_written=0;
-    _nevents_read=0;
-    _index=0;
-
   }
+
+  _nevents_written=0;
+  _nevents_read=0;
+  _index=0;
 
   if( _mode!=WRITE && _nevents==0) {
     Message::send(MSG::ERROR,__FUNCTION__,"Did not find any relevant data tree!");
@@ -333,6 +330,7 @@ bool storage_manager::close(){
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called ...");
 
   bool status=true;
+  std::set<TFile*> outfile_set;
   switch(_status){
   case INIT:
   case CLOSED:
@@ -365,9 +363,14 @@ bool storage_manager::close(){
 
 	  Message::send(MSG::INFO,__FUNCTION__,Form("Writing TTree: %s",_out_ch[i]->GetName()));
 
-	_fout = _out_ch[i]->GetCurrentFile();
-	_out_ch[i]->Write();
-	
+	if(outfile_set.find(_out_ch[i]->GetCurrentFile()) == outfile_set.end()){
+
+	  _out_ch[i]->GetCurrentFile()->Write();
+
+	  outfile_set.insert(_out_ch[i]->GetCurrentFile());
+
+	}
+
 	Message::send(MSG::NORMAL,__FUNCTION__,
 		      Form("TTree \"%s\" written with %lld events...",
 			   _out_ch[i]->GetName(),
@@ -381,8 +384,12 @@ bool storage_manager::close(){
 
     sprintf(_buf,"Closing the output: %s",_out_fname.c_str());
     Message::send(MSG::NORMAL,__FUNCTION__,_buf);
-    if(_fout) _fout->Close();
-    _fout=0;
+
+    for(std::set<TFile*>::iterator iter(outfile_set.begin());
+	iter!=outfile_set.end();
+	++iter)
+
+      (*iter)->Close();
 
     for(size_t i=0; i<DATA_STRUCT::DATA_TYPE_MAX; ++i) {
       

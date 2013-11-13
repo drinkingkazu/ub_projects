@@ -21,6 +21,8 @@ public:
   
   void set_slow_readout(bool slow=true){_slow_readout=slow;};
 
+  void set_read_by_block(bool doit){_read_by_block=doit;};
+
   bool run();
 
   void print_word(std::vector<PMT::word_t> *in_array);
@@ -39,7 +41,7 @@ private:
   PMT::word_t _target_id;
   bool _continue_mode;
   bool _slow_readout;
-
+  bool _read_by_block;
   size_t _index_event_id;
   algo_base* _algo;
 

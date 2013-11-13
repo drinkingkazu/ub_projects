@@ -140,8 +140,8 @@ bool beamgate_debugger::analyze(storage_manager* data){
   double ped_rms=0;
 
   PMT::ch_adc_t max_adc=0;
-  uint16_t max_time=0;
-  uint16_t index=0;
+  UShort_t max_time=0;
+  UShort_t index=0;
 
   pmt_wf_collection *ewf = (pmt_wf_collection*)(data->get_data(DATA_STRUCT::PMT_WF_COLLECTION));
 

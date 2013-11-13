@@ -45,10 +45,10 @@ public:
   virtual bool finalize();
 
   /// Getter for a reconstructed PMT-waveform
-  const PMT::ch_waveform_t* get_ch_waveform(uint32_t ch);
+  const PMT::ch_waveform_t* get_ch_waveform(UInt_t ch);
 
   /// Getter for a set of read-out channels from data
-  const std::set<uint32_t>* get_ch_set()const {return &_channels;};
+  const std::set<UInt_t>* get_ch_set()const {return &_channels;};
 
   /// Setter for readout frame size
   void set_frame_width(PMT::word_t w){_frame_width=w;};
@@ -71,8 +71,8 @@ private:
   void clear_event();
 
   /// A collection of reco-ed waveforms
-  std::map<uint32_t,PMT::ch_waveform_t> _wf_map; 
-  std::set<uint32_t> _channels; ///< A set of channel numbers 
+  std::map<UInt_t,PMT::ch_waveform_t> _wf_map; 
+  std::set<UInt_t> _channels; ///< A set of channel numbers 
   PMT::word_t _frame_width;     ///< The readout frame width
 
   PMT::word_t _event_id;        ///< Event ID number

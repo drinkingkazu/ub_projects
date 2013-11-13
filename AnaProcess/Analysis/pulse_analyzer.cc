@@ -9,8 +9,14 @@ pulse_analyzer::pulse_analyzer() {
 }
 
 bool pulse_analyzer::initialize() {
+  
+  TString tree_name(Form("%s_tree",DATA_STRUCT::DATA_TREE_NAME[_pulse_type].c_str()));
+  tree_name.ReplaceAll("pulse_","");
+  tree_name.ReplaceAll("_window","");
 
-  _ch_tree = new TTree("ch_tree","");
+  _fout->cd();
+
+  _ch_tree = new TTree(tree_name.Data(),"");
   _ch_tree->Branch("event_id",&_event_id,"event_id/I");
   _ch_tree->Branch("frame_id",&_ch_frame_id,"frame_id/I");
   _ch_tree->Branch("sample_id",&_ch_sample_id,"sample_id/I");

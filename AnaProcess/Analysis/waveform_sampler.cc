@@ -142,9 +142,14 @@ void waveform_sampler::sample_waveform(const pmt_waveform *wf){
 
   int nbins = (_wf_length < (int)(wf->size())) ? _wf_length : (int)(wf->size());
 
+  _fout->cd();
   if(_hWF_map.find(ch)==_hWF_map.end()) {
     
-    _hWF_map[ch] = new TH2D(Form("hWF_Ch%02d",ch),
+    TString pulse_name(Form("%s",DATA_STRUCT::DATA_TREE_NAME[_selector->pulse_type()].c_str()));
+    pulse_name.ReplaceAll("pulse_","");
+    pulse_name.ReplaceAll("_window","");    
+
+    _hWF_map[ch] = new TH2D(Form("hWF_%s_Ch%02d",pulse_name.Data(),ch),
 			    Form("Raw Waveform Sample for Ch %d; Timeslice; ADC",ch),
 			    nbins, -0.5, ((double)nbins)-0.5, 4096, -0.5,4095.5);
     

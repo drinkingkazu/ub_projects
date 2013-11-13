@@ -146,7 +146,7 @@ bool bin_io_handler::write_multi_word(const PMT::word_t* words, const size_t ent
 
     _nchars=0;
 
-    for(uint32_t index=0; index<entries; ++index) {
+    for(UInt_t index=0; index<entries; ++index) {
       
       _nchars+=fprintf(_handler,"%x ",words[index]);
       

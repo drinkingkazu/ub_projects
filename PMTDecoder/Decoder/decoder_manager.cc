@@ -99,7 +99,7 @@ bool decoder_manager::decode() {
 
   bool status=true;
   PMT::word_t word = (_read_by_block) ? _fin.read_multi_word(_read_block_size) : _fin.read_word();
-  uint32_t ctr=0;
+  UInt_t ctr=0;
   time_t watch;
   while(status) {
 

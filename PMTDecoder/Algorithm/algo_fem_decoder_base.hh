@@ -148,7 +148,7 @@ protected:
   virtual bool process_event_last_word(const PMT::word_t word,
 				       PMT::word_t &last_word) = 0;
 
-  virtual bool add_huffman_adc(std::vector<uint16_t> &wf, size_t zero_count);
+  virtual bool add_huffman_adc(std::vector<UShort_t> &wf, size_t zero_count);
 
   //
   // Constants

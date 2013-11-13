@@ -194,7 +194,7 @@ public:
   void set_sum_peak(double v)   {_sum_peak=v;};
 
   /// Setter for number of pulses.
-  void set_npulse(uint32_t v)   {_npulse=v;};
+  void set_npulse(UInt_t v)   {_npulse=v;};
 
   /// Method to clear currently held data contents in the buffer
   virtual void clear_data();
@@ -210,7 +210,7 @@ private:
 
   double   _sum_charge;  ///< summed charge from each pulse
   double   _sum_peak;    ///< summed peak from each pulse 
-  uint32_t _npulse;      ///< summed number of pulses stored
+  UInt_t _npulse;      ///< summed number of pulses stored
   
   ////////////////////////
   ClassDef(pulse_collection,1)

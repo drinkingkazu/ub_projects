@@ -63,7 +63,7 @@ bool pmtbaseline_ana::analyze(storage_manager* storage) {
   PMT::word_t event_id = wfs->event_id();
   double sum_charge    = pulses->sum_charge();
   double sum_peak      = pulses->sum_peak();
-  uint32_t npulse      = pulses->npulse();
+  UInt_t npulse      = pulses->npulse();
 
   // Check if this event is in the range of users' interest
   if(event_id < _cut_event_id.first || _cut_event_id.second < event_id)

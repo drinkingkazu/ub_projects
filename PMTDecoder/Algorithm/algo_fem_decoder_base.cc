@@ -393,7 +393,7 @@ PMT::word_t algo_fem_decoder_base::round_diff(PMT::word_t ref_id,
 }
 
 //#################################################
-bool algo_fem_decoder_base::add_huffman_adc(std::vector<uint16_t> &wf, size_t zero_count) 
+bool algo_fem_decoder_base::add_huffman_adc(std::vector<UShort_t> &wf, size_t zero_count) 
 {
 //#################################################
 

@@ -15,7 +15,6 @@
 #ifndef DECODER_MANAGER_HH
 #define DECODER_MANAGER_HH
 
-#include <stdint.h>
 #include <algorithm>
 #include <iterator>
 #include <vector>

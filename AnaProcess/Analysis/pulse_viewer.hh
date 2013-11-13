@@ -172,7 +172,7 @@ public:
   const std::pair<double,double> range_sum_peak() const           {return _cut_sum_peak;};
 
   /// Getter for the range of event-wise number of pulses to select pulses of interest.
-  const std::pair<uint32_t,uint32_t> range_npulse() const         {return _cut_npulse;};
+  const std::pair<UInt_t,UInt_t> range_npulse() const         {return _cut_npulse;};
 
 protected:
 
@@ -200,7 +200,7 @@ protected:
   PMT::word_t _event_id;   ///< event id holder
   double      _sum_charge; ///< event-wise summed charge holder
   double      _sum_peak;   ///< event-wise summed peak height holder
-  uint32_t    _npulse;     ///< event-wise number of reco-ed pulse holder
+  UInt_t    _npulse;     ///< event-wise number of reco-ed pulse holder
   std::set<PMT::ch_number_t>                           _channels;             ///< set of channel numbers for reco-ed pulses
   std::set<PMT::ch_number_t>::iterator                 _ch_iter;              ///< internal iterator for _channels member
   /** Map of pulse count: the first element in the pair holds the total reco-ed pulse count while the second
@@ -246,7 +246,7 @@ protected:
   std::pair<double,double> _cut_sum_charge, _cut_sum_peak;
 
   /// pairs to define a range of event parameters for displaying pulses.
-  std::pair<uint32_t,uint32_t> _cut_npulse;  
+  std::pair<UInt_t,UInt_t> _cut_npulse;  
 
   /// a pair to define a range of event id for displaying pulses.
   std::pair<PMT::word_t,PMT::word_t> _cut_event_id;

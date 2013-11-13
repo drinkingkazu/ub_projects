@@ -28,9 +28,9 @@ void pmtbaseline::clear_event(){
 
 }
 
-double pmtbaseline::mean(std::vector<uint16_t> adcs,uint32_t bgpoints){
+double pmtbaseline::mean(std::vector<UShort_t> adcs,UInt_t bgpoints){
   double mean = 0;
-  uint16_t holder = 0;
+  UShort_t holder = 0;
   size_t index=0;
 
   for(index=0;index<bgpoints && index<adcs.size() ;index++)
@@ -43,7 +43,7 @@ double pmtbaseline::mean(std::vector<uint16_t> adcs,uint32_t bgpoints){
   mean=((double)holder)/((double)index);
   return mean;
 }
-double pmtbaseline::rms(std::vector<uint16_t> adcs,uint32_t bgpoints, double mean){
+double pmtbaseline::rms(std::vector<UShort_t> adcs,UInt_t bgpoints, double mean){
   
   double rms    = 0;
   double holder = 0;
@@ -76,9 +76,9 @@ double pmtbaseline::time_reconstructor(double fpedmean, PMT::ch_waveform_t::cons
 }
 
 
-double pmtbaseline::tailmean(std::vector<uint16_t> adcs,uint32_t rdpoints){
+double pmtbaseline::tailmean(std::vector<UShort_t> adcs,UInt_t rdpoints){
   double mean = 0;
-  uint16_t holder = 0;
+  UShort_t holder = 0;
   size_t index=0;
   for(index=adcs.size()-1;index>=(adcs.size()-rdpoints); index--)
     holder += adcs.at(index);
@@ -92,7 +92,7 @@ double pmtbaseline::tailmean(std::vector<uint16_t> adcs,uint32_t rdpoints){
     
 }
 
-double pmtbaseline::tailrms(std::vector<uint16_t> adcs,uint32_t rdpoints, double mean){
+double pmtbaseline::tailrms(std::vector<UShort_t> adcs,UInt_t rdpoints, double mean){
   
   double rms    = 0;
   double holder = 0;
@@ -186,7 +186,7 @@ bool pmtbaseline::analyze(storage_manager* storage) {
       pedMeanCutrms->Fill(_fpedmean);
       pedRMSCutrms ->Fill(_fpedrms);
       
-      for(uint16_t k=0;k<(*pmt_data).size();k++){
+      for(UShort_t k=0;k<(*pmt_data).size();k++){
 	bg_waveforms.push_back((double)(*pmt_data).at(k));
 	bgticks.push_back((double)k);
       }

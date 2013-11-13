@@ -87,8 +87,8 @@ private:
   std::string _filename;    ///< Input/Output filename
 
   bool _eof;                  ///< EOF boolean
-  uint16_t _nwords_in_file;   ///< Number of words read or written per file
-  uint32_t _checksum;         ///< checksum of operated 32-bit words
+  UShort_t _nwords_in_file;   ///< Number of words read or written per file
+  UInt_t _checksum;         ///< checksum of operated 32-bit words
   size_t   _file_suffix;      ///< A counter for file suffix in case output is too big.
 
   PMT::word_t _single_word[1];///< A place holder variable to process a single word

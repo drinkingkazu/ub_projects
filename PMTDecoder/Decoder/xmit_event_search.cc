@@ -13,6 +13,7 @@ xmit_event_search::xmit_event_search() :
   _target_id=PMT::INVALID_WORD;
   _fin.set_format(FORMAT::BINARY);
   _fin.set_mode(bin_io_handler::READ);
+  _read_by_block=true;
   _index_event_id=0x0;
   _slow_readout=false;
   _algo = 0;
@@ -45,6 +46,7 @@ bool xmit_event_search::run() {
   
   while(1){
 
+    word = (_read_by_block) ? _fin.read_multi_word() : _fin.read_word();
     word = _fin.read_word();
 
     if(_fin.eof()) break;

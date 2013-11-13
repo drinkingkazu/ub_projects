@@ -143,7 +143,7 @@ protected:
   std::pair<double,double> _cut_sum_charge, _cut_sum_peak;
 
   /// pairs to define a range of event parameters for displaying pulses.
-  std::pair<uint32_t,uint32_t> _cut_npulse;  
+  std::pair<UInt_t,UInt_t> _cut_npulse;  
 
   /// a pair to define a range of frame number and sample number for displaying pulses.
   std::pair<PMT::word_t,PMT::word_t>  _cut_frame_id, _cut_timeslice;

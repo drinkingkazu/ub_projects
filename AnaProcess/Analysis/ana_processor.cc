@@ -28,13 +28,13 @@ void ana_processor::reset(){
   if(_verbosity[MSG::DEBUG])
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called...");
 
+  if(_storage)
+    _storage->reset();
+
   if(_fout){
     _fout->Close();
     _fout=0;
   }
-
-  if(_storage)
-    _storage->reset();
 
   _analyzers.clear();
   _ana_status.clear();
@@ -57,6 +57,18 @@ bool ana_processor::initialize(){
     return false;
   }
 
+  _fout=TFile::Open(_ofile_name.c_str(),"RECREATE");
+
+  if(!_fout){
+
+    sprintf(_buf,"Failed to open an output file: %s",_ofile_name.c_str());
+
+    Message::send(MSG::ERROR,__FUNCTION__,_buf);
+
+    return false;
+
+  }
+
   //_storage->set_io_mode(storage_manager::READ);
   if(!_storage->open()) {
 
@@ -73,20 +85,8 @@ bool ana_processor::initialize(){
     return false;
   }
 
-  _fout=TFile::Open(_ofile_name.c_str(),"RECREATE");
-
-  if(!_fout){
-
-    sprintf(_buf,"Failed to open an output file: %s",_ofile_name.c_str());
-
-    Message::send(MSG::ERROR,__FUNCTION__,_buf);
-
-    return false;
-
-  }
-
   bool status = true;
-
+  _fout->cd();
   for(std::vector<ana_base*>::iterator iter(_analyzers.begin());
       iter!=_analyzers.end();
       ++iter) {
@@ -108,7 +108,7 @@ bool ana_processor::initialize(){
   return status;
 }
 
-bool ana_processor::process_event(uint32_t index){
+bool ana_processor::process_event(UInt_t index){
 
   if(_process==INIT) {
     
@@ -142,7 +142,7 @@ bool ana_processor::process_event(uint32_t index){
     return finalize();
 }
 
-bool ana_processor::run(uint32_t start_index, uint32_t nevents){
+bool ana_processor::run(UInt_t start_index, UInt_t nevents){
 
   if(_verbosity[MSG::DEBUG])
     Message::send(MSG::DEBUG,__PRETTY_FUNCTION__,"called...");

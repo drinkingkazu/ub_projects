@@ -61,7 +61,7 @@ protected:
 
   trig_info *_data;
 
-  uint32_t _nevents;
+  UInt_t _nevents;
   size_t   _trigger_word_count;
   PMT::word_t _trigger_words[TRIGGER_WORD_COUNT];
 

@@ -53,13 +53,13 @@ public:
   /**
       This is taken from the beginning of the waveform.
    */
-  void set_pre_ped_nsample(uint16_t n){_pre_nsample=n;};
+  void set_pre_ped_nsample(UShort_t n){_pre_nsample=n;};
 
   /// Setter for number of samples to be used for pedestal estimation.
   /**
      This is taken from the end of the waveform.
    */
-  void set_post_ped_nsample(uint16_t n){_post_nsample=n;};
+  void set_post_ped_nsample(UShort_t n){_post_nsample=n;};
 
 private:
 
@@ -82,8 +82,8 @@ private:
   PMT::ch_number_t _ch_cnt;
   PMT::word_t      _beam_window_width;
 
-  uint16_t _pre_nsample;
-  uint16_t _post_nsample;
+  UShort_t _pre_nsample;
+  UShort_t _post_nsample;
 
   std::vector<double> _pre_sample, _post_sample;
   

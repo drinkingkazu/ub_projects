@@ -49,7 +49,7 @@ public:
      Setter for # of samples to be used for pedestal calculation.
      By default this sample is taken from the beginning of the waveform
   */
-  void set_nsample_ped(uint32_t n){_bgpoints=n;};
+  void set_nsample_ped(UInt_t n){_bgpoints=n;};
 
   /** 
       Setter for # of samples to be used for pedestal calculation
@@ -57,7 +57,7 @@ public:
       in case pedestal sample from the beginning of the waveform is not good AND
       the user call use_tail function to allow this to happen.
   */
-  void set_nsample_ped_tail(uint32_t n){_rdpoints=n;};
+  void set_nsample_ped_tail(UInt_t n){_rdpoints=n;};
 
   /// Sets number of standard deviations from baseline mean to claim a pulse
   void set_nsigma_threshold(double thres){_nsigma=thres;};
@@ -74,13 +74,13 @@ private:
   
   //Functions
   /// Calculate mean using input number of samples
-  double mean(std::vector<uint16_t>,uint32_t);
+  double mean(std::vector<UShort_t>,UInt_t);
   /// Calculate standard deviation using input number of samples & mean
-  double rms (std::vector<uint16_t>,uint32_t,double);
+  double rms (std::vector<UShort_t>,UInt_t,double);
   /// Same as mean(), but uses samples from the tail
-  double tailmean(std::vector<uint16_t>,uint32_t);
+  double tailmean(std::vector<UShort_t>,UInt_t);
   /// Same as rms(), but uses samples from the tail.
-  double tailrms (std::vector<uint16_t>,uint32_t,double);
+  double tailrms (std::vector<UShort_t>,UInt_t,double);
   /// Sophisiticated time reconstruction algorithm by applying linear extrapolation of rising slope.
   double time_reconstructor(double, PMT::ch_waveform_t::const_iterator);
 
@@ -119,8 +119,8 @@ private:
   bool _use_tail;
   bool _study_tail;
   
-  uint32_t _bgpoints;   //Beam gate points
-  uint32_t _rdpoints;   //Random tail points
+  UInt_t _bgpoints;   //Beam gate points
+  UInt_t _rdpoints;   //Random tail points
   
   double _ftailmean;    //Random ped mean
   double _ftailrms;     //Random ped rms
