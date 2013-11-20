@@ -10,7 +10,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class ana_processor+;
-#pragma link C++ class std::set<uint32_t>+;
+#pragma link C++ class std::set<UInt_t>+;
 #pragma link C++ class reco_wf+;
 #pragma link C++ class beamgate_debugger+;
 #pragma link C++ class pmtbaseline+;
