@@ -24,7 +24,7 @@ void algo_threshold::reset(){
 }
 
 //***************************************************************
-bool algo_threshold::reco(const std::vector<uint16_t> *wf) {
+bool algo_threshold::reco(const std::vector<UShort_t> *wf) {
 //***************************************************************
 
   bool fire = false;

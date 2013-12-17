@@ -28,7 +28,7 @@ void algo_fixed_window::reset(){
 }
 
 //***************************************************************
-bool algo_fixed_window::reco(const std::vector<uint16_t> *wf) {
+bool algo_fixed_window::reco(const std::vector<UShort_t> *wf) {
 //***************************************************************
 
   this->reset();

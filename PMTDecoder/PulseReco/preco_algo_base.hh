@@ -42,7 +42,7 @@ struct pulse_param{
    The base class of pulse reconstruction algorithms. All algorithms should inherit from this calss
    to be executed by a manager class, pulse_reco. Note that this class does not depend on the rest
    of the framework except for the use of constants. In order to reconstruct a pulse, all it requires
-   is a std::vector<uint16_t> type object (i.e. raw waveform), waveform pedestal, and its standard
+   is a std::vector<UShort_t> type object (i.e. raw waveform), waveform pedestal, and its standard
    deviation. All of these are to be provided by an executer. Reconstructed pulse parameters are
    stored in the pulse_param struct object.
 
@@ -75,7 +75,7 @@ public:
   /** A core method: this executes the algorithm and stores reconstructed parameters
       in the pulse_param struct object.
    */
-  virtual bool reco(const std::vector<uint16_t> *wf)=0;
+  virtual bool reco(const std::vector<UShort_t> *wf)=0;
 
   /** A getter for the pulse_param struct object. 
       Reconstruction algorithm may have more than one pulse reconstructed from an input waveform.
@@ -118,25 +118,25 @@ protected:
      A method to integrate an waveform from index "begin" to the "end". The result is filled in "result" reference.
      If the "end" is default (=0), then "end" is set to the last index of the waveform.
   */
-  bool integral   (const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
+  bool integral   (const std::vector<UShort_t> *wf, double &result, size_t begin=0, size_t end=0) const;
 
   /**
      A method to compute derivative, which is a simple subtraction of previous ADC sample from each sample.
-     The result is stored in the input "diff" reference vector which is int32_t type as a derivative could be negative.
+     The result is stored in the input "diff" reference vector which is Int_t type as a derivative could be negative.
   */
-  bool derivative (const std::vector<uint16_t> *wf, std::vector<int32_t> &diff, size_t begin=0, size_t end=0) const;
+  bool derivative (const std::vector<UShort_t> *wf, std::vector<Int_t> &diff, size_t begin=0, size_t end=0) const;
 
   /**
      A method to return the maximum value of ADC sample within the index from "begin" to "end".
      If the "end" is default (=0), then "end" is set to the last index of the waveform.
   */
-  size_t max(const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
+  size_t max(const std::vector<UShort_t> *wf, double &result, size_t begin=0, size_t end=0) const;
 
   /**
      A method to return the minimum value of ADC sample within the index from "begin" to "end".
      If the "end" is default (=0), then "end" is set to the last index of the waveform.
   */
-  size_t min(const std::vector<uint16_t> *wf, double &result, size_t begin=0, size_t end=0) const;
+  size_t min(const std::vector<UShort_t> *wf, double &result, size_t begin=0, size_t end=0) const;
 
 };
 

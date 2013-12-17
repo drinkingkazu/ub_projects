@@ -14,7 +14,7 @@ ped_estimator::ped_estimator(){
 }
 
 //***************************************************************
-void ped_estimator::compute_pedestal(const std::vector<uint16_t>* wf, size_t start, size_t nsample){
+void ped_estimator::compute_pedestal(const std::vector<UShort_t>* wf, size_t start, size_t nsample){
 //***************************************************************
   
   _mean  = -1;

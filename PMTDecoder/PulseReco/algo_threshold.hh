@@ -46,7 +46,7 @@ public:
   virtual DATA_STRUCT::DATA_TYPE storage_type(){return DATA_STRUCT::THRES_WIN_PULSE_COLLECTION;};
 
   /// Implementation of preco_algo_base::reco method
-  virtual bool reco(const std::vector<uint16_t> *wf);
+  virtual bool reco(const std::vector<UShort_t> *wf);
 
   /// Implementation of preco_algo_base::reset method
   virtual void reset();

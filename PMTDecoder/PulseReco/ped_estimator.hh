@@ -35,7 +35,7 @@ public:
   virtual ~ped_estimator(){};
 
   /// Method to compute a pedestal of the input waveform using "nsample" ADC samples from "start" index.
-  void compute_pedestal(const std::vector<uint16_t>* wf, size_t start, size_t nsample);
+  void compute_pedestal(const std::vector<UShort_t>* wf, size_t start, size_t nsample);
 
   /// Getter of the pedestal mean value
   double mean(){return _mean;};

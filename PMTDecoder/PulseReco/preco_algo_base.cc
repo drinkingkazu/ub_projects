@@ -4,7 +4,7 @@
 #include "preco_algo_base.hh"
 
 //***************************************************************
-bool check_index(const std::vector<uint16_t> *wf, const size_t &begin, size_t &end)
+bool check_index(const std::vector<UShort_t> *wf, const size_t &begin, size_t &end)
 //***************************************************************
 {
   if(begin >= wf->size() || end >= wf->size() || begin > end){
@@ -56,7 +56,7 @@ const pulse_param* preco_algo_base::get_pulse(size_t index) const
 }
 
 //***************************************************************
-bool preco_algo_base::integral(const std::vector<uint16_t> *wf,
+bool preco_algo_base::integral(const std::vector<UShort_t> *wf,
 			       double &result,
 			       size_t begin,
 			       size_t end) const
@@ -65,9 +65,9 @@ bool preco_algo_base::integral(const std::vector<uint16_t> *wf,
   
   if(!check_index(wf,begin,end)) return false;
   
-  std::vector<uint16_t>::const_iterator begin_iter(wf->begin());
+  std::vector<UShort_t>::const_iterator begin_iter(wf->begin());
   
-  std::vector<uint16_t>::const_iterator end_iter(wf->begin());
+  std::vector<UShort_t>::const_iterator end_iter(wf->begin());
 
   begin_iter = begin_iter + begin;
 
@@ -79,7 +79,7 @@ bool preco_algo_base::integral(const std::vector<uint16_t> *wf,
 }
 
 //***************************************************************
-bool preco_algo_base::derivative(const std::vector<uint16_t> *wf,
+bool preco_algo_base::derivative(const std::vector<UShort_t> *wf,
 				 std::vector<int32_t> &diff,
 				 size_t begin,
 				 size_t end) const 
@@ -103,7 +103,7 @@ bool preco_algo_base::derivative(const std::vector<uint16_t> *wf,
 }
 
 //***************************************************************
-size_t preco_algo_base::max(const std::vector<uint16_t> *wf,
+size_t preco_algo_base::max(const std::vector<UShort_t> *wf,
 			    double &result,
 			    size_t begin,
 			    size_t end) const
@@ -127,7 +127,7 @@ size_t preco_algo_base::max(const std::vector<uint16_t> *wf,
 }
 
 //***************************************************************
-size_t preco_algo_base::min(const std::vector<uint16_t> *wf,
+size_t preco_algo_base::min(const std::vector<UShort_t> *wf,
 			    double &result,
 			    size_t begin,
 			    size_t end) const
