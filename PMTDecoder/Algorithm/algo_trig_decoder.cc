@@ -12,6 +12,7 @@ algo_trig_decoder::algo_trig_decoder() : algo_base() {
 
 bool algo_trig_decoder::process_word(PMT::word_t word) {
 
+  bool status=true;
   /*
   if(!_nwords){
     // Check if the storage_manager is assigned to store trigger info
@@ -34,18 +35,41 @@ bool algo_trig_decoder::process_word(PMT::word_t word) {
 
   if(_trigger_word_count==TRIGGER_WORD_COUNT) {
 
-    decode_trigger_words(_trigger_words);
-    
-    _storage->next_event();
-    
-    clear_event_info();
+    // Check that the last word is end-of-packet.
+    // If not, spit out warning and shift data word to continue.
+    if(_trigger_words[_trigger_word_count-1] != TRIGGER_LAST_WORD) {
+      
+      Message::send(MSG::ERROR,__FUNCTION__,
+		    Form(" Invalid end-of-trigger-data word: %x ", _trigger_words[_trigger_word_count-1]));
 
+      status = false;
+
+      if(_debug_mode) {
+
+	Message::send(MSG::WARNING,__FUNCTION__," Continue by shifting a data word...");
+	
+	for(size_t i=0; i<(TRIGGER_WORD_COUNT-1); ++i)
+	  
+	  _trigger_words[i]=_trigger_words[i+1];
+	
+	_trigger_word_count-=1;
+
+      }
+
+    }else{
+
+      decode_trigger_words(_trigger_words);
+      
+      _storage->next_event();
+      
+      clear_event_info();
+    }
   }
 
   _nwords+=1;
   _checksum+=word;
 
-  return true;
+  return status;
 }
 
 bool algo_trig_decoder::decode_trigger_words(PMT::word_t *trigger_words){
