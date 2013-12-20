@@ -15,6 +15,7 @@
 #ifndef ALGO_TRIG_DECODER
 #define ALGO_TRIG_DECODER
 
+#include <sstream>
 #include "algo_base.hh"
 
 /**
@@ -58,10 +59,11 @@ protected:
   bool decode_trigger_words(PMT::word_t *trigger_words);
 
   static const size_t TRIGGER_WORD_COUNT=4;
-  static const size_t TRIGGER_LAST_WORD=0xffffffff;
+  static const UInt_t TRIGGER_LAST_WORD=0xffffffff;
   trig_info *_data;
 
   UInt_t _nevents;
+  UInt_t _last_event_id;
   size_t _trigger_word_count;
   PMT::word_t _trigger_words[TRIGGER_WORD_COUNT];
 
