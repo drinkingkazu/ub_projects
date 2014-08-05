@@ -11,40 +11,47 @@ This is a README for python scripts in this repository.
     that is an equivalent method of sprintf in C. Also shows alternative
     method of using "sys.stdout" and "sys.stderr" than using "print".
 
-(*) lec002_data_types.py
+(*) lec002_module.py
+    
+    Demonstrates an idea of "module" in python. You should understand
+    what it means by "import X" and "from X import Y".
+
+(*) lec003_scope.py
+
+    Study python's scope. What scope are you in? What is available there?
+
+(*) lec004_exception.py
+
+    Demonstrates how to catch an exception. Also introduces the base of
+    all exception so you can catch anything.
+
+(*) lec005_data_types.py
 
     Introduces basic data types in python including integer, floating point,
     string, list, tuple, and dictionary.
 
-(*) lec003_scope.py 
-
-    Demonstration of python 'scope' principle, which is like C++ 'namespace'.
-
-(*) lec004_loop.py
+(*) lec006_more_list.py
     
-    Shows how one can write 'for' and 'while' loop in python
+    A bit more study about list usage, in particular a construction using
+    functional method.
 
-(*) lec005_string_operation.py
+(*) lec007_string_operation.py
 
     Shows some useful string member functions
 
-(*) lec006_define_function.py
+(*) lec008_define_function.py
 
     Shows how one can define a function in python
 
-(*) lec007_os_module.py
+(*) lec009_os_module.py
 
     Example to demonstrate some useful os related functions.
 
-(*) lec008_import.py
-
-    Example to show how "import" works to include your own module.
-
-(*) lec009_import_pyroot.py
+(*) lec101_import_pyroot.py
     
     A very simple script that only peforms PyROOT import
 
-(*) lec010_play_pyroot.py
+(*) lec102_play_pyroot.py
 
     Example to show how one can make ROOT histogram and play with it.
     Also include a simple TTree event loop and filling TGraph, calling a fit.
